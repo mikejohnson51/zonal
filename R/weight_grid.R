@@ -15,7 +15,7 @@
 #' @importFrom rlang `:=`
 
 
-weighting_grid = function(file, geom, ID, progress = TRUE){
+weighting_grid = function(file, geom, ID, progress = FALSE){
   
   coverage_fraction = NULL
   r    = suppressWarnings({ raster::raster(file) })

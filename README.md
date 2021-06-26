@@ -37,8 +37,43 @@ This is a basic example:
 
 ``` r
 library(zonal)
-## basic example code
+
+file = '/Users/mjohnson/Downloads/pr_1979.nc'
+AOI = AOI::aoi_get(state = "conus", county = "all") %>% 
+  sf::st_transform(5070)
+
+system.time({
+  w        = weighting_grid(file, AOI, "geoid")
+  pr_zone = execute_zonal(file, w)
+})
+#> Loading required namespace: ncdf4
+#>    user  system elapsed 
+#>  27.012  13.645  35.778
+
+# PET zone: Counties, time slices/ID
+dim(pr_zone)
+#> [1] 3108  366
+
+n = colnames(pr_zone)[which(pr_zone[,-1] == max(pr_zone[,-1]), arr.ind = TRUE)[2]]
+n2 = names(pr_zone[,-1])[which.max(colSums(pr_zone[,-1]))]
+
+
+plot(merge(AOI, pr_zone)[n], border = NA)
 ```
+
+<img src="man/figures/README-example-1.png" width="100%" />
+
+``` r
+plot(merge(AOI, pr_zone)[n2], border = NA)
+```
+
+<img src="man/figures/README-example-2.png" width="100%" />
+
+``` r
+plot(as.numeric(pr_zone[which.max(rowSums(pr_zone[,-1])),-1]), type = "l" )
+```
+
+<img src="man/figures/README-example-3.png" width="100%" />
 
 ------------------------------------------------------------------------
 

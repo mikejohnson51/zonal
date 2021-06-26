@@ -22,6 +22,8 @@ execute_zonal    = function(file, w) {
   setkey(w, "grid_id")
   
   if (.getExtension(file) == "nc") {
+    nc  = RNetCDF::open.nc(file)
+    
     atts     = ncmeta::nc_coord_var(file)
     T_name   = na.omit(unique(atts$T))
     X_name   = na.omit(unique(atts$X))
@@ -33,7 +35,7 @@ execute_zonal    = function(file, w) {
                            var.inq.nc(nc, Y_name)$dimids,
                            var.inq.nc(nc, T_name)$dimids))
     
-    nc  = RNetCDF::open.nc(file)
+
     var = RNetCDF::var.get.nc(
       nc,
       var_name,

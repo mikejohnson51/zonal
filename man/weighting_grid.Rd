@@ -6,7 +6,7 @@
 Returns a data.table with columns for ID, grid_id, X, Y and weight. By default this object is
 sorted on the grid_id}
 \usage{
-weighting_grid(file, geom, ID, progress = TRUE)
+weighting_grid(file, geom, ID, progress = FALSE)
 }
 \arguments{
 \item{file}{path to a gridded file (either .tif or .nc)}
