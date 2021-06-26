@@ -1,0 +1,178 @@
+---
+title: "Zonal Statistics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Zonal Statistics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+library(dplyr)
+library(data.table)
+library(RNetCDF)
+library(sf)
+library(ncmeta)
+library(intersectr)
+devtools::load_all()
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+### Option 1: Intersectr: 
+
+```{r, time_it = TRUE}
+intersectr_prep = function(file, geom, ID, variable){
+  nc_coord_vars <- nc_coord_var(file)
+  nc_coord_vars <- filter(nc_coord_vars, variable == !!variable)
+  
+  nc       <- open.nc(file)
+  X_coords <- var.get.nc(nc, nc_coord_vars$X, unpack = TRUE)
+  Y_coords <- var.get.nc(nc, nc_coord_vars$Y, unpack = TRUE)
+  
+  nc_prj <- nc_gm_to_prj(nc_grid_mapping_atts(file))
+    
+  cell_geometry = create_cell_geometry(X_coords = X_coords,
+                         Y_coords = Y_coords,
+                         prj = nc_prj,
+                         geom = geom, 
+                         buffer_dist = 0.1, # Degrees
+                         regularize = TRUE)
+    
+  data_source_cells <- st_sf(dplyr::select(cell_geometry, grid_ids))
+  target_polygons   <- st_sf(dplyr::select(geom, !!ID))
+  st_agr(data_source_cells) <- "constant"
+  st_agr(target_polygons)   <- "constant"
+
+  area_weights = calculate_area_intersection_weights(data_source_cells, target_polygons, allow_lonlat = TRUE)
+  
+  return(list(grid = cell_geometry, w = area_weights, x = nc_coord_vars$X, y = nc_coord_vars$Y, t = nc_coord_vars$T))
+}
+
+```
+
+### Option 2: exactextract: 
+
+```{r, time_it = TRUE}
+exactrextract_process = function(file, geom){
+  r = suppressWarnings({ raster::stack(file) })
+  r = crop(r, st_transform(geom, st_crs(r)), out = TRUE)
+  exactextractr::exact_extract(r, geom, stack_apply = TRUE, fun = "mean", progress = FALSE)
+}
+```
+
+### Option 3: zonal: 
+
+```{r, time_it = TRUE}
+zonal_full = function(file, geom, ID){
+  w = weighting_grid(file, geom, ID, progress = FALSE)
+  execute(file, w)
+}
+```
+
+# HUC01
+
+ - Large Area, Lots of aggregation units
+
+The gridded data and aggregate units we are working with can be seen below:
+
+```{r}
+file = '/Users/mjohnson/Downloads/pet_1979.nc'
+
+geom <- read_sf('/Users/mjohnson/github/hydrofabric/workflow/nhd_workflows/cache/ngen_01a-4.gpkg', "catchments") %>% 
+  st_make_valid()
+```
+
+```{r}
+system.time({
+  intersectr_input = intersectr_prep(file, geom, ID = "comid", variable = 'potential_evapotranspiration')
+})
+
+system.time({
+  zonal_w = weighting_grid(file, geom, ID = "comid", progress = FALSE)
+})
+```
+
+
+```{r}
+bnch <- bench::mark(
+  iterations = 1, check = FALSE,
+  intersectr     =  execute_intersection(nc_file = file,
+                       variable_name = 'potential_evapotranspiration',
+                       intersection_weights = intersectr_input$w,
+                       cell_geometry = intersectr_input$grid, 
+                       x_var = intersectr_input$x,
+                       y_var = intersectr_input$y,
+                       t_var = intersectr_input$t, 
+                       start_datetime = NULL, 
+                       end_datetime = NULL),
+  exactextractr  = exactrextract_process(file, geom),
+  zonal_prestage_weights          = execute(file, zonal_w),
+  zonal_full     = zonal_full(file, geom, "comid")
+)
+```
+
+```{r, echo = FALSE}
+bnch %>%
+  dplyr::select(expression, median, mem_alloc) %>%
+  mutate(expression = names(expression),
+         median_rel = unclass(median/min(median)),
+         mem_rel = unclass(mem_alloc/min(mem_alloc))) %>% 
+  formattable::formattable()
+```
+
+
+# Colorado
+
+ - Large Area, Lots of aggregation units
+
+The gridded data and aggregate units we are working with can be seen below:
+
+```{r}
+file = '/Users/mjohnson/Downloads/pet_1979.nc'
+
+geom <- AOI::aoi_get(state = "FL", county = "all")
+```
+
+```{r}
+system.time({
+  intersectr_input = intersectr_prep(file, geom, ID = "name", variable = 'potential_evapotranspiration')
+})
+
+system.time({
+  zonal_w = weighting_grid(file, geom, ID = "name", progress = FALSE)
+})
+```
+
+
+```{r}
+bnch <- bench::mark(
+  iterations = 1, check = FALSE,
+  intersectr     =  execute_intersection(nc_file = file,
+                       variable_name = 'potential_evapotranspiration',
+                       intersection_weights = intersectr_input$w,
+                       cell_geometry = intersectr_input$grid, 
+                       x_var = intersectr_input$x,
+                       y_var = intersectr_input$y,
+                       t_var = intersectr_input$t, 
+                       start_datetime = NULL, 
+                       end_datetime = NULL),
+  exactextractr  = exactrextract_process(file, geom),
+  zonal_prestage_weights          = execute(file, zonal_w),
+  zonal_full     = zonal_full(file, geom, "comid")
+)
+```
+
+```{r, echo = FALSE}
+bnch %>%
+  dplyr::select(expression, median, mem_alloc) %>%
+  mutate(expression = names(expression),
+         median_rel = unclass(median/min(median)),
+         mem_rel = unclass(mem_alloc/min(mem_alloc))) %>% 
+  formattable::formattable()
+```

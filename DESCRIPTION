@@ -1,0 +1,33 @@
+Package: zonal
+Title: Performant zonal statistics over flexable units
+Version: 0.0.1
+Authors@R: 
+    person(given = "Mike",
+           family = "Johsnon",
+           role = c("aut", "cre"),
+           email = "mikecp11@gmail.com",
+           comment = c(ORCID = "0000-0002-5288-8350"))
+Maintainer: Mike Johnson <mikecp11@gmail.com>
+BugReports: https://github.com/mikejohnson51/zonal/issues
+Description: Given a gridded and vector based input, compute wieghted mean and percent coverage.
+Depends:
+    R(>= 3.5.0)
+Imports:
+    data.table,
+    dplyr,
+    raster,
+    RNetCDF,
+    ncmeta,
+    rlang,
+    stats,
+    sf,
+    exactextractr
+Suggests:
+    rmarkdown,
+    knitr
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+VignetteBuilder: knitr

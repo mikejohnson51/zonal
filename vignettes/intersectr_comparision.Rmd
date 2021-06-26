@@ -1,0 +1,260 @@
+---
+title: "Intersectr vs Zonal Comparisions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Intersectr vs Zonal Comparisions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE, 
+  warning=FALSE, 
+  message=FALSE
+)
+devtools::load_all()
+```
+
+<style>
+div.blue pre   { background-color:lightblue; }
+div.blue pre.r { background-color:lightblue; }
+</style>
+
+# Intro
+
+Here are some basic comparisons between the `intersectr` and the proposed `zonal` workflows. `zonal` was written to support `ngen` catchment characteristic creation. Where it excels in in the ability to (1) execute on larger data sets with more intersection units in less time using less memory, (2) provider a simpler workflow (3) the ability to handle categorical data and (4) the ability to handel tif data.
+
+Both workflows follow the same 3 steps of:
+
+- creating a vector-based representation of gridded domain  
+- determining the percentage of each aggregation unit that falls in each grid cell  
+- computing the weighted average per aggregation unit  
+  
+### Libraries used in one or both approaches
+```{r libs}
+library(dplyr)
+library(data.table)
+library(RNetCDF)
+library(sf)
+
+library(ncmeta)
+
+library(zonal)
+library(intersectr)
+```
+
+### Base data
+
+The gridded data and aggregate units we are working with can be seen below:
+
+```{r data-grid}
+file = '/Users/mjohnson/Downloads/pet_1979.nc'
+(meta = nc_dims(file))
+```
+
+The grid we are working with holds daily PET values for CONUS for the year 1979. It has:
+ - `r prettyNum(filter(meta, name == 'lon')$length, big.mark = ",")` X_cells
+ - `r prettyNum(filter(meta, name == 'lat')$length, big.mark = ",")` Y_cells 
+ - `r prettyNum(filter(meta, name == 'day')$length, big.mark = ",")` time slices 
+
+for a total of `r prettyNum(prod(meta$length), big.mark = ",")` values.
+
+```{r data-geom}
+geom <- read_sf('/Users/mjohnson/github/hydrofabric/workflow/nhd_workflows/cache/ngen_01a-4.gpkg', "catchments") %>% 
+  st_make_valid()
+
+glimpse(geom)
+```
+  
+In total we have `r prettyNum(nrow(geom), big.mark = ",")` aggregation units to summarize over the `r filter(meta, name == 'day')$length` time steps.
+
+## Step 1: Creating Cell Geometries
+
+The cell geometry workflow for `intersectr` is wrapped into a single function and compared to the analogous function `build_grid()`.
+
+<div class = "blue">
+```{r intersectr-cell-geom-wf}
+intersectr_cell_geom = function(file, geom){
+  nc_coord_vars <- nc_coord_var(file)
+  variable_name <- "potential_evapotranspiration"
+  nc_coord_vars <- filter(nc_coord_vars, variable == variable_name)
+  
+  nc       <- open.nc(file)
+  X_coords <- var.get.nc(nc, nc_coord_vars$X, unpack = TRUE)
+  Y_coords <- var.get.nc(nc, nc_coord_vars$Y, unpack = TRUE)
+  
+  nc_prj <- nc_gm_to_prj(nc_grid_mapping_atts(file))
+  
+  create_cell_geometry(X_coords = X_coords,
+                       Y_coords = Y_coords,
+                       prj = nc_prj,
+                       geom = geom, 
+                       buffer_dist = 0.1, # Degrees
+                       regularize = TRUE)
+}
+```
+</div>
+
+```{r cell-geom-bm}
+bnch <- bench::mark(
+  iterations = 1, check = FALSE,
+  intersectr = intersectr_cell_geom(file, geom),
+  zonal = build_grid(file, geom)
+)
+```
+
+
+```{r cell-geom-results, echo = FALSE}
+cell_geometry = intersectr_cell_geom(file, geom)
+grid          = build_grid(file, geom)
+
+bnch %>%
+  dplyr::select(expression, median, mem_alloc) %>%
+  mutate(expression = names(expression),
+         median_rel = unclass(median/min(median)),
+         mem_rel = unclass(mem_alloc/min(mem_alloc))) %>% 
+  formattable::formattable()
+```
+
+## Step 2: Generating Areal Weights
+
+The areal weights workflow for `intersectr` is wrapped into a single function and compared to the analogous function in `build_weights`.
+
+<div class = "blue">
+```{r intersectr-weights-wf}
+intersectr_weights = function(cell_geometry, geom){
+  data_source_cells <- st_sf(dplyr::select(cell_geometry, grid_ids))
+  target_polygons   <- st_sf(dplyr::select(geom, comid))
+  st_agr(data_source_cells) <- "constant"
+  st_agr(target_polygons)  <- "constant"
+  
+  calculate_area_intersection_weights(
+    data_source_cells,
+    target_polygons, allow_lonlat = TRUE)
+}
+```
+</div>
+
+```{r intersectr-weights-bm}
+bnch2 <- bench::mark(
+  iterations = 1, check = FALSE,
+  intersectr = intersectr_weights(cell_geometry , geom),
+  zonal      = build_weights(grid, geom, "comid")
+)
+```
+
+```{r, echo = FALSE}
+area_weights = intersectr_weights(cell_geometry , geom)
+w            = build_weights(grid, geom, "comid")
+
+bnch2 %>%
+  dplyr::select(expression, median, mem_alloc) %>%
+  mutate(expression = names(expression),
+         median_rel = unclass(median/min(median)),
+         mem_rel = unclass(mem_alloc/min(mem_alloc))) %>% 
+  formattable::formattable()
+```
+
+## Step 3: Execute
+
+The execution workflow for `intersectr` is wrapped into a single function and compared to the analogous function in `execute`.
+
+<div class = "blue">
+```{r intersectr-execute-wf}
+intersectr_execute = function(file, variable_name, cell_geometry, area_weights){
+  
+  nc_coord_vars <- nc_coord_var(file)
+  nc_coord_vars <- filter(nc_coord_vars, variable == variable_name)
+  
+  execute_intersection(nc_file = file,
+                       variable_name = variable_name,
+                       intersection_weights = area_weights,
+                       cell_geometry = cell_geometry, 
+                       x_var = nc_coord_vars$X,
+                       y_var = nc_coord_vars$Y,
+                       t_var = nc_coord_vars$T, 
+                       start_datetime = NULL, 
+                       end_datetime = NULL)
+  
+}
+```
+</div>
+
+```{r}
+bnch3 <- bench::mark(
+  iterations = 1, check = FALSE,
+  intersectr = intersectr_execute(file, 
+                                  "potential_evapotranspiration", 
+                                  cell_geometry, 
+                                  area_weights),
+  zonal = execute(file, w)
+)
+```
+
+```{r, echo = FALSE}
+intersectr = intersectr_execute(file, "potential_evapotranspiration", cell_geometry, area_weights)
+zonal = execute(file,  w)
+
+bnch3 %>%
+  dplyr::select(expression, median, mem_alloc) %>%
+  mutate(expression = names(expression),
+         median_rel = unclass(median/min(median)),
+         mem_rel = unclass(mem_alloc/min(mem_alloc))) %>% 
+  formattable::formattable()
+```
+
+
+# Comparision
+
+`intersectr` and `zonal` output data in a different structures, `intersectr` places time steps as rows, and zonal favors units as rows. The latter is easier to work with when the number of units > then the time steps while the former favor's succinct time series plotting. To make sure we get the same results, we transpose the zonal data to match the structure of the `intersectr`.
+
+```{r}
+# Intersectr
+dim(intersectr)
+
+# Zonal
+dim(zonal)
+
+system.time({
+  zonal2 = transpose(zonal, keep.names = "time_stamp", make.names = "comid")
+})
+
+dim(zonal2)
+```
+
+And test a random catchment...
+
+```{r}
+{plot(intersectr$`857`, zonal2$`857`, pch = 16, cex = .75, 
+      xlab = "intersectr (857)",
+      ylab = "zonal (857)",
+      main = "Comparison")
+  abline(0,1, col = "red")
+}
+```
+
+Great they match `r emo::ji('tada')`
+
+## Lost Catchments ??
+
+Above we see`intersectr` retained 16 catchments that `zonal` lost To isolate these we can identify those not shared in each set and then map and check the results.
+
+```{r}
+library(leaflet)
+(n = names(intersectr)[which(!names(intersectr) %in% names(zonal2))])
+
+leaflet() %>% 
+  addTiles() %>% 
+  addPolygons(data = st_transform(filter(geom, comid %in%  n ), 4326))
+
+formattable::formattable(intersectr[1:5,n])
+```
+
+So these catchments are outside the GridMet domain and thus return NaN. Losing them is perfectly OK....
+
+
+
+

@@ -75,3 +75,5 @@ bower_components/
 .grunt/
 src/vendor/
 dist/
+.Rproj.user
+inst/doc
