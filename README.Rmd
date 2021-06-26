@@ -20,9 +20,9 @@ knitr::opts_chunk$set(
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 <!-- badges: end -->
 
-`zonal` is an in development package for intersecting vector aggregation units with large gridded data. While there are many libraries that seek to tackle this problem (see credits) we needed a library that could handle large gridded extents with multiple time layers with both many small vector units 
+`zonal` is an active package for intersecting vector aggregation units with large gridded data. While there are many libraries that seek to tackle this problem (see credits) we needed a library that could handle large gridded extents with multiple time layers with both many small vector units and few large units.
 
-
+We also seek to segment the creation of grid weights from the zonal execution so that the same weight map can be applied across different products with the same structure (e.g. MODIS ET and MODIS LAI)
 
 ## Installation
 

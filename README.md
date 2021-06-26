@@ -1,60 +1,71 @@
-#### Zonal
 
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# zonal
 
+<!-- badges: start -->
+
+[![R CMD
+Check](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml)
+[![Project Status:
+Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+<!-- badges: end -->
+
+`zonal` is an active package for intersecting vector aggregation units
+with large gridded data. While there are many libraries that seek to
+tackle this problem (see credits) we needed a library that could handle
+large gridded extents with multiple time layers with both many small
+vector units and few large units.
+
+We also seek to segment the creation of grid weights from the zonal
+execution so that the same weight map can be applied across different
+products with the same structure (e.g. MODIS ET and MODIS LAI)
 
 ## Installation
 
-Detailed instructions on how to install, configure, and get the project running.
-This should be frequently tested to ensure reliability. Alternatively, link to
-a separate [INSTALL](INSTALL.md) document.
+You can install the development version of `zonal` from
+[GitHub](https://github.com/) with:
 
-## Configuration
+``` r
+# install.packages("remotes")
+remotes::install_github("mikejohnson51/zonal")
+```
 
-If the software is configurable, describe it in detail, either here or in other documentation to which you link.
+## Example
 
-## Usage
+This is a basic example:
 
-Show users how to use the software.
-Be specific.
-Use appropriate formatting when showing code snippets.
+``` r
+library(zonal)
+## basic example code
+```
 
-## How to test the software
-
-If the software includes automated tests, detail how to run those tests.
-
-## Known issues
-
-Document any known significant shortcomings with the software.
-
-## Getting help
-
-Instruct users how to get help with this software; this might include links to an issue tracker, wiki, mailing list, etc.
-
-**Example**
-
-If you have questions, concerns, bug reports, etc, please file an issue in this repository's Issue Tracker.
+------------------------------------------------------------------------
 
 ## Getting involved
 
-This section should detail why people should get involved and describe key areas you are
-currently focusing on; e.g., trying to get feedback on features, fixing certain bugs, building
-important pieces, etc.
+1.  Code style should attempt to follow the tidyverse style guide.
+2.  Please avoid adding significant new dependencies without a
+    documented reason why.
+3.  Please attempt to describe what you want to do prior to contributing
+    by submitting an issue.
+4.  Please follow the typical github fork - pull-request workflow.
+5.  Make sure you use roxygen and run Check before contributing.
 
-General instructions on _how_ to contribute should be stated with a link to [CONTRIBUTING](CONTRIBUTING.md).
-
-
-----
+------------------------------------------------------------------------
 
 ## Open source licensing info
-1. [TERMS](TERMS.md)
-2. [LICENSE](LICENSE)
 
+1.  [TERMS](TERMS.md)
+2.  [LICENSE](LICENSE)
 
-----
+------------------------------------------------------------------------
 
 ## Credits and references
 
-1. Projects that inspired you
-2. Related projects
-3. Books, papers, talks, or other sources that have meaningful impact or influence on this project
+Similar R packages: 1.
+[exactexactr](https://github.com/isciences/exactextractr) 2.
+[intersectr](https://github.com/USGS-R/intersectr) 3.
+[areal](https://github.com/slu-openGIS/areal) 4.
+[sf](https://github.com/r-spatial/sf) 5.
+[raster](https://github.com/rspatial/raster)
