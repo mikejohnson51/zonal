@@ -9,7 +9,9 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "100%",
+  warning = FALSE,
+  message = FALSE
 )
 
 library(dplyr)
@@ -42,26 +44,71 @@ This is a basic example:
 library(zonal)
 
 file = '/Users/mjohnson/Downloads/pr_1979.nc'
-AOI = AOI::aoi_get(state = "conus", county = "all") %>% 
+AOI = AOI::aoi_get(state = "south", county = "all") %>% 
   sf::st_transform(5070)
 
 system.time({
+  # Build Weight Grid
   w        = weighting_grid(file, AOI, "geoid")
+  # Intersect
   pr_zone = execute_zonal(file, w)
 })
 
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
-
-n = colnames(pr_zone)[which(pr_zone[,-1] == max(pr_zone[,-1]), arr.ind = TRUE)[2]]
-n2 = names(pr_zone[,-1])[which.max(colSums(pr_zone[,-1]))]
-
-
-plot(merge(AOI, pr_zone)[n], border = NA)
-plot(merge(AOI, pr_zone)[n2], border = NA)
-plot(as.numeric(pr_zone[which.max(rowSums(pr_zone[,-1])),-1]), type = "l" )
 ```
 
+```{r}
+# Plot Day with the maximum single county max rainfall.
+n = colnames(pr_zone)[which(pr_zone[,-1] == max(pr_zone[,-1]), arr.ind = TRUE)[2] + 1]
+plot(merge(AOI, pr_zone)[n], border = NA)
+```
+
+```{r}
+# Plot Day with the maximum county wide rainfall
+n2 = names(which.max(colSums(select(pr_zone, -geoid))))
+plot(merge(AOI, pr_zone)[n2], border = NA)
+```
+
+```{r}
+library(ggplot2)
+data = pr_zone %>% 
+  slice_max(rowSums(select(., -geoid))) %>% 
+  tidyr::pivot_longer(-geoid, names_to = "date", values_to = "prcp") 
+
+ggplot(data) +
+  aes(x = as.Date(date), y = prcp) + 
+  geom_line() + 
+  labs(x = "Date", y = "Mean Rainfall",
+       title = paste("GEOID: ", data$geoid[1])) +
+  theme_bw()
+```
+
+# 1km Landcover Grid (Categorical)
+
+```{r}
+file = '/Users/mjohnson/Downloads/MCD12Q1.006.nc'
+rcl = read.csv("inst/modis_lc.csv") %>% 
+  select(from = Class, to = short)
+
+system.time({
+  # Build Weight Grid
+  w  = weighting_grid(file, AOI, "geoid")
+  # Intersect, and relclassify
+  lc = execute_zonal_cat(file, w, rcl)
+})
+```
+
+```{r, echo = FALSE}
+to_plot = merge(select(AOI, ID = geoid), tidyr::pivot_longer(lc, -ID))
+
+ggplot(to_plot) + 
+  geom_sf(aes(fill = value), color = "transparent") + 
+  scale_fill_gradient2() +
+  geom_sf(data = sf::st_union(AOI), fill = "transparent") + 
+  facet_wrap(~name) + 
+  theme_linedraw()
+```
 
 ----
 
@@ -84,9 +131,10 @@ plot(as.numeric(pr_zone[which.max(rowSums(pr_zone[,-1])),-1]), type = "l" )
 ## Credits and references
 
 Similar R packages:
- 1. [exactexactr](https://github.com/isciences/exactextractr)
- 2. [intersectr](https://github.com/USGS-R/intersectr)
- 3. [areal](https://github.com/slu-openGIS/areal)
- 4. [sf](https://github.com/r-spatial/sf)
- 5. [raster](https://github.com/rspatial/raster)
+
+1. [exactexactr](https://github.com/isciences/exactextractr)
+2. [intersectr](https://github.com/USGS-R/intersectr)
+3. [areal](https://github.com/slu-openGIS/areal)
+4. [sf](https://github.com/r-spatial/sf)
+5. [raster](https://github.com/rspatial/raster)
 
