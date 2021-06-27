@@ -9,6 +9,10 @@
 Check](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml)
 [![Project Status:
 Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![LifeCycle](man/figures/lifecycle/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Dependencies](https://img.shields.io/badge/dependencies-9/27-orange?style=flat)](#)
+[![License:
+MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
 <!-- badges: end -->
 
 `zonal` is an active package for intersecting vector aggregation units
@@ -33,14 +37,20 @@ remotes::install_github("mikejohnson51/zonal")
 
 ## Example
 
-This is a basic example:
+This is a basic example that takes a NetCDF file containing a 4km grid
+for the continental USA and daily precipitation for the year 1979 (365
+layers). Our goal is to subset this file to the southern USA, and
+compute daily county level averages. The result is a daily rainfall
+average for each county.
 
 ``` r
 library(zonal)
+library(sf)
+library(dplyr)
+library(ggplot2)
 
-file = '/Users/mjohnson/Downloads/pr_1979.nc'
-AOI = AOI::aoi_get(state = "south", county = "all") %>% 
-  sf::st_transform(5070)
+file <- '/Users/mjohnson/Downloads/pr_1979.nc'
+AOI  <- AOI::aoi_get(state = "south", county = "all") 
 
 system.time({
   # Build Weight Grid
@@ -49,7 +59,7 @@ system.time({
   pr_zone = execute_zonal(file, w)
 })
 #>    user  system elapsed 
-#>  12.499   2.287  10.692
+#>  11.830   2.085   9.710
 
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
@@ -73,22 +83,30 @@ plot(merge(AOI, pr_zone)[n2], border = NA)
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
 ``` r
-library(ggplot2)
 data = pr_zone %>% 
   slice_max(rowSums(select(., -geoid))) %>% 
   tidyr::pivot_longer(-geoid, names_to = "date", values_to = "prcp") 
 
-ggplot(data) +
-  aes(x = as.Date(date), y = prcp) + 
-  geom_line() + 
-  labs(x = "Date", y = "Mean Rainfall",
-       title = paste("GEOID: ", data$geoid[1])) +
-  theme_bw()
+head(data)
+#> # A tibble: 6 x 3
+#>   geoid date        prcp
+#>   <chr> <chr>      <dbl>
+#> 1 37175 1979-01-01 48.3 
+#> 2 37175 1979-01-02 19.1 
+#> 3 37175 1979-01-03  0   
+#> 4 37175 1979-01-04  0   
+#> 5 37175 1979-01-05  1.96
+#> 6 37175 1979-01-06 12.9
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
 # 1km Landcover Grid (Categorical)
+
+One of the largest limitations of existing utilites is the ability to
+handle categorical data. Here we show an example for a 1km grid storing
+land cover data from MODIS. This grid was creating by mosacing 19 MODIS
+tiles covering CONUS.
 
 ``` r
 file = '/Users/mjohnson/Downloads/MCD12Q1.006.nc'
@@ -102,10 +120,10 @@ system.time({
   lc = execute_zonal_cat(file, w, rcl)
 })
 #>    user  system elapsed 
-#>   7.310   0.874   5.100
+#>   7.115   0.843   4.889
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ------------------------------------------------------------------------
 

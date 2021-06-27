@@ -13,8 +13,6 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE
 )
-
-library(dplyr)
 ```
 
 # zonal
@@ -22,6 +20,9 @@ library(dplyr)
 <!-- badges: start -->
 [![R CMD Check](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml)
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![LifeCycle](man/figures/lifecycle/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Dependencies](https://img.shields.io/badge/dependencies-9/27-orange?style=flat)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
 <!-- badges: end -->
 
 `zonal` is an active package for intersecting vector aggregation units with large gridded data. While there are many libraries that seek to tackle this problem (see credits) we needed a library that could handle large gridded extents with multiple time layers with both many small vector units and few large units.
@@ -38,14 +39,16 @@ remotes::install_github("mikejohnson51/zonal")
 ```
 ## Example
 
-This is a basic example:
+This is a basic example that takes a NetCDF file containing a 4km grid for the continental USA and daily precipitation for the year 1979 (365 layers). Our goal is to subset this file to the southern USA, and compute daily county level averages. The result is a daily rainfall average for each county.
 
 ```{r example}
 library(zonal)
+library(sf)
+library(dplyr)
+library(ggplot2)
 
-file = '/Users/mjohnson/Downloads/pr_1979.nc'
-AOI = AOI::aoi_get(state = "south", county = "all") %>% 
-  sf::st_transform(5070)
+file <- '/Users/mjohnson/Downloads/pr_1979.nc'
+AOI  <- AOI::aoi_get(state = "south", county = "all") 
 
 system.time({
   # Build Weight Grid
@@ -71,11 +74,14 @@ plot(merge(AOI, pr_zone)[n2], border = NA)
 ```
 
 ```{r}
-library(ggplot2)
 data = pr_zone %>% 
   slice_max(rowSums(select(., -geoid))) %>% 
   tidyr::pivot_longer(-geoid, names_to = "date", values_to = "prcp") 
 
+head(data)
+```
+
+```{r, echo = FALSE}
 ggplot(data) +
   aes(x = as.Date(date), y = prcp) + 
   geom_line() + 
@@ -85,6 +91,8 @@ ggplot(data) +
 ```
 
 # 1km Landcover Grid (Categorical)
+
+One of the largest limitations of existing utilites is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mosacing 19 MODIS tiles covering CONUS.
 
 ```{r}
 file = '/Users/mjohnson/Downloads/MCD12Q1.006.nc'
