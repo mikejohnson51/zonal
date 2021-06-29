@@ -2,9 +2,7 @@
 % Please edit documentation in R/weight_grid.R
 \name{weighting_grid}
 \alias{weighting_grid}
-\title{Build Weighting Grid
-Returns a data.table with columns for ID, grid_id, X, Y and weight. By default this object is
-sorted on the grid_id}
+\title{Build Weighting Grid}
 \usage{
 weighting_grid(file, geom, ID, progress = FALSE)
 }
@@ -21,7 +19,6 @@ weighting_grid(file, geom, ID, progress = FALSE)
 a data.tabel
 }
 \description{
-Build Weighting Grid
 Returns a data.table with columns for ID, grid_id, X, Y and weight. By default this object is
 sorted on the grid_id
 }

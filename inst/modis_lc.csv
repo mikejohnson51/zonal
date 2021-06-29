@@ -12,7 +12,7 @@
 11,Permanent wetlands,wetlands,"Lands with a permanent mixture of water and herbaceous or woody vegetation. The vegetation can be present either in salt, brackish, or fresh water."
 12,Croplands,croplands,"Lands covered with temporary crops followed by harvest and a bare soil period (e.g., single and multiple cropping systems). Note that perennial woody crops will be classified as the appropriate forest or shrub land cover type."
 13,Urban and built-up lands,urban,Land covered by buildings and other man-made structures.
-14,Cropland/natural vegetation mosaics,crop_matural,"Lands with a mosaic of croplands, forests, shrubland, and grasslands in which no one component comprises more than 60% of the landscape."
+14,Cropland/natural vegetation mosaics,crop_natural,"Lands with a mosaic of croplands, forests, shrubland, and grasslands in which no one component comprises more than 60% of the landscape."
 15,Snow and ice,snow,Lands under snow/ice cover throughout the year.
 16,Barren,barren,"Lands with exposed soil, sand, rocks, or snow and never have more than 10% vegetated cover during any time of the year."
 17,Water bodies,water,"Oceans, seas, lakes, reservoirs, and rivers. Can be either fresh or salt- water bodies."

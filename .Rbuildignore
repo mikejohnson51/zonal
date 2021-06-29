@@ -9,3 +9,6 @@ depreciate
 ^INSTALL\.md$
 ^SECURITY\.md$
 ^TERMS\.md$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# zonal
+# zonal <img src="man/figures/logo.png" align="right" alt="" width="120" />
 
 <!-- badges: start -->
 [![R CMD Check](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml)
@@ -25,9 +25,9 @@ knitr::opts_chunk$set(
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
 <!-- badges: end -->
 
-`zonal` is an active package for intersecting vector aggregation units with large gridded data. While there are many libraries that seek to tackle this problem (see credits) we needed a library that could handle large gridded extents with multiple time layers with both many small vector units and few large units.
+`zonal` is an active package for intersecting vector aggregation units with large gridded data. While there are many libraries that seek to tackle this problem (see credits) we needed a library that could handle large gridded extents storing categorical and continuous data, with multiple time layers with both many small vector units and few large units.
 
-We also seek to segment the creation of grid weights from the zonal execution so that the same weight map can be applied across different products with the same structure (e.g. MODIS ET and MODIS LAI)
+We also seek to segment the creation of grid weights from the zonal execution so that the same weight map can be applied across different products with the same structure.
 
 ## Installation
 
@@ -61,17 +61,23 @@ system.time({
 dim(pr_zone)
 ```
 
+### Daily maximum mean rainfall in a county?
+
 ```{r}
 # Plot Day with the maximum single county max rainfall.
 n = colnames(pr_zone)[which(pr_zone[,-1] == max(pr_zone[,-1]), arr.ind = TRUE)[2] + 1]
 plot(merge(AOI, pr_zone)[n], border = NA)
 ```
 
+### Daily maximum rainfall in the south?
+
 ```{r}
 # Plot Day with the maximum county wide rainfall
 n2 = names(which.max(colSums(select(pr_zone, -geoid))))
 plot(merge(AOI, pr_zone)[n2], border = NA)
 ```
+
+### Timeseries of conuty with maximum annual rainfall
 
 ```{r}
 data = pr_zone %>% 
@@ -92,12 +98,12 @@ ggplot(data) +
 
 # 1km Landcover Grid (Categorical)
 
-One of the largest limitations of existing utilites is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mosacing 19 MODIS tiles covering CONUS.
+One of the largest limitations of existing utilities is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mosacing 19 MODIS tiles covering CONUS.
 
 ```{r}
 file = '/Users/mjohnson/Downloads/MCD12Q1.006.nc'
 rcl = read.csv("inst/modis_lc.csv") %>% 
-  select(from = Class, to = short)
+  dplyr::select(from = Class, to = short)
 
 system.time({
   # Build Weight Grid
@@ -108,14 +114,14 @@ system.time({
 ```
 
 ```{r, echo = FALSE}
-to_plot = merge(select(AOI, ID = geoid), tidyr::pivot_longer(lc, -ID))
+to_plot = merge(AOI, lc)
 
 ggplot(to_plot) + 
-  geom_sf(aes(fill = value), color = "transparent") + 
+  geom_sf(aes(fill = percentage), color = "transparent") + 
   scale_fill_gradient2() +
   geom_sf(data = sf::st_union(AOI), fill = "transparent") + 
-  facet_wrap(~name) + 
-  theme_linedraw()
+  facet_wrap(~value) + 
+  theme_minimal()
 ```
 
 ----
@@ -146,3 +152,4 @@ Similar R packages:
 4. [sf](https://github.com/r-spatial/sf)
 5. [raster](https://github.com/rspatial/raster)
 
+**Logo Artwork:** [Justin Singh-Mohudpur](https://www.justinsingh.me/about/)

@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# zonal
+# zonal <img src="man/figures/logo.png" align="right" alt="" width="120" />
 
 <!-- badges: start -->
 
@@ -18,12 +18,13 @@ MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicens
 `zonal` is an active package for intersecting vector aggregation units
 with large gridded data. While there are many libraries that seek to
 tackle this problem (see credits) we needed a library that could handle
-large gridded extents with multiple time layers with both many small
-vector units and few large units.
+large gridded extents storing categorical and continuous data, with
+multiple time layers with both many small vector units and few large
+units.
 
 We also seek to segment the creation of grid weights from the zonal
 execution so that the same weight map can be applied across different
-products with the same structure (e.g. MODIS ET and MODIS LAI)
+products with the same structure.
 
 ## Installation
 
@@ -59,12 +60,14 @@ system.time({
   pr_zone = execute_zonal(file, w)
 })
 #>    user  system elapsed 
-#>  11.830   2.085   9.710
+#>  12.025   2.347  10.190
 
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
 #> [1] 1421  366
 ```
+
+### Daily maximum mean rainfall in a county?
 
 ``` r
 # Plot Day with the maximum single county max rainfall.
@@ -74,6 +77,8 @@ plot(merge(AOI, pr_zone)[n], border = NA)
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
+### Daily maximum rainfall in the south?
+
 ``` r
 # Plot Day with the maximum county wide rainfall
 n2 = names(which.max(colSums(select(pr_zone, -geoid))))
@@ -81,6 +86,8 @@ plot(merge(AOI, pr_zone)[n2], border = NA)
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+
+### Timeseries of conuty with maximum annual rainfall
 
 ``` r
 data = pr_zone %>% 
@@ -103,7 +110,7 @@ head(data)
 
 # 1km Landcover Grid (Categorical)
 
-One of the largest limitations of existing utilites is the ability to
+One of the largest limitations of existing utilities is the ability to
 handle categorical data. Here we show an example for a 1km grid storing
 land cover data from MODIS. This grid was creating by mosacing 19 MODIS
 tiles covering CONUS.
@@ -111,7 +118,7 @@ tiles covering CONUS.
 ``` r
 file = '/Users/mjohnson/Downloads/MCD12Q1.006.nc'
 rcl = read.csv("inst/modis_lc.csv") %>% 
-  select(from = Class, to = short)
+  dplyr::select(from = Class, to = short)
 
 system.time({
   # Build Weight Grid
@@ -120,7 +127,7 @@ system.time({
   lc = execute_zonal_cat(file, w, rcl)
 })
 #>    user  system elapsed 
-#>   7.115   0.843   4.889
+#>   6.841   0.720   4.950
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
@@ -155,3 +162,6 @@ Similar R packages:
 3.  [areal](https://github.com/slu-openGIS/areal)
 4.  [sf](https://github.com/r-spatial/sf)
 5.  [raster](https://github.com/rspatial/raster)
+
+**Logo Artwork:** [Justin
+Singh-Mohudpur](https://www.justinsingh.me/about/)

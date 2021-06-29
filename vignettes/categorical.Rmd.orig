@@ -1,0 +1,180 @@
+---
+title: "Categorical Data"
+description: "This vignette covers the use of zonal with categorical data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Categorical Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{r setup}
+library(zonal)
+library(ggplot2)
+library(dplyr)
+```
+
+In `zonal` categorical data is handled with `execute_zonal_cat` which computes the relative proportion of a numeric class in each aggregation unit. In the following we illustrate its use using a mosaiced 1km grid containing MODIS 2019 land cover.
+
+### Grid
+```{r}
+file = '/Users/mjohnson/Downloads/MCD12Q1.006.nc'
+(r = raster::raster(file))
+```
+
+Looking at the grid we can see in consists of `r raster::ncell(r)` grid cells each with a `r raster::res(r)[1]` meter by `r raster::res(r)[2]` meter resolution. Additionally, there are `r length(unique(raster::values(r)))` unique values in the grid (17 landcover and one nodata value).
+
+### Example 1: Basic Use
+
+First, we want to identify the percent of each land cover within each county in the USA Northeast. Doing this follows the same process as all `zonal` workflows and requires (1) identifiying the aggregation units, (2) building a weight grid and (3) running the intersection.
+
+#### Define aggreation units
+
+```{r}
+AOI  = AOI::aoi_get(state = "Northeast", county = "all")
+plot(AOI$geometry, main = paste(nrow(AOI), "counties"))
+```
+
+#### Build a weight grid and execute intersection
+
+```{r}
+system.time({
+  w  = weighting_grid(file, AOI, "name")
+  lc = execute_zonal_cat(file, w)
+})
+
+glimpse(lc)
+```
+#### Exploring the data
+
+```{r}
+to_plot = merge(AOI, lc)
+
+{plot(filter(to_plot, value == 5)['percentage'], border = "NA", main = "Mixed Forest", reset = FALSE)
+ plot(AOI::aoi_get(state = "Northeast")$geometry, add = TRUE)}
+
+{plot(filter(to_plot, value == 13)['percentage'], border = "NA", main = "Urban", reset = FALSE)
+  plot(AOI::aoi_get(state = "Northeast")$geometry, add = TRUE)}
+```
+
+### Example 2: Definining Classes 
+
+While the above works, callinging on fields by there numeric ID is prone to error. Instead, this example shows how a reclassification table can be supplied to modify the column headings of the output table.
+
+#### Define Aggregation Units
+
+```{r}
+AOI  = AOI::aoi_get(state = "North Central", county = "all")
+plot(AOI$geometry, main = paste(nrow(AOI), "counties"))
+```
+#### Define Reclass Table
+
+A reclassification table tells us what each numeric value represents in a categorical raster. Below, we use a CSV file to define this mapping. The schema used is that one column must be named "from" - this is the exisiting data values, and one column must be named "to" - this is the desired column headings.
+
+```{r}
+rcl = read.csv("../inst/modis_lc.csv") %>% 
+  dplyr::select(from = Class, to = short)
+
+head(rcl)
+```
+
+#### Build a weight grid and execute intersection
+
+```{r}
+system.time({
+  # Build Weight Grid
+  w  = weighting_grid(file, AOI, "geoid")
+  # Intersect applying mapping
+  lc = execute_zonal_cat(file, w, rcl)
+})
+
+glimpse(lc)
+```
+
+#### Explore the data
+
+```{r}
+midwest = merge(AOI, lc)
+{plot(filter(midwest, value == 'croplands')['percentage'], main = "Croplands", border = 'NA', reset = FALSE)
+  plot(AOI::aoi_get(state = "North Central")$geometry, add = TRUE)}
+
+{plot(filter(midwest, value == 'urban')['percentage'], main = "Urban", border = 'NA', reset = FALSE)
+  plot(AOI::aoi_get(state = "North Central")$geometry, add = TRUE)}
+```
+
+### Further user-based aggregates
+
+In the MODIS land cover scheme there are 5 classes loosly representing forest. If wanted to aggregate these to a single forest class, we can use the output `zonal` table.
+
+```{r}
+forest =filter(lc, grepl('forest|broad|needle', value)) %>% 
+  group_by(geoid) %>% 
+  summarise(forest = sum(percentage)) %>% 
+  right_join(AOI) %>% 
+  sf::st_as_sf()
+
+
+{plot(forest['forest'], main = "Forest", border = 'NA', reset = FALSE)
+  plot(AOI::aoi_get(state = "North Central")$geometry, add = TRUE)}
+```
+
+
+## Comapre with exactextractr
+
+From the `exactectractr` vignettes there is an example to compute class statisitcs using `dplyr`. Here we compare that appraoch, to one supplimented with `data.table`, to `zonal` with pre-compted weights, and to a single `zonal` execution.
+
+```{r, message = FALSE, warning=FALSE}
+library(raster)
+library(exactextractr)
+library(data.table)
+
+# exactextract with dplyr
+exactextract_dplyr = function(file, AOI) {
+  exact_extract(raster(file), AOI, function(df) {
+  df %>%
+    mutate(frac_total = coverage_fraction / sum(coverage_fraction)) %>%
+    group_by(name, value) %>%
+    summarise(freq = sum(frac_total), .groups = "keep")
+}, summarize_df = TRUE, include_cols = "name", progress = FALSE)
+}
+
+# exactextract with data.table
+exactextract_dt = function(file, AOI){
+  exact_extract(raster(file), AOI, function(df) {
+    dt = setDT(df)
+    dt$frac_total = dt$coverage_fraction / sum(dt$coverage_fraction)
+    dt[, .(freq = sum(frac_total, na.rm = TRUE)), by = .(name, value)]
+  }, summarize_df = TRUE, include_cols = "name", progress = FALSE)
+}
+
+# pre-compute weights 
+w = weighting_grid(file, AOI, "name")
+
+bnch <- bench::mark(
+  iterations = 1, check = FALSE, time_unit = "s",
+  exactextract_dplyr  = exactextract_dplyr(file, AOI),
+  exactextract_dt     = exactextract_dt(file, AOI),
+  zonal_full          = execute_zonal_cat(file, w = weighting_grid(file, AOI, "name")),
+  zonal_stage_weights = execute_zonal_cat(file, w)
+)
+```
+
+```{r, echo = FALSE}
+bnch %>%
+  dplyr::select(expression, medianTime = median, memoryAllocated = mem_alloc) %>%
+  mutate(expression = names(expression),
+         medianTime_rel = unclass(medianTime/min(medianTime)),
+         memoryAllocated_rel = unclass(memoryAllocated/min(memoryAllocated))) %>% 
+  arrange(medianTime) %>% 
+  formattable::formattable()
+```

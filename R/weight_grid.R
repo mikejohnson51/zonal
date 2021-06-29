@@ -1,5 +1,5 @@
 #' Build Weighting Grid
-#' Returns a data.table with columns for ID, grid_id, X, Y and weight. By default this object is 
+#' @description  Returns a data.table with columns for ID, grid_id, X, Y and weight. By default this object is 
 #' sorted on the grid_id
 #' @param file path to a gridded file (either .tif or .nc)
 #' @param geom sf object of aggregation units 

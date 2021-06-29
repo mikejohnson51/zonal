@@ -1,0 +1,5 @@
+development:
+  mode: devel
+template:
+  params:
+    bootswatch: readable
