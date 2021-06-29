@@ -12,3 +12,4 @@ depreciate
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^_pkgdown\.yaml$

@@ -13,6 +13,8 @@ Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repost
 [![Dependencies](https://img.shields.io/badge/dependencies-9/27-orange?style=flat)](#)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
+[![Website
+deployment](https://github.com/mikejohnson51/zonal/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/mikejohnson51/zonal/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
 `zonal` is an active package for intersecting vector aggregation units
@@ -60,7 +62,7 @@ system.time({
   pr_zone = execute_zonal(file, w)
 })
 #>    user  system elapsed 
-#>  12.025   2.347  10.190
+#>  12.069   2.797  10.872
 
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
@@ -127,7 +129,7 @@ system.time({
   lc = execute_zonal_cat(file, w, rcl)
 })
 #>    user  system elapsed 
-#>   6.841   0.720   4.950
+#>   6.835   0.640   4.849
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
