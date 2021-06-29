@@ -77,4 +77,4 @@ src/vendor/
 dist/
 .Rproj.user
 inst/doc
-docs
+
