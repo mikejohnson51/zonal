@@ -17,7 +17,8 @@
 execute_zonal    = function(file, w) {
   .SD <-  NULL
   
-  ID = names(w)[!names(w) %in% c("grid_id", "w", "X", "Y")]
+  w_names = c("grid_id", "w", "X", "Y")
+  ID = names(w)[!names(w) %in% w_names]
   
   setkey(w, "grid_id")
   
@@ -94,8 +95,8 @@ execute_zonal    = function(file, w) {
   setkey(dt, 'grid_id')
   dt = merge(dt, w, by = "grid_id")
   
-  cols <- c(grep("V", names(dt), value = TRUE))
-  
+  cols = names(dt)[!names(dt) %in% c(ID, w_names)]
+
   threds = getDTthreads()
   setDTthreads(0)
   dt2 = dt[, lapply(.SD, function(x) {
