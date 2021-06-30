@@ -136,7 +136,7 @@
 <code class="sourceCode R"><span class="va">AOI</span>  <span class="op">=</span> <span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"Northeast"</span>, county <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span>
 <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">$</span><span class="va">geometry</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">)</span>, <span class="st">"counties"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <div class="figure">
-<img src="figure/unnamed-chunk-86-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-86</p>
+<img src="figure/unnamed-chunk-8-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-8</p>
 </div>
 </div>
 <div id="build-a-weight-grid-and-execute-intersection" class="section level4">
@@ -148,14 +148,14 @@
   <span class="va">lc</span> <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal_cat.html">execute_zonal_cat</a></span><span class="op">(</span><span class="va">file</span>, <span class="va">w</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   2.413   0.699   2.265</span>
+<span class="co">#&gt;    2.26    0.60    2.14</span>
 
 <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">lc</span><span class="op">)</span>
 <span class="co">#&gt; Rows: 1,664</span>
 <span class="co">#&gt; Columns: 3</span>
-<span class="co">#&gt; $ name       [3m[38;5;246m&lt;chr&gt;[39m[23m "Aroostook", "Aroostook", "Aroostook"…</span>
-<span class="co">#&gt; $ value      [3m[38;5;246m&lt;int&gt;[39m[23m 8, 10, 13, 4, 5, 9, 12, 14, 17, 1, 11…</span>
-<span class="co">#&gt; $ percentage [3m[38;5;246m&lt;dbl&gt;[39m[23m 0.1334921834, 0.0138014732, 0.0012894…</span></code></pre></div>
+<span class="co">#&gt; $ name       [3m[38;5;246m&lt;chr&gt;[39m[23m "Aroostoo…</span>
+<span class="co">#&gt; $ value      [3m[38;5;246m&lt;int&gt;[39m[23m 8, 10, 13…</span>
+<span class="co">#&gt; $ percentage [3m[38;5;246m&lt;dbl&gt;[39m[23m 0.1334921…</span></code></pre></div>
 </div>
 <div id="exploring-the-data" class="section level4">
 <h4 class="hasAnchor">
@@ -166,14 +166,14 @@
 <span class="op">{</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">to_plot</span>, <span class="va">value</span> <span class="op">==</span> <span class="fl">5</span><span class="op">)</span><span class="op">[</span><span class="st">'percentage'</span><span class="op">]</span>, border <span class="op">=</span> <span class="st">"NA"</span>, main <span class="op">=</span> <span class="st">"Mixed Forest"</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"Northeast"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
 <div class="figure">
-<img src="figure/unnamed-chunk-88-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-88</p>
+<img src="figure/unnamed-chunk-10-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-10</p>
 </div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="op">{</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">to_plot</span>, <span class="va">value</span> <span class="op">==</span> <span class="fl">13</span><span class="op">)</span><span class="op">[</span><span class="st">'percentage'</span><span class="op">]</span>, border <span class="op">=</span> <span class="st">"NA"</span>, main <span class="op">=</span> <span class="st">"Urban"</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
   <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"Northeast"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
 <div class="figure">
-<img src="figure/unnamed-chunk-88-2.png" alt=""><p class="caption">plot of chunk unnamed-chunk-88</p>
+<img src="figure/unnamed-chunk-10-2.png" alt=""><p class="caption">plot of chunk unnamed-chunk-10</p>
 </div>
 </div>
 </div>
@@ -187,7 +187,7 @@
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">AOI</span>  <span class="op">=</span> <span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"North Central"</span>, county <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span>
 <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">$</span><span class="va">geometry</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">)</span>, <span class="st">"counties"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p><img src="figure/unnamed-chunk-89-1.png" alt="plot of chunk unnamed-chunk-89"> #### Define Reclass Table</p>
+<p><img src="figure/unnamed-chunk-11-1.png" alt="plot of chunk unnamed-chunk-11"> #### Define Reclass Table</p>
 <p>A reclassification table tells us what each numeric value represents in a categorical raster. Below, we use a CSV file to define this mapping. The schema used is that one column must be named “from” - this is the exisiting data values, and one column must be named “to” - this is the desired column headings.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">rcl</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="st">"../inst/modis_lc.csv"</span><span class="op">)</span> <span class="op">%&gt;%</span> 
@@ -213,14 +213,14 @@
   <span class="va">lc</span> <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal_cat.html">execute_zonal_cat</a></span><span class="op">(</span><span class="va">file</span>, <span class="va">w</span>, <span class="va">rcl</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   5.578   0.918   4.256</span>
+<span class="co">#&gt;   5.858   0.970   4.563</span>
 
 <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">lc</span><span class="op">)</span>
 <span class="co">#&gt; Rows: 7,105</span>
 <span class="co">#&gt; Columns: 3</span>
-<span class="co">#&gt; $ geoid      [3m[38;5;246m&lt;chr&gt;[39m[23m "27077", "27077", "27077", "27077", "…</span>
-<span class="co">#&gt; $ value      [3m[38;5;246m&lt;chr&gt;[39m[23m "woody_savanna", "deciduous_broad", "…</span>
-<span class="co">#&gt; $ percentage [3m[38;5;246m&lt;dbl&gt;[39m[23m 0.355290807, 0.095986360, 0.045640363…</span></code></pre></div>
+<span class="co">#&gt; $ geoid      [3m[38;5;246m&lt;chr&gt;[39m[23m "27077", …</span>
+<span class="co">#&gt; $ value      [3m[38;5;246m&lt;chr&gt;[39m[23m "woody_sa…</span>
+<span class="co">#&gt; $ percentage [3m[38;5;246m&lt;dbl&gt;[39m[23m 0.3552908…</span></code></pre></div>
 </div>
 <div id="explore-the-data" class="section level4">
 <h4 class="hasAnchor">
@@ -230,14 +230,14 @@
 <span class="op">{</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">midwest</span>, <span class="va">value</span> <span class="op">==</span> <span class="st">'croplands'</span><span class="op">)</span><span class="op">[</span><span class="st">'percentage'</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Croplands"</span>, border <span class="op">=</span> <span class="st">'NA'</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
   <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"North Central"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
 <div class="figure">
-<img src="figure/unnamed-chunk-92-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-92</p>
+<img src="figure/unnamed-chunk-14-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-14</p>
 </div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="op">{</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">midwest</span>, <span class="va">value</span> <span class="op">==</span> <span class="st">'urban'</span><span class="op">)</span><span class="op">[</span><span class="st">'percentage'</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Urban"</span>, border <span class="op">=</span> <span class="st">'NA'</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
   <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"North Central"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
 <div class="figure">
-<img src="figure/unnamed-chunk-92-2.png" alt=""><p class="caption">plot of chunk unnamed-chunk-92</p>
+<img src="figure/unnamed-chunk-14-2.png" alt=""><p class="caption">plot of chunk unnamed-chunk-14</p>
 </div>
 </div>
 </div>
@@ -256,7 +256,7 @@
 <span class="op">{</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="va">forest</span><span class="op">[</span><span class="st">'forest'</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Forest"</span>, border <span class="op">=</span> <span class="st">'NA'</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
   <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"North Central"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
 <div class="figure">
-<img src="figure/unnamed-chunk-93-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-93</p>
+<img src="figure/unnamed-chunk-15-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-15</p>
 </div>
 </div>
 <div id="comapre-with-exactextractr" class="section level2">
@@ -321,16 +321,16 @@ memoryAllocated_rel
 zonal_stage_weights
 </td>
 <td style="text-align:right;">
-1.204354
+1.012143
 </td>
 <td style="text-align:right;">
-554.757271MB
+554.750732MB
 </td>
 <td style="text-align:right;">
 1.000000
 </td>
 <td style="text-align:right;">
-1.740848
+1.740559
 </td>
 </tr>
 <tr>
@@ -338,16 +338,16 @@ zonal_stage_weights
 zonal_full
 </td>
 <td style="text-align:right;">
-3.747739
+4.537179
 </td>
 <td style="text-align:right;">
-1.572773GB
+1.572529GB
 </td>
 <td style="text-align:right;">
-3.111825
+4.482746
 </td>
 <td style="text-align:right;">
-5.053867
+5.052303
 </td>
 </tr>
 <tr>
@@ -355,16 +355,16 @@ zonal_full
 exactextract_dt
 </td>
 <td style="text-align:right;">
-4.305318
+5.025951
 </td>
 <td style="text-align:right;">
-501.2883MB
+501.532288MB
 </td>
 <td style="text-align:right;">
-3.574795
+4.965654
 </td>
 <td style="text-align:right;">
-1.573060
+1.573583
 </td>
 </tr>
 <tr>
@@ -372,13 +372,13 @@ exactextract_dt
 exactextract_dplyr
 </td>
 <td style="text-align:right;">
-19.019246
+28.367905
 </td>
 <td style="text-align:right;">
-318.670723MB
+318.719894MB
 </td>
 <td style="text-align:right;">
-15.792074
+28.027568
 </td>
 <td style="text-align:right;">
 1.000000
@@ -400,7 +400,7 @@ exactextract_dplyr
 
 
       <footer><div class="copyright">
-  <p>Developed by Mike Johsnon.</p>
+  <p>Developed by Mike Johnson.</p>
 </div>
 
 <div class="pkgdown">
