@@ -16,7 +16,7 @@ weighting_grid(file, geom, ID, progress = FALSE)
 \item{progress}{show progress bar for intersection (default = TRUE)}
 }
 \value{
-a data.tabel
+a data.table
 }
 \description{
 Returns a data.table with columns for ID, grid_id, X, Y and weight. By default this object is

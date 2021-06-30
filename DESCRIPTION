@@ -1,9 +1,9 @@
 Package: zonal
-Title: Performant zonal statistics over flexable units
+Title: Performant zonal statistics over flexible units
 Version: 0.0.1
 Authors@R: 
     person(given = "Mike",
-           family = "Johsnon",
+           family = "Johnson",
            role = c("aut", "cre"),
            email = "mikecp11@gmail.com",
            comment = c(ORCID = "0000-0002-5288-8350"))

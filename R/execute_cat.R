@@ -12,6 +12,8 @@
 
 execute_zonal_cat    = function(file, w,  rcl = NULL){
   
+  '.' <-  'frac_total' <- 'grid_id' <- NULL
+  
   ID = names(w)[!names(w) %in% c("grid_id", "w", "X", "Y")]
   
   r = suppressWarnings(raster(file))

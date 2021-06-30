@@ -50,7 +50,7 @@ AOI  = AOI::aoi_get(state = "Northeast", county = "all")
 plot(AOI$geometry, main = paste(nrow(AOI), "counties"))
 ```
 
-![plot of chunk unnamed-chunk-86](figure/unnamed-chunk-86-1.png)
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
 
 #### Build a weight grid and execute intersection
 
@@ -61,14 +61,14 @@ system.time({
   lc = execute_zonal_cat(file, w)
 })
 #>    user  system elapsed 
-#>   2.413   0.699   2.265
+#>    2.26    0.60    2.14
 
 glimpse(lc)
 #> Rows: 1,664
 #> Columns: 3
-#> $ name       [3m[38;5;246m<chr>[39m[23m "Aroostook", "Aroostook", "Aroostook"…
-#> $ value      [3m[38;5;246m<int>[39m[23m 8, 10, 13, 4, 5, 9, 12, 14, 17, 1, 11…
-#> $ percentage [3m[38;5;246m<dbl>[39m[23m 0.1334921834, 0.0138014732, 0.0012894…
+#> $ name       [3m[38;5;246m<chr>[39m[23m "Aroostoo…
+#> $ value      [3m[38;5;246m<int>[39m[23m 8, 10, 13…
+#> $ percentage [3m[38;5;246m<dbl>[39m[23m 0.1334921…
 ```
 #### Exploring the data
 
@@ -80,7 +80,7 @@ to_plot = merge(AOI, lc)
  plot(AOI::aoi_get(state = "Northeast")$geometry, add = TRUE)}
 ```
 
-![plot of chunk unnamed-chunk-88](figure/unnamed-chunk-88-1.png)
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png)
 
 ```r
 
@@ -88,7 +88,7 @@ to_plot = merge(AOI, lc)
   plot(AOI::aoi_get(state = "Northeast")$geometry, add = TRUE)}
 ```
 
-![plot of chunk unnamed-chunk-88](figure/unnamed-chunk-88-2.png)
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-2.png)
 
 ### Example 2: Definining Classes 
 
@@ -102,7 +102,7 @@ AOI  = AOI::aoi_get(state = "North Central", county = "all")
 plot(AOI$geometry, main = paste(nrow(AOI), "counties"))
 ```
 
-![plot of chunk unnamed-chunk-89](figure/unnamed-chunk-89-1.png)
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png)
 #### Define Reclass Table
 
 A reclassification table tells us what each numeric value represents in a categorical raster. Below, we use a CSV file to define this mapping. The schema used is that one column must be named "from" - this is the exisiting data values, and one column must be named "to" - this is the desired column headings.
@@ -133,14 +133,14 @@ system.time({
   lc = execute_zonal_cat(file, w, rcl)
 })
 #>    user  system elapsed 
-#>   5.578   0.918   4.256
+#>   5.858   0.970   4.563
 
 glimpse(lc)
 #> Rows: 7,105
 #> Columns: 3
-#> $ geoid      [3m[38;5;246m<chr>[39m[23m "27077", "27077", "27077", "27077", "…
-#> $ value      [3m[38;5;246m<chr>[39m[23m "woody_savanna", "deciduous_broad", "…
-#> $ percentage [3m[38;5;246m<dbl>[39m[23m 0.355290807, 0.095986360, 0.045640363…
+#> $ geoid      [3m[38;5;246m<chr>[39m[23m "27077", …
+#> $ value      [3m[38;5;246m<chr>[39m[23m "woody_sa…
+#> $ percentage [3m[38;5;246m<dbl>[39m[23m 0.3552908…
 ```
 
 #### Explore the data
@@ -152,7 +152,7 @@ midwest = merge(AOI, lc)
   plot(AOI::aoi_get(state = "North Central")$geometry, add = TRUE)}
 ```
 
-![plot of chunk unnamed-chunk-92](figure/unnamed-chunk-92-1.png)
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-1.png)
 
 ```r
 
@@ -160,7 +160,7 @@ midwest = merge(AOI, lc)
   plot(AOI::aoi_get(state = "North Central")$geometry, add = TRUE)}
 ```
 
-![plot of chunk unnamed-chunk-92](figure/unnamed-chunk-92-2.png)
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-2.png)
 
 ### Further user-based aggregates
 
@@ -179,7 +179,7 @@ forest =filter(lc, grepl('forest|broad|needle', value)) %>%
   plot(AOI::aoi_get(state = "North Central")$geometry, add = TRUE)}
 ```
 
-![plot of chunk unnamed-chunk-93](figure/unnamed-chunk-93-1.png)
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15-1.png)
 
 
 ## Comapre with exactextractr
@@ -237,30 +237,30 @@ bnch <- bench::mark(
 <tbody>
   <tr>
    <td style="text-align:right;"> zonal_stage_weights </td>
-   <td style="text-align:right;"> 1.204354 </td>
-   <td style="text-align:right;"> 554.757271MB </td>
+   <td style="text-align:right;"> 1.012143 </td>
+   <td style="text-align:right;"> 554.750732MB </td>
    <td style="text-align:right;"> 1.000000 </td>
-   <td style="text-align:right;"> 1.740848 </td>
+   <td style="text-align:right;"> 1.740559 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> zonal_full </td>
-   <td style="text-align:right;"> 3.747739 </td>
-   <td style="text-align:right;"> 1.572773GB </td>
-   <td style="text-align:right;"> 3.111825 </td>
-   <td style="text-align:right;"> 5.053867 </td>
+   <td style="text-align:right;"> 4.537179 </td>
+   <td style="text-align:right;"> 1.572529GB </td>
+   <td style="text-align:right;"> 4.482746 </td>
+   <td style="text-align:right;"> 5.052303 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> exactextract_dt </td>
-   <td style="text-align:right;"> 4.305318 </td>
-   <td style="text-align:right;"> 501.2883MB </td>
-   <td style="text-align:right;"> 3.574795 </td>
-   <td style="text-align:right;"> 1.573060 </td>
+   <td style="text-align:right;"> 5.025951 </td>
+   <td style="text-align:right;"> 501.532288MB </td>
+   <td style="text-align:right;"> 4.965654 </td>
+   <td style="text-align:right;"> 1.573583 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> exactextract_dplyr </td>
-   <td style="text-align:right;"> 19.019246 </td>
-   <td style="text-align:right;"> 318.670723MB </td>
-   <td style="text-align:right;"> 15.792074 </td>
+   <td style="text-align:right;"> 28.367905 </td>
+   <td style="text-align:right;"> 318.719894MB </td>
+   <td style="text-align:right;"> 28.027568 </td>
    <td style="text-align:right;"> 1.000000 </td>
   </tr>
 </tbody>

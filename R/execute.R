@@ -1,6 +1,6 @@
 .getExtension <- function(file){ 
   ext <- strsplit(basename(file), split="\\.")[[1]]
-  return(ext[-1])
+  return(ext[length(ext)])
 } 
 
 #' Execute Spatial Intersection

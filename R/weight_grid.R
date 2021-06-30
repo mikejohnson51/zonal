@@ -5,7 +5,7 @@
 #' @param geom sf object of aggregation units 
 #' @param ID the name of the column providing the unique identified of each geom
 #' @param progress show progress bar for intersection (default = TRUE)
-#' @return a data.tabel
+#' @return a data.table
 #' @export
 #' @importFrom raster raster crop stack ncell addLayer
 #' @importFrom exactextractr exact_extract
@@ -28,9 +28,15 @@ weighting_grid = function(file, geom, ID, progress = FALSE){
   names(cols) = 'Y'
   rows[]      = (rep(1:x.dim, times = y.dim))
   names(rows) = 'X'
+  a = sf::st_transform(geom, sf::st_crs(r))
   
-  s = raster::stack(cols, rows) %>% 
-    raster::crop(sf::st_transform(geom, sf::st_crs(r)), snap = "out")
+  s = tryCatch({
+    raster::stack(cols, rows) %>% 
+      raster::crop(a, snap = "out")
+  }, error = function(e){
+    stack(cols, rows) %>% 
+      raster::crop(a)
+  })
   
   cells = s[[1]]
   names(cells) = 'grid_id'
