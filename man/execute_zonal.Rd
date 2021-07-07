@@ -4,12 +4,16 @@
 \alias{execute_zonal}
 \title{Execute Spatial Intersection}
 \usage{
-execute_zonal(file, w)
+execute_zonal(file, geom, ID, w)
 }
 \arguments{
 \item{file}{path to a gridded file (either .tif or .nc)}
 
-\item{w}{a weighting grid produced with \code{weighting_grid}}
+\item{geom}{sf object of aggregation units}
+
+\item{ID}{the name of the column providing the unique identified of each geom}
+
+\item{w}{a precomputed weighting grid produced with \code{weighting_grid}}
 }
 \value{
 data.table

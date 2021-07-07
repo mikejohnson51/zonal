@@ -4,12 +4,16 @@
 \alias{execute_zonal_cat}
 \title{Execute Spatial Intersection on Categorical Data}
 \usage{
-execute_zonal_cat(file, w, rcl = NULL)
+execute_zonal_cat(file = NULL, geom = NULL, ID = NULL, w = NULL, rcl = NULL)
 }
 \arguments{
 \item{file}{path to a gridded file (either .tif or .nc)}
 
-\item{w}{a weighting grid produced with \code{weighting_grid}}
+\item{geom}{sf object of aggregation units}
+
+\item{ID}{the name of the column providing the unique identified of each geom}
+
+\item{w}{a precomputed weighting grid produced with \code{weighting_grid}}
 
 \item{rcl}{a data.frame with columns names \code{from} and \code{to}.
 \code{From} should be the categorical values used in the raster,
