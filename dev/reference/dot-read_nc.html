@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Execute Spatial Intersection on Categorical Data — execute_zonal_cat • zonal</title>
+<title>Data Extration from NetCDF — .read_nc • zonal</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,8 @@
 
 
 
-<meta property="og:title" content="Execute Spatial Intersection on Categorical Data — execute_zonal_cat" />
-<meta property="og:description" content="Execute Spatial Intersection on Categorical Data" />
+<meta property="og:title" content="Data Extration from NetCDF — .read_nc" />
+<meta property="og:description" content="Data Extration from NetCDF" />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -134,48 +134,33 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Execute Spatial Intersection on Categorical Data</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mikejohnson51/zonal/blob/master/R/execute_cat.R'><code>R/execute_cat.R</code></a></small>
-    <div class="hidden name"><code>execute_zonal_cat.Rd</code></div>
+    <h1>Data Extration from NetCDF</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mikejohnson51/zonal/blob/master/R/data_io.R'><code>R/data_io.R</code></a></small>
+    <div class="hidden name"><code>dot-read_nc.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Execute Spatial Intersection on Categorical Data</p>
+    <p>Data Extration from NetCDF</p>
     </div>
 
-    <pre class="usage"><span class='fu'>execute_zonal_cat</span><span class='op'>(</span>file <span class='op'>=</span> <span class='cn'>NULL</span>, geom <span class='op'>=</span> <span class='cn'>NULL</span>, ID <span class='op'>=</span> <span class='cn'>NULL</span>, w <span class='op'>=</span> <span class='cn'>NULL</span>, rcl <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>.read_nc</span><span class='op'>(</span><span class='va'>file</span>, <span class='va'>w</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>file</th>
-      <td><p>path to a gridded file (either .tif or .nc)</p></td>
-    </tr>
-    <tr>
-      <th>geom</th>
-      <td><p>sf object of aggregation units</p></td>
-    </tr>
-    <tr>
-      <th>ID</th>
-      <td><p>the name of the column providing the unique identified of each geom</p></td>
+      <td><p>a netcdf file path</p></td>
     </tr>
     <tr>
       <th>w</th>
-      <td><p>a precomputed weighting grid produced with <code>weighting_grid</code></p></td>
-    </tr>
-    <tr>
-      <th>rcl</th>
-      <td><p>a data.frame with columns names <code>from</code> and <code>to</code>.
-<code>From</code> should be the categorical values used in the raster,
-while <code>to</code> should be the categorical names to use in the output table headings.
-If left NULL (default) the headings will not be altered.</p></td>
+      <td><p>a weight grid</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a data.table</p>
+    <p>data.table</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
