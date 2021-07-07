@@ -12,10 +12,10 @@ library(dplyr)
 library(sf)
 
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  warning = FALSE,
-  message = FALSE
+  out.width = "100%",
+  fig.width = 7, 
+  fig.height = 4, dev = "CairoPNG", dpi = 150, fig.path = "w-",
+  message = FALSE, warning = FALSE, error = FALSE
 )
 ```
 
@@ -64,7 +64,11 @@ intersectr_weights = function(file, geom, ID, var ){
 
 ### Option 2: Zonal
 
-In `zonal` grid weights are calcuated using `exactextractr` as the backend. The key function needed in `weighting_grid`.
+In `zonal` grid weights are calculated using `exactextractr` as the back-end. The key function needed is `weighting_grid`.
+
+```{r}
+library(zonal)
+```
 
 ## Use Cases
 
@@ -84,23 +88,23 @@ geom <- st_make_valid(read_sf('/Users/mjohnson/github/hydrofabric/workflow/nhd_w
 The gridded data and aggregate units we are working with can be seen below:
 
 ```{r data-grid}
-(meta = nc_dims(file))
+(meta = raster::stack(file))
 ```
+
 
 The grid we are working with holds daily PET values for CONUS for the year 1979. It has:
 
-- `r prettyNum(filter(meta, name == 'lon')$length, big.mark = ",")` X_cells
-- `r prettyNum(filter(meta, name == 'lat')$length, big.mark = ",")` Y_cells 
-- `r prettyNum(filter(meta, name == 'day')$length, big.mark = ",")` time slices 
+- `r prettyNum(ncol(meta), big.mark = ",")` X_cells
+- `r prettyNum(nrow(meta), big.mark = ",")` Y_cells 
+- `r prettyNum(raster::nlayers(meta), big.mark = ",")` time slices 
 
-for a total of `r prettyNum(prod(meta$length), big.mark = ",")` values.
+for a total of `r prettyNum(raster::ncell(meta), big.mark = ",")` values.
 
 ```{r data-geom}
 glimpse(geom)
 ```
   
-In total we have `r prettyNum(nrow(geom), big.mark = ",")` aggregation units to summarize over the `r filter(meta, name == 'day')$length` time steps.
-
+In total we have `r prettyNum(nrow(geom), big.mark = ",")` aggregation units to summarize over the `r prettyNum(raster::nlayers(meta)` time steps.
 
 ```{r}
 bnch <- bench::mark(
@@ -108,7 +112,6 @@ bnch <- bench::mark(
   intersectr = intersectr_weights(file, geom, "comid", "potential_evapotranspiration"),
   zonal      = zonal::weighting_grid(file, geom, "comid"),
 )
-
 ```
 
 ```{r, echo = FALSE}
@@ -119,7 +122,6 @@ bnch %>%
          mem_rel = unclass(mem_alloc/min(mem_alloc))) %>% 
   formattable::formattable()
 ```
-
 
 ### A few large aggregation units
 

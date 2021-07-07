@@ -1,3 +1,18 @@
+.find_w = function(file, geom, ID, w){
+  
+  if(!is.null(w) & !is.null(geom)){
+    stop("Provide either a geom and ID, OR, a precomputed weight grid (w)")
+  }
+  
+  if(!is.null(geom) & is.null(ID)){
+    stop("ID is needed for geom")
+  }
+  
+  if(is.null(w)){ w = weighting_grid(file, geom, ID) }
+  
+  setkey(w, "grid_id")
+}
+
 #' Build Weighting Grid
 #' @description  Returns a data.table with columns for ID, grid_id, X, Y and weight. By default this object is 
 #' sorted on the grid_id
@@ -7,50 +22,41 @@
 #' @param progress show progress bar for intersection (default = TRUE)
 #' @return a data.table
 #' @export
-#' @importFrom raster raster crop stack ncell addLayer
+#' @importFrom raster stack
+#' @importFrom terra rast crop ncell crs 
 #' @importFrom exactextractr exact_extract
-#' @importFrom sf st_transform st_crs st_drop_geometry st_area
-#' @importFrom dplyr mutate rename `%>%`
-#' @importFrom data.table setDT rbindlist
-#' @importFrom rlang `:=`
-
+#' @importFrom data.table setDT rbindlist `:=`
 
 weighting_grid = function(file, geom, ID, progress = FALSE){
   
-  coverage_fraction = NULL
-  r    = suppressWarnings({ raster::raster(file) })
+  if(grepl("raster|character", class(file), ignore.case = TRUE)){ file = file[[1]] }
+  
+  r    = suppressWarnings({ terra::rast(file)[[1]] })
   
   y.dim = dim(r)[1]
   x.dim = dim(r)[2]
   
-  cols <- rows <-  r
+  cols <- rows <- r[[1]]
   cols[]      = (rep(1:y.dim, each = x.dim))
   names(cols) = 'Y'
   rows[]      = (rep(1:x.dim, times = y.dim))
   names(rows) = 'X'
-  a = sf::st_transform(geom, sf::st_crs(r))
   
-  s = tryCatch({
-    raster::stack(cols, rows) %>% 
-      raster::crop(a, snap = "out")
-  }, error = function(e){
-    stack(cols, rows) %>% 
-      raster::crop(a)
-  })
-  
-  cells = s[[1]]
+  s = terra::crop(terra::rast(list(cols, rows)), 
+                  terra::project(terra::vect(geom), terra::crs(r)),
+                  snap = "out")
+
+  cells        = s[[1]]
   names(cells) = 'grid_id'
-  cells[] = 1:raster::ncell(cells)
-  s = raster::addLayer(s, cells)
+  cells[] = 1:terra::ncell(cells)
+  s       = terra::rast(list(s, cells))
+
+  out1 = suppressWarnings({ exactextractr::exact_extract(raster::stack(s), 
+                                                         geom, 
+                                                         progress = progress) })
   
-  
-  out1 = suppressWarnings({
-    exactextractr::exact_extract(s, geom, progress = progress)
-  })
-  
-  out2 = data.table::rbindlist(out1) %>% 
-    dplyr::mutate(!!ID := rep(geom[[ID]], times = sapply(out1, nrow))) %>% 
-    dplyr::rename(w = coverage_fraction)
-  
-  data.table::setDT(out2, key = "grid_id")
+  out2 = data.table::rbindlist(out1) 
+  out2[,(ID) := rep(geom[[ID]], times = sapply(out1, nrow))]  
+  setnames(out2, "coverage_fraction", "w")
+  setDT(out2, key = "grid_id")
 }
