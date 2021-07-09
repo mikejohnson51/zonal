@@ -4,7 +4,7 @@
 \alias{weighting_grid}
 \title{Build Weighting Grid}
 \usage{
-weighting_grid(file, geom, ID, progress = FALSE)
+weighting_grid(file, geom, ID)
 }
 \arguments{
 \item{file}{path to a gridded file (either .tif or .nc)}
@@ -12,8 +12,6 @@ weighting_grid(file, geom, ID, progress = FALSE)
 \item{geom}{sf object of aggregation units}
 
 \item{ID}{the name of the column providing the unique identified of each geom}
-
-\item{progress}{show progress bar for intersection (default = TRUE)}
 }
 \value{
 a data.table
