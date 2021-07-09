@@ -55,7 +55,7 @@ system.time({
   # Build Weight Grid
   w        = weighting_grid(file, AOI, "geoid")
   # Intersect
-  pr_zone = execute_zonal(file, w)
+  pr_zone = execute_zonal(file, w = w)
 })
 
 # PET zone: Counties, time slices/ID
@@ -74,7 +74,7 @@ plot(merge(AOI, pr_zone)[n], border = NA)
 
 ```{r}
 # Plot Day with the maximum county wide rainfall
-n2 = names(which.max(colSums(select(pr_zone, -geoid))))
+n2 = names(which.max(colSums(dplyr::select(pr_zone, -geoid))))
 plot(merge(AOI, pr_zone)[n2], border = NA)
 ```
 
@@ -82,15 +82,15 @@ plot(merge(AOI, pr_zone)[n2], border = NA)
 
 ```{r}
 data = pr_zone %>% 
-  slice_max(rowSums(select(., -geoid))) %>% 
-  tidyr::pivot_longer(-geoid, names_to = "date", values_to = "prcp") 
+  slice_max(rowSums(dplyr::select(., -geoid))) %>% 
+  tidyr::pivot_longer(-geoid, names_to = "day", values_to = "prcp") %>% 
+  mutate(day = as.numeric(gsub("V","", day)))
 
 head(data)
 ```
 
 ```{r, echo = FALSE}
-ggplot(data) +
-  aes(x = as.Date(date), y = prcp) + 
+ggplot(data, aes(x = day, y = prcp))  + 
   geom_line() + 
   labs(x = "Date", y = "Mean Rainfall",
        title = paste("GEOID: ", data$geoid[1])) +
@@ -102,15 +102,12 @@ ggplot(data) +
 One of the largest limitations of existing utilities is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mosacing 19 MODIS tiles covering CONUS.
 
 ```{r}
-file = '/Users/mjohnson/Downloads/MCD12Q1.006.nc'
+file = '/Users/mjohnson/github/zonal/depreciate/2019-01-01.tif'
 rcl = read.csv("inst/modis_lc.csv") %>% 
   dplyr::select(from = Class, to = short)
 
 system.time({
-  # Build Weight Grid
-  w  = weighting_grid(file, AOI, "geoid")
-  # Intersect, and relclassify
-  lc = execute_zonal_cat(file, w, rcl)
+  lc = execute_zonal_cat(file, AOI, "geoid", rcl = rcl)
 })
 ```
 
@@ -122,7 +119,8 @@ ggplot(to_plot) +
   scale_fill_gradient2() +
   geom_sf(data = sf::st_union(AOI), fill = "transparent") + 
   facet_wrap(~value) + 
-  theme_minimal()
+  theme_void() + 
+  theme(legend.position = "bottom")
 ```
 
 ----

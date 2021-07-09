@@ -10,7 +10,7 @@ Check](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml
 [![Project Status:
 Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![LifeCycle](man/figures/lifecycle/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![Dependencies](https://img.shields.io/badge/dependencies-9/27-orange?style=flat)](#)
+[![Dependencies](https://img.shields.io/badge/dependencies-7/30-orange?style=flat)](#)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
 [![Website
@@ -59,10 +59,10 @@ system.time({
   # Build Weight Grid
   w        = weighting_grid(file, AOI, "geoid")
   # Intersect
-  pr_zone = execute_zonal(file, w)
+  pr_zone = execute_zonal(file, w = w)
 })
 #>    user  system elapsed 
-#>  12.167   2.666  11.006
+#>  11.499   1.877  11.088
 
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
@@ -83,7 +83,7 @@ plot(merge(AOI, pr_zone)[n], border = NA)
 
 ``` r
 # Plot Day with the maximum county wide rainfall
-n2 = names(which.max(colSums(select(pr_zone, -geoid))))
+n2 = names(which.max(colSums(dplyr::select(pr_zone, -geoid))))
 plot(merge(AOI, pr_zone)[n2], border = NA)
 ```
 
@@ -93,19 +93,20 @@ plot(merge(AOI, pr_zone)[n2], border = NA)
 
 ``` r
 data = pr_zone %>% 
-  slice_max(rowSums(select(., -geoid))) %>% 
-  tidyr::pivot_longer(-geoid, names_to = "date", values_to = "prcp") 
+  slice_max(rowSums(dplyr::select(., -geoid))) %>% 
+  tidyr::pivot_longer(-geoid, names_to = "day", values_to = "prcp") %>% 
+  mutate(day = as.numeric(gsub("V","", day)))
 
 head(data)
 #> # A tibble: 6 x 3
-#>   geoid date        prcp
-#>   <chr> <chr>      <dbl>
-#> 1 37175 1979-01-01 48.3 
-#> 2 37175 1979-01-02 19.1 
-#> 3 37175 1979-01-03  0   
-#> 4 37175 1979-01-04  0   
-#> 5 37175 1979-01-05  1.96
-#> 6 37175 1979-01-06 12.9
+#>   geoid   day  prcp
+#>   <chr> <dbl> <dbl>
+#> 1 37175     1 48.3 
+#> 2 37175     2 19.1 
+#> 3 37175     3  0   
+#> 4 37175     4  0   
+#> 5 37175     5  1.96
+#> 6 37175     6 12.9
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
@@ -118,18 +119,15 @@ land cover data from MODIS. This grid was creating by mosacing 19 MODIS
 tiles covering CONUS.
 
 ``` r
-file = '/Users/mjohnson/Downloads/MCD12Q1.006.nc'
+file = '/Users/mjohnson/github/zonal/depreciate/2019-01-01.tif'
 rcl = read.csv("inst/modis_lc.csv") %>% 
   dplyr::select(from = Class, to = short)
 
 system.time({
-  # Build Weight Grid
-  w  = weighting_grid(file, AOI, "geoid")
-  # Intersect, and relclassify
-  lc = execute_zonal_cat(file, w, rcl)
+  lc = execute_zonal_cat(file, AOI, "geoid", rcl = rcl)
 })
 #>    user  system elapsed 
-#>   7.184   0.724   5.363
+#>   9.686   1.675   8.876
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
