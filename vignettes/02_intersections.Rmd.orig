@@ -1,0 +1,244 @@
+---
+title: "Zonal Statistics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Zonal Statistics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+library(dplyr)
+library(data.table)
+library(RNetCDF)
+library(sf)
+library(ncmeta)
+library(intersectr)
+library(zonal)
+library(terra)
+library(ggplot2)
+
+knitr::opts_chunk$set(
+  out.width = "100%",
+  fig.width = 7, 
+  fig.height = 4, dpi = 150, fig.path = "i-",
+  message = FALSE, warning = FALSE, error = FALSE
+)
+```
+
+With a weight grid, zonal metrics can be computed. The four primary approaches use slightly different processes:
+
+  1. `exactextractr` leverages C libraries and an in memory raster and sf object. It works polygon-by-polygon to compute coverage's and the weight table is computed within the function.
+  2. `intersectr` utilizes NetCDF filepath and calculates all polygons timestep-by-timestep using` data.table`. A weight grid must be supplied.
+  3. `zonal` works from NetCDF or tif filepath and calculates all polygons and all time simultaneously using `data.table`. A weight grid must also be supplied.
+
+The performance and comparison of these three approaches are shown below when the domain is large, and when (A) there a many thousands of polygons, and (B) when there a a few large polygon aggregation units.
+
+### Option 1: Intersectr: 
+
+The `intersectr` workflow for defining inputs for `execute_intersection` are wrapping into a prep function below:
+
+```{r, time_it = TRUE}
+intersectr_prep = function(file, geom, ID, variable){
+  nc_coord_vars <- nc_coord_var(file)
+  nc_coord_vars <- filter(nc_coord_vars, variable == !!variable)
+  
+  nc       <- open.nc(file)
+  X_coords <- var.get.nc(nc, nc_coord_vars$X, unpack = TRUE)
+  Y_coords <- var.get.nc(nc, nc_coord_vars$Y, unpack = TRUE)
+  
+  nc_prj <- nc_gm_to_prj(nc_grid_mapping_atts(file))
+    
+  cell_geometry = create_cell_geometry(X_coords = X_coords,
+                         Y_coords = Y_coords,
+                         prj = nc_prj,
+                         geom = geom, 
+                         buffer_dist = 0.1, # Degrees
+                         regularize = TRUE)
+    
+  data_source_cells <- st_sf(dplyr::select(cell_geometry, grid_ids))
+  target_polygons   <- st_sf(dplyr::select(geom, !!ID))
+  st_agr(data_source_cells) <- "constant"
+  st_agr(target_polygons)   <- "constant"
+
+  area_weights = calculate_area_intersection_weights(data_source_cells, target_polygons, allow_lonlat = TRUE)
+  
+  return(list(grid = cell_geometry, w = area_weights, x = nc_coord_vars$X, y = nc_coord_vars$Y, t = nc_coord_vars$T))
+}
+
+```
+
+### Option 2: exactextract: 
+
+The `exacextract` workflow for computing aggregate means for a raster stack are wrapped below:
+
+```{r, time_it = TRUE}
+exactrextract_process = function(file, geom, ID){
+  R.utils::withTimeout(
+    exactextractr::exact_extract(raster::stack(file), 
+                                 geom, 
+                                 stack_apply = TRUE, 
+                                 fun = "mean", 
+                                 append_cols = ID,
+                                 progress = FALSE),
+  timeout = 180, onTimeout = "silent")
+}
+```
+
+**Spoiler Alert**: This method can take an extremely long time when the polygon count is very high. As such, we are limiting the execution time to 180 seconds (three minutes). If a benchmark time indicates the process takes 180 seconds, it means the process was killed and not completed.
+
+### Option 3: zonal: 
+
+The `zonal` workflow for building a weight grid and executing the areal averages can be executed with `execute_zonal`.
+
+```{r}
+library(zonal)
+```
+
+## Grid
+The gridded data and aggregate units we are working with can be seen below:
+
+```{r}
+file = '/Users/mjohnson/Downloads/pet_1979.nc'
+(s = terra::rast(file))
+```
+
+Looking at the grid we can see in consists of `r terra::ncell(s)` grid cells each with a `r terra::res(s)[1]` meter by `r terra::res(s)[2]` meter resolution. Additionally, there are `r terra::nlyr(s)` unique time slices in the NetCDF file.
+
+## Example 1: HUC01
+
+Our first example uses a hydrofabric developed for the Northeast USA.
+
+```{r}
+geom <- read_sf('/Users/mjohnson/github/hydrofabric/workflow/nhd_workflows/cache/ngen_01a-4.gpkg', "catchments") %>% 
+  st_make_valid()
+
+glimpse(geom)
+```
+
+In total we have `r prettyNum(nrow(geom), big.mark = ",")` aggregation units to summarize over the `r prettyNum(terra::nlyr(s))` time steps. Both zonal and intersectr are designed to precompute a weight grid. Therefore we time how long it takes to do this using each method:
+
+```{r}
+int_time_huc01 = system.time({
+  intersectr_input = intersectr_prep(file, geom, ID = "comid", variable = 'potential_evapotranspiration')
+})
+
+zonal_time_huc01 = system.time({
+  zonal_w = weighting_grid(file, geom, ID = "comid")
+})
+```
+
+Next, we benchmark the time it takes to do the following:
+- run the `intersectr` workflow with precomputed weights
+- run the `exactextractr` workflow
+- run the `zonal` workflow 
+- run the `zonal` workflow with precomputed weights
+
+```{r}
+huc01_bnch <- bench::mark(
+  iterations = 1, check = FALSE, time_unit = 's',
+  intersectr_staged_weights = execute_intersection(nc_file = file,
+                               variable_name = 'potential_evapotranspiration',
+                               intersection_weights = intersectr_input$w,
+                               cell_geometry = intersectr_input$grid, 
+                               x_var = intersectr_input$x,
+                               y_var = intersectr_input$y,
+                               t_var = intersectr_input$t, 
+                               start_datetime = NULL, 
+                               end_datetime = NULL),
+  exactextractr            = exactrextract_process(file, geom, "comid"),
+  zonal_full               = execute_zonal(file, geom, "comid"),
+  zonal_staged_weights     = execute_zonal(file, w = zonal_w)
+)
+```
+
+```{r huc01-tests, echo = FALSE}
+oo = huc01_bnch %>%
+  dplyr::select(exp = expression, medianTime = median, memoryAllocated = mem_alloc) %>% 
+  mutate(exp = names(exp), memoryAllocated = unclass(memoryAllocated)/1e9) %>% 
+  mutate(preTime = ifelse(exp == 'intersectr_staged_weights', int_time_huc01[1], 0),
+         preTime = ifelse(exp %in% "zonal_staged_weights",zonal_time_huc01[1],  preTime),
+         TotalTime = medianTime + preTime,
+         preTime = NULL) %>% 
+  tidyr::pivot_longer(-exp) %>% 
+  mutate(labs = case_when(name == 'medianTime' ~ "1. Median Time\n(seconds)",
+                          name == 'memoryAllocated' ~ "3. Memory\n(GB)",
+                          name == "TotalTime" ~ "2. Total Time (precompute weights)\n(sec)"))
+
+
+ggplot(data = oo) +
+  aes(x = exp, y = value) + 
+  geom_col(aes(fill = exp)) +
+  facet_wrap(~labs, scales = "free_y") + 
+  theme_bw() + 
+  labs(y = "", x = "", title = "HUC01 Test Case") + 
+  theme(legend.position = "bottom") + 
+   theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank())
+```
+
+Overall when the polygon count is very high (~20,000), the zonal aproach with precomputed weights and non precomputed weights performs the best. Precomputing the weights save a significant amount of memory in the process and ~4 seconds in total run time. These timings suggest that 20 years of daily GridMet data could be computed for the ~20,000 catchments in about 11 minutes (~30 seconds * 20 year + ~15 seconds). The `intersectr` approach requires way more memory despite the precomputation of weights and takes about 3 times as long as zonal. Lastly the `exactextract` methods timed out at the upper limit of 180 seconds we prescribed. 
+
+## Example 02: Florida Counties
+
+Our second example looks at the timings for an aggregation over a large area with a few  aggregation units. The gridded data is the same as example 1, and the aggregate units can be seen below:
+
+```{r}
+(florida <- AOI::aoi_get(state = "FL", county = "all"))
+```
+
+The same functions and timing from example 1 are computed:
+
+```{r}
+int_time_fl = system.time({
+  intersectr_input_florida = intersectr_prep(file, florida, ID = "geoid", variable = 'potential_evapotranspiration')
+})
+
+zonal_time_fl = system.time({
+  zonal_w_florida = weighting_grid(file, florida, ID = "geoid")
+})
+```
+
+
+```{r}
+fl_bnch <- bench::mark(
+  iterations = 1, check = FALSE, time_unit = 's',
+  intersectr_staged_weights = execute_intersection(nc_file = file,
+                               variable_name = 'potential_evapotranspiration',
+                               intersection_weights = intersectr_input_florida$w,
+                               cell_geometry = intersectr_input_florida$grid, 
+                               x_var = intersectr_input_florida$x,
+                               y_var = intersectr_input_florida$y,
+                               t_var = intersectr_input_florida$t, 
+                               start_datetime = NULL, 
+                               end_datetime = NULL),
+  exactextractr            = exactrextract_process(file, florida, "geoid"),
+  zonal_full               = execute_zonal(file, florida, "geoid"),
+  zonal_staged_weights     = execute_zonal(file, w = zonal_w_florida)
+)
+```
+
+```{r FL-tests, echo = FALSE}
+oo2 = fl_bnch %>%
+  dplyr::select(exp = expression, medianTime = median, memoryAllocated = mem_alloc) %>% 
+  mutate(exp = names(exp), memoryAllocated = unclass(memoryAllocated)/1e9) %>% 
+  mutate(preTime = ifelse(exp == 'intersectr_staged_weights', int_time_fl[1], 0),
+         preTime = ifelse(exp %in% "zonal_staged_weights",zonal_time_fl[1],  preTime),
+         TotalTime = medianTime + preTime,
+         preTime = NULL) %>% 
+  tidyr::pivot_longer(-exp) %>% 
+  mutate(labs = case_when(name == 'medianTime' ~ "1. Median Time\n(seconds)",
+                          name == 'memoryAllocated' ~ "3. Memory\n(GB)",
+                          name == "TotalTime" ~ "2. Total Time (precompute weights)\n(sec)"))
+
+ggplot(data = oo2) +
+  aes(x = exp, y = value) + 
+  geom_col(aes(fill = exp)) +
+  facet_wrap(~labs, scales = "free_y") + 
+  theme_bw() + 
+  labs(y = "", x = "", title = "Florida Test Case") + 
+  theme(legend.position = "bottom") + 
+   theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank())
+```
+Again, similar results are found.

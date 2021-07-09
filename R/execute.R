@@ -13,7 +13,7 @@
 #' @importFrom data.table getDTthreads setDTthreads
 
 
-execute_zonal    = function(file, geom, ID, w) {
+execute_zonal    = function(file = NULL, geom = NULL, ID = NULL, w = NULL) {
   .SD <-  NULL
   
   w = .find_w(file, geom, ID, w)

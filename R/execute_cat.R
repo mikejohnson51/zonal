@@ -16,21 +16,21 @@ execute_zonal_cat    = function(file = NULL, geom = NULL, ID = NULL, w = NULL, r
   
   . <- frac_total <- NULL
 
-  w = .find_w(file, geom, ID, w)
+  w       = .find_w(file, geom, ID, w)
   w_names = c("grid_id", "w", "X", "Y")
   ID = names(w)[!names(w) %in% w_names]
 
-  dt = .zonal_io(file, w)
+  cat_dt = .zonal_io(file, w)
 
   #TODO: leave this so the date 
-  cols = names(dt)[!names(dt) %in% c(ID, w_names)]
+  cols = names(cat_dt)[!names(cat_dt) %in% c(ID, w_names)]
+  
+  cat_dt[, frac_total := (w / sum(w, na.rm = TRUE)), by = c(ID)]
+  cat_dt = cat_dt[, .(freq = sum(frac_total, na.rm = TRUE)), by = c(ID, cols)]
 
-  dt[, frac_total:= w / sum(w, na.rm = TRUE), by = c(ID)]
-  dt2 = dt[, .(freq = sum(frac_total, na.rm = TRUE)), by = c(ID, cols)]
+  if(!is.null(rcl)){ cat_dt[[cols]] = rcl$to[match(cat_dt[[cols]], rcl$from)] }
   
-  if(!is.null(rcl)){ dt2$value = rcl$to[match(dt2$value, rcl$from)] }
-  
-  setnames(dt2, c(ID, "value", "percentage"))
+  setnames(cat_dt, c(ID, "value", "percentage"))
 }
 
 

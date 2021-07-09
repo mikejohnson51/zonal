@@ -15,13 +15,16 @@
   if(max(layer) < terra::nlyr(file) & min(layer) > 0 ){
     file = file[[layer]]
   }
-  
+
   mins = terra::xyFromCell(file, terra::cellFromRowCol(file, min(w$Y), min(w$X)))
   maxs = terra::xyFromCell(file, terra::cellFromRowCol(file, max(w$Y), max(w$X)))
+
+  cats =  terra::crop(file, 
+                      terra::ext(c(mins[1], maxs[1], maxs[2], mins[2])),
+                      snap = "out")
   
-  st =  terra::crop(file, terra::ext(c(mins[1], maxs[1], maxs[2], mins[2])), snap = "out")
-  
-  df = as.data.frame(st[])
+  df = as.data.frame(cats[])
+
   names(df) <- paste0('V', 1:ncol(df))
   df$grid_id = 1:nrow(df)
   setDT(df, key = "grid_id")

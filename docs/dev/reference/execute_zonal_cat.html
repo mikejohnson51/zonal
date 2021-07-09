@@ -103,13 +103,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/categorical.html">Categorical Data</a>
+      <a href="../articles/01_weight_creation.html">Weight Maps</a>
     </li>
     <li>
-      <a href="../articles/intersections.html">Zonal Statistics</a>
+      <a href="../articles/02_intersections.html">Zonal Statistics</a>
     </li>
     <li>
-      <a href="../articles/weight_creation.html">Weight Maps</a>
+      <a href="../articles/03_categorical.html">Categorical Data</a>
     </li>
   </ul>
 </li>
@@ -143,7 +143,7 @@
     <p>Execute Spatial Intersection on Categorical Data</p>
     </div>
 
-    <pre class="usage"><span class='fu'>execute_zonal_cat</span><span class='op'>(</span><span class='va'>file</span>, <span class='va'>w</span>, rcl <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>execute_zonal_cat</span><span class='op'>(</span>file <span class='op'>=</span> <span class='cn'>NULL</span>, geom <span class='op'>=</span> <span class='cn'>NULL</span>, ID <span class='op'>=</span> <span class='cn'>NULL</span>, w <span class='op'>=</span> <span class='cn'>NULL</span>, rcl <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -153,8 +153,16 @@
       <td><p>path to a gridded file (either .tif or .nc)</p></td>
     </tr>
     <tr>
+      <th>geom</th>
+      <td><p>sf object of aggregation units</p></td>
+    </tr>
+    <tr>
+      <th>ID</th>
+      <td><p>the name of the column providing the unique identified of each geom</p></td>
+    </tr>
+    <tr>
       <th>w</th>
-      <td><p>a weighting grid produced with <code>weighting_grid</code></p></td>
+      <td><p>a precomputed weighting grid produced with <code>weighting_grid</code></p></td>
     </tr>
     <tr>
       <th>rcl</th>
@@ -180,7 +188,7 @@ If left NULL (default) the headings will not be altered.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Mike Johsnon.</p>
+  <p>Developed by Mike Johnson.</p>
 </div>
 
 <div class="pkgdown">

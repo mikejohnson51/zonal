@@ -62,6 +62,15 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/01_weight_creation.html">Weight Maps</a>
+    </li>
+    <li>
+      <a href="../articles/02_intersections.html">Zonal Statistics</a>
+    </li>
+    <li>
+      <a href="../articles/03_categorical.html">Categorical Data</a>
+    </li>
+    <li>
       <a href="../articles/categorical.html">Categorical Data</a>
     </li>
     <li>
@@ -134,7 +143,7 @@
 <a href="#define-aggreation-units" class="anchor"></a>Define aggreation units</h4>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">AOI</span>  <span class="op">=</span> <span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"Northeast"</span>, county <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span>
-<span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">$</span><span class="va">geometry</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">)</span>, <span class="st">"counties"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">$</span><span class="va">geometry</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">)</span>, <span class="st">"counties"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <div class="figure">
 <img src="figure/unnamed-chunk-8-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-8</p>
 </div>
@@ -161,17 +170,17 @@
 <h4 class="hasAnchor">
 <a href="#exploring-the-data" class="anchor"></a>Exploring the data</h4>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">to_plot</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span><span class="op">(</span><span class="va">AOI</span>, <span class="va">lc</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">to_plot</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/merge.html">merge</a></span><span class="op">(</span><span class="va">AOI</span>, <span class="va">lc</span><span class="op">)</span>
 
-<span class="op">{</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">to_plot</span>, <span class="va">value</span> <span class="op">==</span> <span class="fl">5</span><span class="op">)</span><span class="op">[</span><span class="st">'percentage'</span><span class="op">]</span>, border <span class="op">=</span> <span class="st">"NA"</span>, main <span class="op">=</span> <span class="st">"Mixed Forest"</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
- <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"Northeast"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
+<span class="op">{</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">to_plot</span>, <span class="va">value</span> <span class="op">==</span> <span class="fl">5</span><span class="op">)</span><span class="op">[</span><span class="st">'percentage'</span><span class="op">]</span>, border <span class="op">=</span> <span class="st">"NA"</span>, main <span class="op">=</span> <span class="st">"Mixed Forest"</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+ <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"Northeast"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
 <div class="figure">
 <img src="figure/unnamed-chunk-10-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-10</p>
 </div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
-<span class="op">{</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">to_plot</span>, <span class="va">value</span> <span class="op">==</span> <span class="fl">13</span><span class="op">)</span><span class="op">[</span><span class="st">'percentage'</span><span class="op">]</span>, border <span class="op">=</span> <span class="st">"NA"</span>, main <span class="op">=</span> <span class="st">"Urban"</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"Northeast"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
+<span class="op">{</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">to_plot</span>, <span class="va">value</span> <span class="op">==</span> <span class="fl">13</span><span class="op">)</span><span class="op">[</span><span class="st">'percentage'</span><span class="op">]</span>, border <span class="op">=</span> <span class="st">"NA"</span>, main <span class="op">=</span> <span class="st">"Urban"</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"Northeast"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
 <div class="figure">
 <img src="figure/unnamed-chunk-10-2.png" alt=""><p class="caption">plot of chunk unnamed-chunk-10</p>
 </div>
@@ -186,14 +195,14 @@
 <a href="#define-aggregation-units" class="anchor"></a>Define Aggregation Units</h4>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">AOI</span>  <span class="op">=</span> <span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"North Central"</span>, county <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span>
-<span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">$</span><span class="va">geometry</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">)</span>, <span class="st">"counties"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">$</span><span class="va">geometry</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">)</span>, <span class="st">"counties"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="figure/unnamed-chunk-11-1.png" alt="plot of chunk unnamed-chunk-11"> #### Define Reclass Table</p>
 <p>A reclassification table tells us what each numeric value represents in a categorical raster. Below, we use a CSV file to define this mapping. The schema used is that one column must be named “from” - this is the exisiting data values, and one column must be named “to” - this is the desired column headings.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">rcl</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="st">"../inst/modis_lc.csv"</span><span class="op">)</span> <span class="op">%&gt;%</span> 
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span>from <span class="op">=</span> <span class="va">Class</span>, to <span class="op">=</span> <span class="va">short</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">rcl</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">rcl</span><span class="op">)</span>
 <span class="co">#&gt;   from               to</span>
 <span class="co">#&gt; 1    1 evergreen_needle</span>
 <span class="co">#&gt; 2    2  evergreen_broad</span>
@@ -226,16 +235,16 @@
 <h4 class="hasAnchor">
 <a href="#explore-the-data" class="anchor"></a>Explore the data</h4>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">midwest</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span><span class="op">(</span><span class="va">AOI</span>, <span class="va">lc</span><span class="op">)</span>
-<span class="op">{</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">midwest</span>, <span class="va">value</span> <span class="op">==</span> <span class="st">'croplands'</span><span class="op">)</span><span class="op">[</span><span class="st">'percentage'</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Croplands"</span>, border <span class="op">=</span> <span class="st">'NA'</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"North Central"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
+<code class="sourceCode R"><span class="va">midwest</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/merge.html">merge</a></span><span class="op">(</span><span class="va">AOI</span>, <span class="va">lc</span><span class="op">)</span>
+<span class="op">{</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">midwest</span>, <span class="va">value</span> <span class="op">==</span> <span class="st">'croplands'</span><span class="op">)</span><span class="op">[</span><span class="st">'percentage'</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Croplands"</span>, border <span class="op">=</span> <span class="st">'NA'</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"North Central"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
 <div class="figure">
 <img src="figure/unnamed-chunk-14-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-14</p>
 </div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
-<span class="op">{</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">midwest</span>, <span class="va">value</span> <span class="op">==</span> <span class="st">'urban'</span><span class="op">)</span><span class="op">[</span><span class="st">'percentage'</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Urban"</span>, border <span class="op">=</span> <span class="st">'NA'</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"North Central"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
+<span class="op">{</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">midwest</span>, <span class="va">value</span> <span class="op">==</span> <span class="st">'urban'</span><span class="op">)</span><span class="op">[</span><span class="st">'percentage'</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Urban"</span>, border <span class="op">=</span> <span class="st">'NA'</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"North Central"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
 <div class="figure">
 <img src="figure/unnamed-chunk-14-2.png" alt=""><p class="caption">plot of chunk unnamed-chunk-14</p>
 </div>
@@ -253,8 +262,8 @@
   <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html">st_as_sf</a></span><span class="op">(</span><span class="op">)</span>
 
 
-<span class="op">{</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="va">forest</span><span class="op">[</span><span class="st">'forest'</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Forest"</span>, border <span class="op">=</span> <span class="st">'NA'</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"North Central"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
+<span class="op">{</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">forest</span><span class="op">[</span><span class="st">'forest'</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Forest"</span>, border <span class="op">=</span> <span class="st">'NA'</span>, reset <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"North Central"</span><span class="op">)</span><span class="op">$</span><span class="va">geometry</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">}</span></code></pre></div>
 <div class="figure">
 <img src="figure/unnamed-chunk-15-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-15</p>
 </div>
@@ -400,7 +409,7 @@ exactextract_dplyr
 
 
       <footer><div class="copyright">
-  <p>Developed by Mike Johsnon.</p>
+  <p>Developed by Mike Johnson.</p>
 </div>
 
 <div class="pkgdown">

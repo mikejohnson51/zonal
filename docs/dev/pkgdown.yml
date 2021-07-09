@@ -2,8 +2,8 @@ pandoc: 2.11.4
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
-  categorical: categorical.html
-  intersections: intersections.html
-  weight_creation: weight_creation.html
-last_built: 2021-06-30T21:30Z
+  01_weight_creation: 01_weight_creation.html
+  02_intersections: 02_intersections.html
+  03_categorical: 03_categorical.html
+last_built: 2021-07-09T03:40Z
 

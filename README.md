@@ -62,7 +62,7 @@ system.time({
   pr_zone = execute_zonal(file, w)
 })
 #>    user  system elapsed 
-#>  12.069   2.797  10.872
+#>  12.167   2.666  11.006
 
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
@@ -129,7 +129,7 @@ system.time({
   lc = execute_zonal_cat(file, w, rcl)
 })
 #>    user  system elapsed 
-#>   6.835   0.640   4.849
+#>   7.184   0.724   5.363
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
