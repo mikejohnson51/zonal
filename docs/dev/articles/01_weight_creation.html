@@ -90,7 +90,7 @@
 
       
 
-      </header><script src="01_weight_creation_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><script src="01_weight_creation_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Weight Maps</h1>
@@ -134,10 +134,10 @@
                          buffer_dist <span class="op">=</span> <span class="fl">0.1</span>, <span class="co"># Degrees</span>
                          regularize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
     
-  <span class="va">data_source_cells</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/sf.html">st_sf</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">cell_geometry</span>, <span class="va">grid_ids</span><span class="op">)</span><span class="op">)</span>
-  <span class="va">target_polygons</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/sf.html">st_sf</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">geom</span>, <span class="op">!</span><span class="op">!</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span>
-  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_agr.html">st_agr</a></span><span class="op">(</span><span class="va">data_source_cells</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"constant"</span>
-  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_agr.html">st_agr</a></span><span class="op">(</span><span class="va">target_polygons</span><span class="op">)</span>   <span class="op">&lt;-</span> <span class="st">"constant"</span>
+  <span class="va">data_source_cells</span> <span class="op">&lt;-</span> <span class="fu">st_sf</span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">cell_geometry</span>, <span class="va">grid_ids</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">target_polygons</span>   <span class="op">&lt;-</span> <span class="fu">st_sf</span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">geom</span>, <span class="op">!</span><span class="op">!</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span>
+  <span class="fu">st_agr</span><span class="op">(</span><span class="va">data_source_cells</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"constant"</span>
+  <span class="fu">st_agr</span><span class="op">(</span><span class="va">target_polygons</span><span class="op">)</span>   <span class="op">&lt;-</span> <span class="st">"constant"</span>
     
   <span class="fu"><a href="https://rdrr.io/pkg/intersectr/man/calculate_area_intersection_weights.html">calculate_area_intersection_weights</a></span><span class="op">(</span>
       <span class="va">data_source_cells</span>,
@@ -160,35 +160,35 @@
 <div id="grid" class="section level2">
 <h2 class="hasAnchor">
 <a href="#grid" class="anchor"></a>Grid</h2>
-<p>The gridded data and aggregate units we are working with can be seen below:</p>
+<p>The gridded data and aggregate units we are working with can be seen below and downloaded from <a href="https://www.northwestknowledge.net/metdata/data/pet_2020.nc">here</a>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">file</span> <span class="op">=</span> <span class="st">'/Users/mjohnson/Downloads/pet_1979.nc'</span>
+<code class="sourceCode R"><span class="va">file</span> <span class="op">=</span> <span class="st">'pet_2020.nc'</span>
 <span class="op">(</span><span class="va">s</span> <span class="op">=</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html">rast</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## class       : SpatRaster 
-## dimensions  : 585, 1386, 365  (nrow, ncol, nlyr)
-## resolution  : 0.04166667, 0.04166667  (x, y)
-## extent      : -124.7875, -67.0375, 25.04583, 49.42083  (xmin, xmax, ymin, ymax)
+## dimensions  : 585, 1386, 366  (nrow, ncol, nlyr)
+## resolution  : 0.04167, 0.04167  (x, y)
+## extent      : -124.8, -67.04, 25.05, 49.42  (xmin, xmax, ymin, ymax)
 ## coord. ref. : +proj=longlat +datum=WGS84 +no_defs 
-## source      : pet_1979.nc 
+## source      : pet_2020.nc 
 ## varname     : potential_evapotranspiration (pet) 
-## names       : poten~28854, poten~28855, poten~28856, poten~28857, poten~28858, poten~28859, ... 
+## names       : poten~43829, poten~43830, poten~43831, poten~43832, poten~43833, poten~43834, ... 
 ## unit        :          mm,          mm,          mm,          mm,          mm,          mm, ...</code></pre>
-<p>Looking at the grid we can see in consists of 8.1081 × 10<sup>5</sup> grid cells each with a 0.0416667 meter by 0.0416667 meter resolution. Additionally, there are 365 unique time slices in the NetCDF file.</p>
+<p>Looking at the grid we can see in consists of 810810 grid cells each with a 0.0417 meter by 0.0417 meter resolution. Additionally, there are 366 unique time slices in the NetCDF file.</p>
 </div>
 <div id="example-01-many-small-aggregation-units" class="section level2">
 <h2 class="hasAnchor">
 <a href="#example-01-many-small-aggregation-units" class="anchor"></a>Example 01: Many small aggregation units</h2>
 <p>Here, we look at an example with ~20,000 watersheds along the east coast.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">geom</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/valid.html">st_make_valid</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html">read_sf</a></span><span class="op">(</span><span class="st">'/Users/mjohnson/github/hydrofabric/workflow/nhd_workflows/cache/ngen_01a-4.gpkg'</span>, <span class="st">"catchments"</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">geom</span> <span class="op">&lt;-</span> <span class="fu">st_make_valid</span><span class="op">(</span><span class="fu">read_sf</span><span class="op">(</span><span class="st">'ngen_01a-4.gpkg'</span>, <span class="st">"catchments"</span><span class="op">)</span><span class="op">)</span>
 
 <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">geom</span><span class="op">)</span></code></pre></div>
 <pre><code>## Rows: 19,700
 ## Columns: 3
-## $ comid    &lt;dbl&gt; 4289595, 4290057, 4287059, 4287061, 42926…
-## $ areasqkm &lt;dbl&gt; 12.270742, 4.061445, 2.805607, 6.786665, …
-## $ geom     &lt;MULTIPOLYGON [m]&gt; MULTIPOLYGON (((1976295 290.…</code></pre>
-<p>In total we have 19,700 aggregation units to summarize over the 365 time steps.</p>
+## $ comid    &lt;dbl&gt; 4289595, 4290057, 4287059, 4287061, 429264…
+## $ areasqkm &lt;dbl&gt; 12.271, 4.061, 2.806, 6.787, 18.157, 27.86…
+## $ geom     &lt;MULTIPOLYGON [m]&gt; MULTIPOLYGON (((1976295 290..…</code></pre>
+<p>In total we have 19,700 aggregation units to summarize over the 366 time steps.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">bnch</span> <span class="op">&lt;-</span> <span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/bench/man/mark.html">mark</a></span><span class="op">(</span>
   iterations <span class="op">=</span> <span class="fl">1</span>, check <span class="op">=</span> <span class="cn">FALSE</span>, time_unit <span class="op">=</span> <span class="st">"s"</span>,
@@ -206,20 +206,20 @@
 <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">colorado</span><span class="op">)</span></code></pre></div>
 <pre><code>## Rows: 64
 ## Columns: 13
-## $ statefp           &lt;chr&gt; "08", "08", "08", "08", "08", "0…
-## $ countyfp          &lt;chr&gt; "035", "095", "039", "014", "037…
-## $ countyns          &lt;chr&gt; "00198133", "00198163", "0019813…
-## $ affgeoid          &lt;chr&gt; "0500000US08035", "0500000US0809…
-## $ geoid             &lt;chr&gt; "08035", "08095", "08039", "0801…
-## $ name              &lt;chr&gt; "Douglas", "Phillips", "Elbert",…
-## $ lsad              &lt;chr&gt; "06", "06", "06", "06", "06", "0…
-## $ aland             &lt;dbl&gt; 2176272717, 1781724973, 47936588…
-## $ awater            &lt;dbl&gt; 6752511, 301808, 442148, 1411781…
-## $ state_name        &lt;chr&gt; "Colorado", "Colorado", "Colorad…
-## $ state_abbr        &lt;chr&gt; "CO", "CO", "CO", "CO", "CO", "C…
-## $ jurisdiction_type &lt;chr&gt; "state", "state", "state", "stat…
-## $ geometry          &lt;MULTIPOLYGON [°]&gt; MULTIPOLYGON (((-10…</code></pre>
-<p>In total we have 64 aggregation units to summarize over the 365 time steps.</p>
+## $ statefp           &lt;chr&gt; "08", "08", "08", "08", "08", "08"…
+## $ countyfp          &lt;chr&gt; "035", "095", "039", "014", "037",…
+## $ countyns          &lt;chr&gt; "00198133", "00198163", "00198136"…
+## $ affgeoid          &lt;chr&gt; "0500000US08035", "0500000US08095"…
+## $ geoid             &lt;chr&gt; "08035", "08095", "08039", "08014"…
+## $ name              &lt;chr&gt; "Douglas", "Phillips", "Elbert", "…
+## $ lsad              &lt;chr&gt; "06", "06", "06", "06", "06", "06"…
+## $ aland             &lt;dbl&gt; 2176272717, 1781724973, 4793658887…
+## $ awater            &lt;dbl&gt; 6752511, 301808, 442148, 1411781, …
+## $ state_name        &lt;chr&gt; "Colorado", "Colorado", "Colorado"…
+## $ state_abbr        &lt;chr&gt; "CO", "CO", "CO", "CO", "CO", "CO"…
+## $ jurisdiction_type &lt;chr&gt; "state", "state", "state", "state"…
+## $ geometry          &lt;MULTIPOLYGON [°]&gt; MULTIPOLYGON (((-105.…</code></pre>
+<p>In total we have 64 aggregation units to summarize over the 366 time steps.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">bnch2</span> <span class="op">&lt;-</span> <span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/bench/man/mark.html">mark</a></span><span class="op">(</span>
   iterations <span class="op">=</span> <span class="fl">1</span>, check <span class="op">=</span> <span class="cn">FALSE</span>, time_unit <span class="op">=</span> <span class="st">"s"</span>,
@@ -236,13 +236,13 @@
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">zonal</span>      <span class="op">=</span> <span class="fu">zonal</span><span class="fu">::</span><span class="fu"><a href="../reference/weighting_grid.html">weighting_grid</a></span><span class="op">(</span><span class="va">file</span>, <span class="va">colorado</span>, <span class="st">"name"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">zonal</span><span class="op">)</span></code></pre></div>
-<pre><code>##      name   Y   X grid_id         w
-## 1: Moffat 203 378       1 0.2724911
-## 2: Moffat 203 379       2 0.9152694
-## 3: Moffat 203 380       3 0.9145876
-## 4: Moffat 203 381       4 0.9139059
-## 5: Moffat 203 382       5 0.9132242
-## 6: Moffat 203 383       6 0.9125424</code></pre>
+<pre><code>##      name   Y   X grid_id      w
+## 1: Moffat 203 378       1 0.2725
+## 2: Moffat 203 379       2 0.9153
+## 3: Moffat 203 380       3 0.9146
+## 4: Moffat 203 381       4 0.9139
+## 5: Moffat 203 382       5 0.9132
+## 6: Moffat 203 383       6 0.9125</code></pre>
 </div>
   </div>
 
