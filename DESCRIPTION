@@ -10,18 +10,14 @@ Authors@R:
 Maintainer: Mike Johnson <mikecp11@gmail.com>
 BugReports: https://github.com/mikejohnson51/zonal/issues
 Description: Given a gridded and vector based input, compute weighted mean and percent coverage.
-Depends:
-    R(>= 3.5.0)
-Imports:
+Depends: R(>= 3.5.0)
+Imports: 
     data.table,
-    raster,
-    terra,
-    RNetCDF,
+    exactextractr,
     ncmeta,
-    exactextractr
-Suggests:
-    rmarkdown,
-    knitr
+    raster,
+    RNetCDF,
+    terra
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

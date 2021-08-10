@@ -44,11 +44,11 @@ This is a basic example that takes a NetCDF file containing a 4km grid for the c
 
 ```{r example}
 library(zonal)
-library(sf)
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 
-file <- '/Users/mjohnson/Downloads/pr_1979.nc'
+file <- 'to_build/pr_2020.nc'
 AOI  <- AOI::aoi_get(state = "south", county = "all") 
 
 system.time({
@@ -65,9 +65,16 @@ dim(pr_zone)
 ### Daily maximum mean rainfall in a county?
 
 ```{r}
+x = merge(AOI, pr_zone)
+
 # Plot Day with the maximum single county max rainfall.
 n = colnames(pr_zone)[which(pr_zone[,-1] == max(pr_zone[,-1]), arr.ind = TRUE)[2] + 1]
-plot(merge(AOI, pr_zone)[n], border = NA)
+
+ggplot() + 
+  geom_sf(data = x, aes(fill = get(n)), color = NA) + 
+  scale_fill_viridis_c() + 
+  theme_void() + 
+  labs(fill = "PR (mm)")
 ```
 
 ### Daily maximum rainfall in the south?
@@ -75,15 +82,20 @@ plot(merge(AOI, pr_zone)[n], border = NA)
 ```{r}
 # Plot Day with the maximum county wide rainfall
 n2 = names(which.max(colSums(dplyr::select(pr_zone, -geoid))))
-plot(merge(AOI, pr_zone)[n2], border = NA)
+
+ggplot() + 
+  geom_sf(data = x, aes(fill = get(n2)), color = NA) + 
+  scale_fill_viridis_c() + 
+  theme_void() + 
+  labs(fill = "PR (mm)")
 ```
 
 ### Timeseries of conuty with maximum annual rainfall
 
 ```{r}
 data = pr_zone %>% 
-  slice_max(rowSums(dplyr::select(., -geoid))) %>% 
-  tidyr::pivot_longer(-geoid, names_to = "day", values_to = "prcp") %>% 
+  slice_max(rowSums(select(., -geoid))) %>% 
+  pivot_longer(-geoid, names_to = "day", values_to = "prcp") %>% 
   mutate(day = as.numeric(gsub("V","", day)))
 
 head(data)
@@ -102,9 +114,9 @@ ggplot(data, aes(x = day, y = prcp))  +
 One of the largest limitations of existing utilities is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mosacing 19 MODIS tiles covering CONUS.
 
 ```{r}
-file = '/Users/mjohnson/github/zonal/depreciate/2019-01-01.tif'
-rcl = read.csv("inst/modis_lc.csv") %>% 
-  dplyr::select(from = Class, to = short)
+file = 'to_build/2019-01-01.tif'
+rcl = read.csv("to_build//modis_lc.csv") %>% 
+  select(from = Class, to = short)
 
 system.time({
   lc = execute_zonal_cat(file, AOI, "geoid", rcl = rcl)
@@ -142,6 +154,12 @@ ggplot(to_plot) +
 ----
 
 ## Credits and references
+
+A list of direct and indirect dependencies can be seen here:
+
+```{r}
+rcompendium::get_all_dependencies()
+```
 
 Similar R packages:
 
