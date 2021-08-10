@@ -24,7 +24,7 @@ In `zonal` categorical data is handled with `execute_zonal_cat` which computes t
 ### Grid
 
 ```r
-file = '/Users/mjohnson/github/zonal/depreciate/2019-01-01.tif'
+file = '2019-01-01.tif'
 (r = terra::rast(file))
 ```
 
@@ -38,7 +38,7 @@ file = '/Users/mjohnson/github/zonal/depreciate/2019-01-01.tif'
 ## name        : Land_Cover_Type_1
 ```
 
-Looking at the grid we can see in consists of 1.3367936 &times; 10<sup>7</sup> grid cells each with a 1000 meter by 1000 meter resolution. Additionally, there are 18 unique values in the grid (17 landcover and one nodata value).
+Looking at the grid we can see in consists of 13367936 grid cells each with a 1000 meter by 1000 meter resolution. Additionally, there are 18 unique values in the grid (17 landcover and one nodata value).
 
 ### Example 1: Basic Use
 
@@ -65,7 +65,7 @@ system.time({
 
 ```
 ##    user  system elapsed 
-##   2.631   0.862   2.908
+##   2.776   1.226   4.139
 ```
 
 ```r
@@ -75,10 +75,11 @@ glimpse(lc)
 ```
 ## Rows: 1,998
 ## Columns: 3
-## $ geoid      <chr> "23003", "23003", "23003", "23003", "23…
-## $ value      <dbl> 8, 13, 10, 4, 5, 9, 12, 14, 17, 1, 11, …
-## $ percentage <dbl> 0.1333440460, 0.0012883343, 0.013785256…
+## $ geoid      [3m[38;5;246m<chr>[39m[23m "23003", "23003", "23003", "23003", "23003", "23003", "2…
+## $ value      [3m[38;5;246m<dbl>[39m[23m 8, 13, 10, 4, 5, 9, 12, 14, 17, 1, 11, 4, 5, 8, 10, 1, 5…
+## $ percentage [3m[38;5;246m<dbl>[39m[23m 0.1333440, 0.0012883, 0.0137853, 0.1660485, 0.6205781, 0…
 ```
+
 #### Exploring the data
 
 
@@ -115,13 +116,14 @@ plot(AOI$geometry, main = paste(nrow(AOI), "counties"))
 ```
 
 <img src="c-AOI-NC-1.png" title="plot of chunk AOI-NC" alt="plot of chunk AOI-NC" width="100%" />
+
 #### Define Reclass Table
 
 A reclassification table tells us what each numeric value represents in a categorical raster. Below, we use a CSV file to define this mapping. The schema used is that one column must be named "from" - this is the exisiting data values, and one column must be named "to" - this is the desired column headings.
 
 
 ```r
-rcl = read.csv("../inst/modis_lc.csv") %>% 
+rcl = read.csv("modis_lc.csv") %>% 
   dplyr::select(from = Class, to = short)
 
 head(rcl)
@@ -148,7 +150,7 @@ system.time({
 
 ```
 ##    user  system elapsed 
-##   6.603   1.513   6.063
+##   6.404   2.013   8.822
 ```
 
 ```r
@@ -158,9 +160,9 @@ glimpse(lc)
 ```
 ## Rows: 7,103
 ## Columns: 3
-## $ geoid      <chr> "27077", "27077", "27077", "27077", "27…
-## $ value      <chr> "woody_savanna", "deciduous_broad", "gr…
-## $ percentage <dbl> 0.355295150, 0.095975609, 0.045632663, …
+## $ geoid      [3m[38;5;246m<chr>[39m[23m "27077", "27077", "27077", "27077", "27077", "27077", "2…
+## $ value      [3m[38;5;246m<chr>[39m[23m "woody_savanna", "deciduous_broad", "grassland", "mixed_…
+## $ percentage [3m[38;5;246m<dbl>[39m[23m 0.355295, 0.095976, 0.045633, 0.141788, 0.015364, 0.2559…
 ```
 
 #### Explore the data
@@ -197,8 +199,7 @@ plot(forest['forest'], main = "Forest")
 
 <img src="c-NC-forest-1.png" title="plot of chunk NC-forest" alt="plot of chunk NC-forest" width="100%" />
 
-
-## Comapre with exactextractr
+## Compare with exactextractr
 
 From the `exactectractr` vignettes there is an example to compute class statisitcs using `dplyr`. Here we compare that appraoch, to one supplimented with `data.table`, to `zonal` with pre-compted weights, and to a single `zonal` execution.
 

@@ -90,7 +90,7 @@
 
       
 
-      </header><script src="02_intersections_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><script src="02_intersections_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Zonal Statistics</h1>
@@ -135,10 +135,10 @@
                          buffer_dist <span class="op">=</span> <span class="fl">0.1</span>, <span class="co"># Degrees</span>
                          regularize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
     
-  <span class="va">data_source_cells</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/sf.html">st_sf</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">cell_geometry</span>, <span class="va">grid_ids</span><span class="op">)</span><span class="op">)</span>
-  <span class="va">target_polygons</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/sf.html">st_sf</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">geom</span>, <span class="op">!</span><span class="op">!</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span>
-  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_agr.html">st_agr</a></span><span class="op">(</span><span class="va">data_source_cells</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"constant"</span>
-  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_agr.html">st_agr</a></span><span class="op">(</span><span class="va">target_polygons</span><span class="op">)</span>   <span class="op">&lt;-</span> <span class="st">"constant"</span>
+  <span class="va">data_source_cells</span> <span class="op">&lt;-</span> <span class="fu">st_sf</span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">cell_geometry</span>, <span class="va">grid_ids</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">target_polygons</span>   <span class="op">&lt;-</span> <span class="fu">st_sf</span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">geom</span>, <span class="op">!</span><span class="op">!</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span>
+  <span class="fu">st_agr</span><span class="op">(</span><span class="va">data_source_cells</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"constant"</span>
+  <span class="fu">st_agr</span><span class="op">(</span><span class="va">target_polygons</span><span class="op">)</span>   <span class="op">&lt;-</span> <span class="st">"constant"</span>
 
   <span class="va">area_weights</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/intersectr/man/calculate_area_intersection_weights.html">calculate_area_intersection_weights</a></span><span class="op">(</span><span class="va">data_source_cells</span>, <span class="va">target_polygons</span>, allow_lonlat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
   
@@ -174,34 +174,34 @@
 <a href="#grid" class="anchor"></a>Grid</h2>
 <p>The gridded data and aggregate units we are working with can be seen below:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">file</span> <span class="op">=</span> <span class="st">'/Users/mjohnson/Downloads/pet_1979.nc'</span>
+<code class="sourceCode R"><span class="va">file</span> <span class="op">=</span> <span class="st">'pet_2020.nc'</span>
 <span class="op">(</span><span class="va">s</span> <span class="op">=</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html">rast</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## class       : SpatRaster 
-## dimensions  : 585, 1386, 365  (nrow, ncol, nlyr)
-## resolution  : 0.04166667, 0.04166667  (x, y)
-## extent      : -124.7875, -67.0375, 25.04583, 49.42083  (xmin, xmax, ymin, ymax)
+## dimensions  : 585, 1386, 366  (nrow, ncol, nlyr)
+## resolution  : 0.04167, 0.04167  (x, y)
+## extent      : -124.8, -67.04, 25.05, 49.42  (xmin, xmax, ymin, ymax)
 ## coord. ref. : +proj=longlat +datum=WGS84 +no_defs 
-## source      : pet_1979.nc 
+## source      : pet_2020.nc 
 ## varname     : potential_evapotranspiration (pet) 
-## names       : poten~28854, poten~28855, poten~28856, poten~28857, poten~28858, poten~28859, ... 
+## names       : poten~43829, poten~43830, poten~43831, poten~43832, poten~43833, poten~43834, ... 
 ## unit        :          mm,          mm,          mm,          mm,          mm,          mm, ...</code></pre>
-<p>Looking at the grid we can see in consists of 8.1081 × 10<sup>5</sup> grid cells each with a 0.0416667 meter by 0.0416667 meter resolution. Additionally, there are 365 unique time slices in the NetCDF file.</p>
+<p>Looking at the grid we can see in consists of 810810 grid cells each with a 0.0417 meter by 0.0417 meter resolution. Additionally, there are 366 unique time slices in the NetCDF file.</p>
 </div>
 <div id="example-1-huc01" class="section level2">
 <h2 class="hasAnchor">
 <a href="#example-1-huc01" class="anchor"></a>Example 1: HUC01</h2>
 <p>Our first example uses a hydrofabric developed for the Northeast USA.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">geom</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html">read_sf</a></span><span class="op">(</span><span class="st">'/Users/mjohnson/github/hydrofabric/workflow/nhd_workflows/cache/ngen_01a-4.gpkg'</span>, <span class="st">"catchments"</span><span class="op">)</span> <span class="op">%&gt;%</span> 
-  <span class="fu"><a href="https://r-spatial.github.io/sf/reference/valid.html">st_make_valid</a></span><span class="op">(</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">geom</span> <span class="op">&lt;-</span> <span class="fu">read_sf</span><span class="op">(</span><span class="st">'ngen_01a-4.gpkg'</span>, <span class="st">"catchments"</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+  <span class="fu">st_make_valid</span><span class="op">(</span><span class="op">)</span>
 
 <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">geom</span><span class="op">)</span></code></pre></div>
 <pre><code>## Rows: 19,700
 ## Columns: 3
-## $ comid    &lt;dbl&gt; 4289595, 4290057, 4287059, 4287061, 42926…
-## $ areasqkm &lt;dbl&gt; 12.270742, 4.061445, 2.805607, 6.786665, …
-## $ geom     &lt;MULTIPOLYGON [m]&gt; MULTIPOLYGON (((1976295 290.…</code></pre>
-<p>In total we have 19,700 aggregation units to summarize over the 365 time steps. Both zonal and intersectr are designed to precompute a weight grid. Therefore we time how long it takes to do this using each method:</p>
+## $ comid    [3m[38;5;246m&lt;dbl&gt;[39m[23m 4289595, 4290057, 4287059, 4287061, 4292649, 4292651, 4287…
+## $ areasqkm [3m[38;5;246m&lt;dbl&gt;[39m[23m 12.2707, 4.0614, 2.8056, 6.7867, 18.1573, 27.8620, 11.6930…
+## $ geom     [3m[38;5;246m&lt;MULTIPOLYGON [m]&gt;[39m[23m MULTIPOLYGON (((1976295 290..., MULTIPOLYGON …</code></pre>
+<p>In total we have 19,700 aggregation units to summarize over the 366 time steps. Both zonal and intersectr are designed to precompute a weight grid. Therefore we time how long it takes to do this using each method:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">int_time_huc01</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">intersectr_input</span> <span class="op">=</span> <span class="fu">intersectr_prep</span><span class="op">(</span><span class="va">file</span>, <span class="va">geom</span>, ID <span class="op">=</span> <span class="st">"comid"</span>, variable <span class="op">=</span> <span class="st">'potential_evapotranspiration'</span><span class="op">)</span>
@@ -239,53 +239,34 @@
 <pre><code>## Simple feature collection with 67 features and 12 fields
 ## Geometry type: MULTIPOLYGON
 ## Dimension:     XY
-## Bounding box:  xmin: -87.63494 ymin: 24.49813 xmax: -80.03212 ymax: 31.00069
+## Bounding box:  xmin: -87.63 ymin: 24.5 xmax: -80.03 ymax: 31
 ## Geodetic CRS:  NAD83
 ## First 10 features:
-##     statefp countyfp countyns       affgeoid geoid
-## 9        12      027 00294452 0500000US12027 12027
-## 97       12      109 00308371 0500000US12109 12109
-## 143      12      049 00295746 0500000US12049 12049
-## 285      12      125 00306913 0500000US12125 12125
-## 398      12      005 00295738 0500000US12005 12005
-## 403      12      039 00306918 0500000US12039 12039
-## 404      12      073 00306916 0500000US12073 12073
-## 414      12      045 00306917 0500000US12045 12045
-## 489      12      035 00308547 0500000US12035 12035
-## 500      12      067 00295732 0500000US12067 12067
-##          name lsad      aland    awater state_name
-## 9      DeSoto   06 1649978040   6247257    Florida
-## 97  St. Johns   06 1555793097 571962797    Florida
-## 143    Hardee   06 1651867900   1439673    Florida
-## 285     Union   06  630807237  16049079    Florida
-## 398       Bay   06 1964402055 711451660    Florida
-## 403   Gadsden   06 1337193228  31687293    Florida
-## 404      Leon   06 1727171525  90453994    Florida
-## 414      Gulf   06 1433785083 494266609    Florida
-## 489   Flagler   06 1257365642 221047161    Florida
-## 500 Lafayette   06 1407427927  11646352    Florida
-##     state_abbr jurisdiction_type
-## 9           FL             state
-## 97          FL             state
-## 143         FL             state
-## 285         FL             state
-## 398         FL             state
-## 403         FL             state
-## 404         FL             state
-## 414         FL             state
-## 489         FL             state
-## 500         FL             state
+##     statefp countyfp countyns       affgeoid geoid      name lsad      aland
+## 9        12      027 00294452 0500000US12027 12027    DeSoto   06 1649978040
+## 97       12      109 00308371 0500000US12109 12109 St. Johns   06 1555793097
+## 143      12      049 00295746 0500000US12049 12049    Hardee   06 1651867900
+## 285      12      125 00306913 0500000US12125 12125     Union   06  630807237
+## 398      12      005 00295738 0500000US12005 12005       Bay   06 1964402055
+## 403      12      039 00306918 0500000US12039 12039   Gadsden   06 1337193228
+## 404      12      073 00306916 0500000US12073 12073      Leon   06 1727171525
+##        awater state_name state_abbr jurisdiction_type
+## 9     6247257    Florida         FL             state
+## 97  571962797    Florida         FL             state
+## 143   1439673    Florida         FL             state
+## 285  16049079    Florida         FL             state
+## 398 711451660    Florida         FL             state
+## 403  31687293    Florida         FL             state
+## 404  90453994    Florida         FL             state
 ##                           geometry
-## 9   MULTIPOLYGON (((-82.0565 27...
-## 97  MULTIPOLYGON (((-81.68021 3...
-## 143 MULTIPOLYGON (((-82.05435 2...
-## 285 MULTIPOLYGON (((-82.57599 2...
-## 398 MULTIPOLYGON (((-85.99274 3...
-## 403 MULTIPOLYGON (((-84.93252 3...
-## 404 MULTIPOLYGON (((-84.71514 3...
-## 414 MULTIPOLYGON (((-85.41655 2...
-## 489 MULTIPOLYGON (((-81.52366 2...
-## 500 MULTIPOLYGON (((-83.36726 3...</code></pre>
+## 9   MULTIPOLYGON (((-82.06 27.2...
+## 97  MULTIPOLYGON (((-81.68 30.1...
+## 143 MULTIPOLYGON (((-82.05 27.6...
+## 285 MULTIPOLYGON (((-82.58 29.9...
+## 398 MULTIPOLYGON (((-85.99 30.3...
+## 403 MULTIPOLYGON (((-84.93 30.6...
+## 404 MULTIPOLYGON (((-84.72 30.3...
+##  [ reached 'max' / getOption("max.print") -- omitted 3 rows ]</code></pre>
 <p>The same functions and timing from example 1 are computed:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">int_time_fl</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
@@ -311,7 +292,8 @@
   zonal_full               <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span><span class="va">file</span>, <span class="va">florida</span>, <span class="st">"geoid"</span><span class="op">)</span>,
   zonal_staged_weights     <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span><span class="va">file</span>, w <span class="op">=</span> <span class="va">zonal_w_florida</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
-<p><img src="i-FL-tests-1.png" title="plot of chunk FL-tests" alt="plot of chunk FL-tests" width="100%"> Again, similar results are found.</p>
+<p><img src="i-FL-tests-1.png" title="plot of chunk FL-tests" alt="plot of chunk FL-tests" width="100%"></p>
+<p>Again, similar results are found.</p>
 </div>
   </div>
 

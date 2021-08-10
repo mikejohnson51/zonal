@@ -66,27 +66,27 @@ library(zonal)
 Here two motivating use cases are shown to compare the efficiency of these two approaches. The first covers a large area but has many small aggregation units. The second also covers a large area but has a few large polygon aggregation units. Each of these poses a unique set of demands with respect to how the calculation is performed. 
 
 ## Grid
-The gridded data and aggregate units we are working with can be seen below:
+The gridded data and aggregate units we are working with can be seen below and downloaded from [here](https://www.northwestknowledge.net/metdata/data/pet_2020.nc):
 
 
 ```r
-file = '/Users/mjohnson/Downloads/pet_1979.nc'
+file = 'pet_2020.nc'
 (s = terra::rast(file))
 ```
 
 ```
 ## class       : SpatRaster 
-## dimensions  : 585, 1386, 365  (nrow, ncol, nlyr)
-## resolution  : 0.04166667, 0.04166667  (x, y)
-## extent      : -124.7875, -67.0375, 25.04583, 49.42083  (xmin, xmax, ymin, ymax)
+## dimensions  : 585, 1386, 366  (nrow, ncol, nlyr)
+## resolution  : 0.04167, 0.04167  (x, y)
+## extent      : -124.8, -67.04, 25.05, 49.42  (xmin, xmax, ymin, ymax)
 ## coord. ref. : +proj=longlat +datum=WGS84 +no_defs 
-## source      : pet_1979.nc 
+## source      : pet_2020.nc 
 ## varname     : potential_evapotranspiration (pet) 
-## names       : poten~28854, poten~28855, poten~28856, poten~28857, poten~28858, poten~28859, ... 
+## names       : poten~43829, poten~43830, poten~43831, poten~43832, poten~43833, poten~43834, ... 
 ## unit        :          mm,          mm,          mm,          mm,          mm,          mm, ...
 ```
 
-Looking at the grid we can see in consists of 8.1081 &times; 10<sup>5</sup> grid cells each with a 0.0416667 meter by 0.0416667 meter resolution. Additionally, there are 365 unique time slices in the NetCDF file.
+Looking at the grid we can see in consists of 810810 grid cells each with a 0.0417 meter by 0.0417 meter resolution. Additionally, there are 366 unique time slices in the NetCDF file.
 
 ## Example 01: Many small aggregation units
 
@@ -94,7 +94,7 @@ Here, we look at an example with ~20,000 watersheds along the east coast.
 
 
 ```r
-geom <- st_make_valid(read_sf('/Users/mjohnson/github/hydrofabric/workflow/nhd_workflows/cache/ngen_01a-4.gpkg', "catchments"))
+geom <- st_make_valid(read_sf('ngen_01a-4.gpkg', "catchments"))
 
 glimpse(geom)
 ```
@@ -102,12 +102,12 @@ glimpse(geom)
 ```
 ## Rows: 19,700
 ## Columns: 3
-## $ comid    <dbl> 4289595, 4290057, 4287059, 4287061, 42926…
-## $ areasqkm <dbl> 12.270742, 4.061445, 2.805607, 6.786665, …
-## $ geom     <MULTIPOLYGON [m]> MULTIPOLYGON (((1976295 290.…
+## $ comid    <dbl> 4289595, 4290057, 4287059, 4287061, 429264…
+## $ areasqkm <dbl> 12.271, 4.061, 2.806, 6.787, 18.157, 27.86…
+## $ geom     <MULTIPOLYGON [m]> MULTIPOLYGON (((1976295 290..…
 ```
   
-In total we have 19,700 aggregation units to summarize over the 365 time steps.
+In total we have 19,700 aggregation units to summarize over the 366 time steps.
 
 
 ```r
@@ -133,22 +133,22 @@ glimpse(colorado)
 ```
 ## Rows: 64
 ## Columns: 13
-## $ statefp           <chr> "08", "08", "08", "08", "08", "0…
-## $ countyfp          <chr> "035", "095", "039", "014", "037…
-## $ countyns          <chr> "00198133", "00198163", "0019813…
-## $ affgeoid          <chr> "0500000US08035", "0500000US0809…
-## $ geoid             <chr> "08035", "08095", "08039", "0801…
-## $ name              <chr> "Douglas", "Phillips", "Elbert",…
-## $ lsad              <chr> "06", "06", "06", "06", "06", "0…
-## $ aland             <dbl> 2176272717, 1781724973, 47936588…
-## $ awater            <dbl> 6752511, 301808, 442148, 1411781…
-## $ state_name        <chr> "Colorado", "Colorado", "Colorad…
-## $ state_abbr        <chr> "CO", "CO", "CO", "CO", "CO", "C…
-## $ jurisdiction_type <chr> "state", "state", "state", "stat…
-## $ geometry          <MULTIPOLYGON [°]> MULTIPOLYGON (((-10…
+## $ statefp           <chr> "08", "08", "08", "08", "08", "08"…
+## $ countyfp          <chr> "035", "095", "039", "014", "037",…
+## $ countyns          <chr> "00198133", "00198163", "00198136"…
+## $ affgeoid          <chr> "0500000US08035", "0500000US08095"…
+## $ geoid             <chr> "08035", "08095", "08039", "08014"…
+## $ name              <chr> "Douglas", "Phillips", "Elbert", "…
+## $ lsad              <chr> "06", "06", "06", "06", "06", "06"…
+## $ aland             <dbl> 2176272717, 1781724973, 4793658887…
+## $ awater            <dbl> 6752511, 301808, 442148, 1411781, …
+## $ state_name        <chr> "Colorado", "Colorado", "Colorado"…
+## $ state_abbr        <chr> "CO", "CO", "CO", "CO", "CO", "CO"…
+## $ jurisdiction_type <chr> "state", "state", "state", "state"…
+## $ geometry          <MULTIPOLYGON [°]> MULTIPOLYGON (((-105.…
 ```
   
-In total we have 64 aggregation units to summarize over the 365 time steps.
+In total we have 64 aggregation units to summarize over the 366 time steps.
 
 
 ```r
@@ -174,11 +174,11 @@ head(zonal)
 ```
 
 ```
-##      name   Y   X grid_id         w
-## 1: Moffat 203 378       1 0.2724911
-## 2: Moffat 203 379       2 0.9152694
-## 3: Moffat 203 380       3 0.9145876
-## 4: Moffat 203 381       4 0.9139059
-## 5: Moffat 203 382       5 0.9132242
-## 6: Moffat 203 383       6 0.9125424
+##      name   Y   X grid_id      w
+## 1: Moffat 203 378       1 0.2725
+## 2: Moffat 203 379       2 0.9153
+## 3: Moffat 203 380       3 0.9146
+## 4: Moffat 203 381       4 0.9139
+## 5: Moffat 203 382       5 0.9132
+## 6: Moffat 203 383       6 0.9125
 ```
