@@ -70,6 +70,9 @@
     <li>
       <a href="../articles/03_categorical.html">Categorical Data</a>
     </li>
+    <li>
+      <a href="../articles/04_nwm_channel.html">NWM Channel Routing Application</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -113,7 +116,7 @@
 <h3 class="hasAnchor">
 <a href="#grid" class="anchor"></a>Grid</h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">file</span> <span class="op">=</span> <span class="st">'/Users/mjohnson/github/zonal/depreciate/2019-01-01.tif'</span>
+<code class="sourceCode R"><span class="va">file</span> <span class="op">=</span> <span class="st">'2019-01-01.tif'</span>
 <span class="op">(</span><span class="va">r</span> <span class="op">=</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html">rast</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code>## class       : SpatRaster 
 ## dimensions  : 2896, 4616, 1  (nrow, ncol, nlyr)
@@ -122,7 +125,7 @@
 ## coord. ref. : +proj=aea +lat_0=23 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +x_0=0 +y_0=0 +datum=NAD27 +units=m +no_defs 
 ## source      : 2019-01-01.tif 
 ## name        : Land_Cover_Type_1</code></pre>
-<p>Looking at the grid we can see in consists of 1.3367936 × 10<sup>7</sup> grid cells each with a 1000 meter by 1000 meter resolution. Additionally, there are 18 unique values in the grid (17 landcover and one nodata value).</p>
+<p>Looking at the grid we can see in consists of 13367936 grid cells each with a 1000 meter by 1000 meter resolution. Additionally, there are 18 unique values in the grid (17 landcover and one nodata value).</p>
 </div>
 <div id="example-1-basic-use" class="section level3">
 <h3 class="hasAnchor">
@@ -144,14 +147,14 @@
   <span class="va">lc</span> <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal_cat.html">execute_zonal_cat</a></span><span class="op">(</span><span class="va">file</span>, geom <span class="op">=</span> <span class="va">AOI</span>, <span class="st">"geoid"</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   2.631   0.862   2.908</code></pre>
+##   2.776   1.226   4.139</code></pre>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">lc</span><span class="op">)</span></code></pre></div>
 <pre><code>## Rows: 1,998
 ## Columns: 3
-## $ geoid      &lt;chr&gt; "23003", "23003", "23003", "23003", "23…
-## $ value      &lt;dbl&gt; 8, 13, 10, 4, 5, 9, 12, 14, 17, 1, 11, …
-## $ percentage &lt;dbl&gt; 0.1333440460, 0.0012883343, 0.013785256…</code></pre>
+## $ geoid      [3m[38;5;246m&lt;chr&gt;[39m[23m "23003", "23003", "23003", "23003", "23003", "23003", "2…
+## $ value      [3m[38;5;246m&lt;dbl&gt;[39m[23m 8, 13, 10, 4, 5, 9, 12, 14, 17, 1, 11, 4, 5, 8, 10, 1, 5…
+## $ percentage [3m[38;5;246m&lt;dbl&gt;[39m[23m 0.1333440, 0.0012883, 0.0137853, 0.1660485, 0.6205781, 0…</code></pre>
 </div>
 <div id="exploring-the-data" class="section level4">
 <h4 class="hasAnchor">
@@ -179,10 +182,14 @@
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">AOI</span>  <span class="op">=</span> <span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"North Central"</span>, county <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span>
 <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">$</span><span class="va">geometry</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">AOI</span><span class="op">)</span>, <span class="st">"counties"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p><img src="c-AOI-NC-1.png" title="plot of chunk AOI-NC" alt="plot of chunk AOI-NC" width="100%"> #### Define Reclass Table</p>
+<p><img src="c-AOI-NC-1.png" title="plot of chunk AOI-NC" alt="plot of chunk AOI-NC" width="100%"></p>
+</div>
+<div id="define-reclass-table" class="section level4">
+<h4 class="hasAnchor">
+<a href="#define-reclass-table" class="anchor"></a>Define Reclass Table</h4>
 <p>A reclassification table tells us what each numeric value represents in a categorical raster. Below, we use a CSV file to define this mapping. The schema used is that one column must be named “from” - this is the exisiting data values, and one column must be named “to” - this is the desired column headings.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">rcl</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="st">"../inst/modis_lc.csv"</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+<code class="sourceCode R"><span class="va">rcl</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="st">"modis_lc.csv"</span><span class="op">)</span> <span class="op">%&gt;%</span> 
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span>from <span class="op">=</span> <span class="va">Class</span>, to <span class="op">=</span> <span class="va">short</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">rcl</span><span class="op">)</span></code></pre></div>
@@ -202,14 +209,14 @@
   <span class="va">lc</span> <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal_cat.html">execute_zonal_cat</a></span><span class="op">(</span><span class="va">file</span>, geom <span class="op">=</span> <span class="va">AOI</span>, ID <span class="op">=</span> <span class="st">"geoid"</span>, rcl <span class="op">=</span> <span class="va">rcl</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   6.603   1.513   6.063</code></pre>
+##   6.404   2.013   8.822</code></pre>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">lc</span><span class="op">)</span></code></pre></div>
 <pre><code>## Rows: 7,103
 ## Columns: 3
-## $ geoid      &lt;chr&gt; "27077", "27077", "27077", "27077", "27…
-## $ value      &lt;chr&gt; "woody_savanna", "deciduous_broad", "gr…
-## $ percentage &lt;dbl&gt; 0.355295150, 0.095975609, 0.045632663, …</code></pre>
+## $ geoid      [3m[38;5;246m&lt;chr&gt;[39m[23m "27077", "27077", "27077", "27077", "27077", "27077", "2…
+## $ value      [3m[38;5;246m&lt;chr&gt;[39m[23m "woody_savanna", "deciduous_broad", "grassland", "mixed_…
+## $ percentage [3m[38;5;246m&lt;dbl&gt;[39m[23m 0.355295, 0.095976, 0.045633, 0.141788, 0.015364, 0.2559…</code></pre>
 </div>
 <div id="explore-the-data" class="section level4">
 <h4 class="hasAnchor">
@@ -237,9 +244,9 @@
 <span class="fu"><a href="https://r-spatial.github.io/sf/reference/plot.html">plot</a></span><span class="op">(</span><span class="va">forest</span><span class="op">[</span><span class="st">'forest'</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Forest"</span><span class="op">)</span></code></pre></div>
 <p><img src="c-NC-forest-1.png" title="plot of chunk NC-forest" alt="plot of chunk NC-forest" width="100%"></p>
 </div>
-<div id="comapre-with-exactextractr" class="section level2">
+<div id="compare-with-exactextractr" class="section level2">
 <h2 class="hasAnchor">
-<a href="#comapre-with-exactextractr" class="anchor"></a>Comapre with exactextractr</h2>
+<a href="#compare-with-exactextractr" class="anchor"></a>Compare with exactextractr</h2>
 <p>From the <code>exactectractr</code> vignettes there is an example to compute class statisitcs using <code>dplyr</code>. Here we compare that appraoch, to one supplimented with <code>data.table</code>, to <code>zonal</code> with pre-compted weights, and to a single <code>zonal</code> execution.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster">raster</a></span><span class="op">)</span>
