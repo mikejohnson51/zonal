@@ -1,0 +1,202 @@
+---
+title: "NWM Channel Routing Application"
+output: html_document
+---
+
+
+
+The purpose here is to demonstrate a real world application of `zonal` to summarize the NWM channel routing parmaters to a 
+in-development hydrofabric.
+
+
+
+```r
+library(terra)
+library(sf)
+library(zonal)
+library(paint)
+```
+
+### Define Aggregations Geometries and Geogrid
+
+Here we are using a version of the `ngen` hydrofabric: 
+
+
+```r
+geom <- st_make_valid(read_sf('ngen_01a-4.gpkg', "catchments"))
+paint(geom)
+```
+
+```
+## sf [19700, 3] 
+## active geometry column: geom (MULTIPOLYGON, POLYGON)
+## crs: 5070 (NAD83 / Conus Albers)
+## crs unit: metre 
+## comid    dbl 4289595 4290057 4287059 4287061 4292649 4292651
+## areasqkm dbl 12.270742 4.061445 2.805607 6.786665 18.157307~
+## geom     sfc MPOLY 2,024B MPOLY 1,576B MPOLY 1,768B MPOLY 1~
+```
+
+And the `soilproperties_CONUS_FullRouting` file from NWM v2.16. Can download from [here](https://www.nco.ncep.noaa.gov/pmb/codes/nwprod/nwm.v2.1.6/parm/domain/soilproperties_CONUS_FullRouting.nc)
+
+
+```r
+(f = rast('soilproperties_CONUS_FullRouting.nc'))
+```
+
+```
+## [1] "vobjtovarid4: **** WARNING **** I was asked to get a varid for dimension named west_east BUT this dimension HAS NO DIMVAR! Code will probably fail at this point"
+## [1] "vobjtovarid4: **** WARNING **** I was asked to get a varid for dimension named south_north BUT this dimension HAS NO DIMVAR! Code will probably fail at this point"
+```
+
+```
+## class       : SpatRaster 
+## dimensions  : 3840, 4608, 45  (nrow, ncol, nlyr)
+## resolution  : 1, 1  (x, y)
+## extent      : 0.5, 4608, 0.5, 3840  (xmin, xmax, ymin, ymax)
+## coord. ref. : +proj=longlat +datum=WGS84 +no_defs 
+## sources     : soilproperties_CONUS_FullRouting.nc:bexp  (4 layers) 
+##               soilproperties_CONUS_FullRouting.nc:cwpvt  
+##               soilproperties_CONUS_FullRouting.nc:dksat  (4 layers) 
+##               ... and 15 more source(s)
+## varnames    : bexp 
+##               cwpvt 
+##               dksat 
+##               ...
+## names       : bexp_~ime=1, bexp_~ime=1, bexp_~ime=1, bexp_~ime=1, cwpvt_Time=1, dksat~ime=1, ...
+```
+
+Note that when the layered attributes are separated, there are 45 raster layers. Also note that the spatial metadata for the NWM file is out of wack (see the resolution, extent, and CRS). We will fix this using some functionality from `wrfhydroSubsetter` to identify the layer structure.
+
+
+```r
+library(wrfhydroSubsetter)
+e = make_empty_geogrid_raster('/Volumes/Transcend/nwmCONUS-v216/geo_em_CONUS.nc')
+ext(f) = ext(e)
+crs(f) = crs(e)
+f
+```
+
+```
+## class       : SpatRaster 
+## dimensions  : 3840, 4608, 45  (nrow, ncol, nlyr)
+## resolution  : 1000, 1000  (x, y)
+## extent      : -2304000, 2304000, -1920001, 1919999  (xmin, xmax, ymin, ymax)
+## coord. ref. : +proj=lcc +lat_0=40.0000076293945 +lon_0=-97 +lat_1=30 +lat_2=60 +x_0=0 +y_0=0 +R=6370000 +units=m +no_defs 
+## sources     : soilproperties_CONUS_FullRouting.nc:bexp  (4 layers) 
+##               soilproperties_CONUS_FullRouting.nc:cwpvt  
+##               soilproperties_CONUS_FullRouting.nc:dksat  (4 layers) 
+##               ... and 15 more source(s)
+## varnames    : bexp 
+##               cwpvt 
+##               dksat 
+##               ...
+## names       : bexp_~ime=1, bexp_~ime=1, bexp_~ime=1, bexp_~ime=1, cwpvt_Time=1, dksat~ime=1, ...
+```
+
+### Build Weight Grid
+
+
+```r
+w_time = system.time({
+  zonal_w = weighting_grid(file = f, geom = geom, ID = "comid")
+})
+
+paint(zonal_w)
+```
+
+```
+## data.table [340898, 5] 
+## keys: grid_id 
+## comid   dbl 4287919 4287919 4287919 4287919 4287919 4287919
+## Y       dbl 689 689 689 689 689 689
+## X       dbl 4310 4311 4312 4313 4314 4315
+## grid_id dbl 175 176 177 178 179 180
+## w       dbl 0.407925 0.360615 0.203825 0.096122 0.223531 0.~
+```
+
+### Execute Intersection
+
+
+```r
+z_time = system.time({
+  out = zonal::execute_zonal(f, w = zonal_w)
+})
+
+names(out) = c('comid', names(f))
+
+paint(out)
+```
+
+```
+## data.table [19700, 46] 
+## keys: comid 
+## comid                            dbl 845 847 851 857 867 869
+## bexp_soil_layers_stag=1_Time=1   dbl 7.315043 7.120261 7.15~
+## bexp_soil_layers_stag=2_Time=1   dbl 7.315043 7.120261 7.15~
+## bexp_soil_layers_stag=3_Time=1   dbl 7.315043 7.120261 7.15~
+## bexp_soil_layers_stag=4_Time=1   dbl 7.315043 7.120261 7.15~
+## cwpvt_Time=1                     dbl 0.359045 0.359133 0.35~
+## dksat_soil_layers_stag=1_Time=1  dbl 0.000004 0.000004 0.00~
+## dksat_soil_layers_stag=2_Time=1  dbl 0.000004 0.000004 0.00~
+## dksat_soil_layers_stag=3_Time=1  dbl 0.000004 0.000004 0.00~
+## dksat_soil_layers_stag=4_Time=1  dbl 0.000004 0.000004 0.00~
+## dwsat_soil_layers_stag=1_Time=1  dbl 0.000021 0.000018 0.00~
+## dwsat_soil_layers_stag=2_Time=1  dbl 0.000021 0.000018 0.00~
+## dwsat_soil_layers_stag=3_Time=1  dbl 0.000021 0.000018 0.00~
+## dwsat_soil_layers_stag=4_Time=1  dbl 0.000021 0.000018 0.00~
+## hvt_Time=1                       dbl 16.594097 15.639253 14~
+## mfsno_Time=1                     dbl 3.96749 3.988473 3.986~
+## mp_Time=1                        dbl 9.5518 9.972461 9.4473~
+## psisat_soil_layers_stag=1_Time=1 dbl 0.644273 0.529957 0.61~
+## psisat_soil_layers_stag=2_Time=1 dbl 0.644273 0.529957 0.61~
+## psisat_soil_layers_stag=3_Time=1 dbl 0.644273 0.529957 0.61~
+## psisat_soil_layers_stag=4_Time=1 dbl 0.644273 0.529957 0.61~
+## quartz_soil_layers_stag=1_Time=1 dbl 0.292597 0.335041 0.30~
+## quartz_soil_layers_stag=2_Time=1 dbl 0.292597 0.335041 0.30~
+## quartz_soil_layers_stag=3_Time=1 dbl 0.292597 0.335041 0.30~
+## quartz_soil_layers_stag=4_Time=1 dbl 0.292597 0.335041 0.30~
+## refdk_Time=1                     dbl 0.000002 0.000002 0.00~
+## refkdt_Time=1                    dbl 1.010987 0.513018 0.55~
+## rsurfexp_Time=1                  dbl 1.132266 1.139125 1.13~
+## slope_Time=1                     dbl 0.072485 0.037253 0.04~
+## smcdry_soil_layers_stag=1_Time=1 dbl 0.078888 0.073795 0.07~
+## smcdry_soil_layers_stag=2_Time=1 dbl 0.078888 0.073795 0.07~
+## smcdry_soil_layers_stag=3_Time=1 dbl 0.078888 0.073795 0.07~
+## smcdry_soil_layers_stag=4_Time=1 dbl 0.078888 0.073795 0.07~
+## smcmax_soil_layers_stag=1_Time=1 dbl 0.482493 0.4781 0.4852~
+## smcmax_soil_layers_stag=2_Time=1 dbl 0.482493 0.4781 0.4852~
+## smcmax_soil_layers_stag=3_Time=1 dbl 0.482493 0.4781 0.4852~
+## smcmax_soil_layers_stag=4_Time=1 dbl 0.482493 0.4781 0.4852~
+## smcref_soil_layers_stag=1_Time=1 dbl 0.351197 0.342425 0.34~
+## smcref_soil_layers_stag=2_Time=1 dbl 0.351197 0.342425 0.34~
+## smcref_soil_layers_stag=3_Time=1 dbl 0.351197 0.342425 0.34~
+## smcref_soil_layers_stag=4_Time=1 dbl 0.351197 0.342425 0.34~
+## smcwlt_soil_layers_stag=1_Time=1 dbl 0.078888 0.073795 0.07~
+## smcwlt_soil_layers_stag=2_Time=1 dbl 0.078888 0.073795 0.07~
+## smcwlt_soil_layers_stag=3_Time=1 dbl 0.078888 0.073795 0.07~
+## smcwlt_soil_layers_stag=4_Time=1 dbl 0.078888 0.073795 0.07~
+## vcmx25_Time=1                    dbl 63.790606 68.996715 62~
+```
+
+```r
+hist(out$`bexp_soil_layers_stag=1_Time=1`)
+```
+
+<img src="nwm-nwm-hist-1.png" title="plot of chunk nwm-hist" alt="plot of chunk nwm-hist" width="100%" />
+
+
+```r
+spat = merge(geom, out, by = "comid")
+
+
+ggplot() + 
+  geom_sf(data = spat, aes(fill = `bexp_soil_layers_stag=1_Time=1`), color = NA) + 
+  scale_fill_viridis_c()
+```
+
+<img src="nwm-nwm-map-1.png" title="plot of chunk nwm-map" alt="plot of chunk nwm-map" width="100%" />
+
+### Summary 
+
+<img src="nwm-nwm-summary-1.png" title="plot of chunk nwm-summary" alt="plot of chunk nwm-summary" width="100%" />

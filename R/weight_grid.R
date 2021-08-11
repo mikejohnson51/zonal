@@ -24,7 +24,7 @@
 #' @importFrom raster stack
 #' @importFrom terra rast crop ncell crs ext project vect
 #' @importFrom exactextractr exact_extract
-#' @importFrom data.table setDT rbindlist `:=`
+#' @importFrom data.table setDT rbindlist setnames `:=`
 
 weighting_grid = function(file, geom, ID){
   
@@ -60,6 +60,6 @@ weighting_grid = function(file, geom, ID){
                                                          include_cols = ID) })
   
   out2 = data.table::rbindlist(out1) 
-  setnames(out2, "coverage_fraction", "w")
-  setDT(out2, key = "grid_id")
+  data.table::setnames(out2, "coverage_fraction", "w")
+  data.table::setDT(out2, key = "grid_id")
 }

@@ -22,7 +22,6 @@ execute_zonal    = function(file = NULL, geom = NULL, ID = NULL, w = NULL) {
 
   dt = .zonal_io(file, w)
   
-  #TODO: leave this so the date 
   cols = names(dt)[!names(dt) %in% c(ID, w_names)]
 
   fun = function(x, w) { sum((x * w), na.rm = TRUE)  / sum(w, na.rm = TRUE)}
