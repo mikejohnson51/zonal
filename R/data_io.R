@@ -36,7 +36,7 @@
 #' @param file a netcdf file path
 #' @param w a weight grid
 #' @return data.table
-#' @importFrom RNetCDF open.nc close.nc var.inq.nc var.get.nc
+#' @importFrom RNetCDF open.nc close.nc var.inq.nc var.get.nc utcal.nc att.get.nc
 #' @importFrom ncmeta nc_coord_var
 #' @importFrom data.table setDT
 
@@ -72,14 +72,14 @@
     unpack = TRUE
   )
   
-  # time_steps <-
-  #   RNetCDF::utcal.nc(
-  #     RNetCDF::att.get.nc(file, T_name, "units"),
-  #     RNetCDF::var.get.nc(file, T_name, unpack = TRUE),
-  #     "c"
-  #   ) %>%
-  #   as.Date() %>%
-  #   as.character()
+  time_steps <-
+    RNetCDF::utcal.nc(
+      RNetCDF::att.get.nc(file, T_name, "units"),
+      RNetCDF::var.get.nc(file, T_name, unpack = TRUE),
+      "c"
+    ) %>%
+    as.Date() %>%
+    as.character()
 
   if (length(dim(var)) == 2) {
     var = as.numeric(matrix(var, ncol = 1, byrow = FALSE))
