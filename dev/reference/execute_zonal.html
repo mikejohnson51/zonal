@@ -146,7 +146,7 @@
     <p>Execute Spatial Intersection</p>
     </div>
 
-    <pre class="usage"><span class='fu'>execute_zonal</span><span class='op'>(</span>file <span class='op'>=</span> <span class='cn'>NULL</span>, geom <span class='op'>=</span> <span class='cn'>NULL</span>, ID <span class='op'>=</span> <span class='cn'>NULL</span>, w <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>execute_zonal</span><span class='op'>(</span>file <span class='op'>=</span> <span class='cn'>NULL</span>, geom <span class='op'>=</span> <span class='cn'>NULL</span>, ID <span class='op'>=</span> <span class='cn'>NULL</span>, FUN <span class='op'>=</span> <span class='st'>"mean"</span>, w <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -164,8 +164,12 @@
       <td><p>the name of the column providing the unique identified of each geom</p></td>
     </tr>
     <tr>
+      <th>FUN</th>
+      <td><p>an optional function or character vector, as described below</p></td>
+    </tr>
+    <tr>
       <th>w</th>
-      <td><p>a precomputed weighting grid produced with <code>weighting_grid</code></p></td>
+      <td><p>a precomputed weighting grid produced with <code>weighting_grid</code>,</p></td>
     </tr>
     </table>
 
