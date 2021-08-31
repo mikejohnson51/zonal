@@ -11,12 +11,13 @@ vignette: >
 
 
 
-
 ```r
 library(zonal)
 library(ggplot2)
 library(dplyr)
 library(sf)
+library(tidyr)
+library(terra)
 ```
 
 In `zonal` categorical data is handled with `execute_zonal_cat` which computes the relative proportion of a numeric class in each aggregation unit. In the following we illustrate its use using a mosaiced 1km grid containing MODIS 2019 land cover.
@@ -25,7 +26,7 @@ In `zonal` categorical data is handled with `execute_zonal_cat` which computes t
 
 ```r
 file = '2019-01-01.tif'
-(r = terra::rast(file))
+(r = rast(file))
 ```
 
 ```
@@ -59,13 +60,13 @@ plot(AOI$geometry, main = paste(nrow(AOI), "counties"))
 
 ```r
 system.time({
-  lc = execute_zonal_cat(file, geom = AOI, "geoid")
+  lc = execute_zonal_cat(r, geom = AOI, "geoid")
 })
 ```
 
 ```
 ##    user  system elapsed 
-##   2.776   1.226   4.139
+##   3.041   1.170   4.607
 ```
 
 ```r
@@ -75,9 +76,9 @@ glimpse(lc)
 ```
 ## Rows: 1,998
 ## Columns: 3
-## $ geoid      [3m[38;5;246m<chr>[39m[23m "23003", "23003", "23003", "23003", "23003", "23003", "2…
-## $ value      [3m[38;5;246m<dbl>[39m[23m 8, 13, 10, 4, 5, 9, 12, 14, 17, 1, 11, 4, 5, 8, 10, 1, 5…
-## $ percentage [3m[38;5;246m<dbl>[39m[23m 0.1333440, 0.0012883, 0.0137853, 0.1660485, 0.6205781, 0…
+## $ geoid      <chr> "23003", "23003", "23003", "23003", "23003", "23003", …
+## $ value      <dbl> 8, 13, 10, 4, 5, 9, 12, 14, 17, 1, 11, 4, 5, 8, 10, 1,…
+## $ percentage <dbl> 0.1333440, 0.0012883, 0.0137853, 0.1660485, 0.6205781,…
 ```
 
 #### Exploring the data
@@ -85,7 +86,7 @@ glimpse(lc)
 
 ```r
 to_plot = lc %>% 
-  tidyr::pivot_wider(names_from = value, values_from = percentage) %>% 
+  pivot_wider(names_from = value, values_from = percentage) %>% 
   right_join(AOI) %>% 
   st_as_sf()
 ```
@@ -95,17 +96,18 @@ to_plot = lc %>%
 plot(to_plot['12'], main = "Croplands")
 ```
 
-<img src="c-NE-urban-1.png" title="plot of chunk NE-urban" alt="plot of chunk NE-urban" width="100%" />
+<img src="c-NE-crops-1.png" title="plot of chunk NE-crops" alt="plot of chunk NE-crops" width="100%" />
+
 
 ```r
 plot(to_plot['13'], main = "Urban")
 ```
 
-<img src="c-NE-urban-2.png" title="plot of chunk NE-urban" alt="plot of chunk NE-urban" width="100%" />
+<img src="c-NE-urban-1.png" title="plot of chunk NE-urban" alt="plot of chunk NE-urban" width="100%" />
 
 ### Example 2: Definining Classes 
 
-While the above works, callinging on fields by there numeric ID is prone to error. Instead, this example shows how a reclassification table can be supplied to modify the column headings of the output table.
+While the above works, calling on fields by their numeric ID is prone to error. Instead, this example shows how a reclassification table can be supplied to modify the column headings of the output table.
 
 #### Define Aggregation Units
 
@@ -119,7 +121,7 @@ plot(AOI$geometry, main = paste(nrow(AOI), "counties"))
 
 #### Define Reclass Table
 
-A reclassification table tells us what each numeric value represents in a categorical raster. Below, we use a CSV file to define this mapping. The schema used is that one column must be named "from" - this is the exisiting data values, and one column must be named "to" - this is the desired column headings.
+A reclassification table tells us what each numeric value represents in a categorical raster. Below, we use a CSV file to define this mapping. The schema used is that one column must be named "from" - this is the existing data values, and one column must be named "to" - this is the desired column headings.
 
 
 ```r
@@ -144,13 +146,13 @@ head(rcl)
 
 ```r
 system.time({
-  lc = execute_zonal_cat(file, geom = AOI, ID = "geoid", rcl = rcl)
+  lc = execute_zonal_cat(r, geom = AOI, ID = "geoid", rcl = rcl)
 })
 ```
 
 ```
 ##    user  system elapsed 
-##   6.404   2.013   8.822
+##   6.288   2.013   8.837
 ```
 
 ```r
@@ -160,9 +162,9 @@ glimpse(lc)
 ```
 ## Rows: 7,103
 ## Columns: 3
-## $ geoid      [3m[38;5;246m<chr>[39m[23m "27077", "27077", "27077", "27077", "27077", "27077", "2…
-## $ value      [3m[38;5;246m<chr>[39m[23m "woody_savanna", "deciduous_broad", "grassland", "mixed_…
-## $ percentage [3m[38;5;246m<dbl>[39m[23m 0.355295, 0.095976, 0.045633, 0.141788, 0.015364, 0.2559…
+## $ geoid      <chr> "27077", "27077", "27077", "27077", "27077", "27077", …
+## $ value      <chr> "woody_savanna", "deciduous_broad", "grassland", "mixe…
+## $ percentage <dbl> 0.355295, 0.095976, 0.045633, 0.141788, 0.015364, 0.25…
 ```
 
 #### Explore the data
@@ -170,14 +172,16 @@ glimpse(lc)
 
 ```r
 midwest = merge(AOI, lc)
-plot(filter(midwest, value == 'croplands')['percentage'], main = "Croplands")
+plot(filter(midwest, value == 'croplands')['percentage'], 
+            main = "Croplands")
 ```
 
 <img src="c-NC-crops-1.png" title="plot of chunk NC-crops" alt="plot of chunk NC-crops" width="100%" />
 
 
 ```r
-plot(filter(midwest, value == 'urban')['percentage'], main = "Urban")
+plot(filter(midwest, value == 'urban')['percentage'], 
+            main = "Urban")
 ```
 
 <img src="c-NC-urban-1.png" title="plot of chunk NC-urban" alt="plot of chunk NC-urban" width="100%" />
@@ -192,7 +196,7 @@ forest = filter(lc, grepl('forest|broad|needle', value)) %>%
   group_by(geoid) %>% 
   summarise(forest = sum(percentage)) %>% 
   right_join(AOI) %>% 
-  sf::st_as_sf()
+  st_as_sf()
 
 plot(forest['forest'], main = "Forest")
 ```
@@ -201,7 +205,7 @@ plot(forest['forest'], main = "Forest")
 
 ## Compare with exactextractr
 
-From the `exactectractr` vignettes there is an example to compute class statisitcs using `dplyr`. Here we compare that appraoch, to one supplimented with `data.table`, to `zonal` with pre-compted weights, and to a single `zonal` execution.
+From the `exactectractr` vignettes there is an example to compute class statistics using `dplyr`. Here we compare that approach, to one supplimented with `data.table`, to `zonal` with pre-computed weights, and to a single `zonal` execution.
 
 
 ```r

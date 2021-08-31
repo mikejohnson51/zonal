@@ -2,7 +2,7 @@
 title: "NWM Channel Routing Application"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Weight Maps}
+  %\VignetteIndexEntry{NWM Channel Routing Application}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -27,7 +27,7 @@ Here we are using a version of the `ngen` hydrofabric:
 
 
 ```r
-geom <- read_sf('/Users/mjohnson/github/hydroresolve/releases//beta/01a/hydrofabric.gpkg', "catchments")
+geom <- read_sf('hydrofabric.gpkg', "catchments")
 paint(geom)
 ```
 
