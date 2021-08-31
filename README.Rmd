@@ -111,7 +111,7 @@ ggplot(data, aes(x = day, y = prcp))  +
 
 # 1km Landcover Grid (Categorical)
 
-One of the largest limitations of existing utilities is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mosacing 19 MODIS tiles covering CONUS.
+One of the largest limitations of existing utilities is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mos acing 19 MODIS tiles covering CONUS.
 
 ```{r}
 file = 'to_build/2019-01-01.tif'

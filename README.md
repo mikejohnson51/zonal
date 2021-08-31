@@ -50,7 +50,7 @@ system.time({
   pr_zone = execute_zonal(file, w = w)
 })
 #>    user  system elapsed 
-#>   7.990   1.159   9.234
+#>   7.078   1.005   8.144
 
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
@@ -73,7 +73,7 @@ ggplot() +
   labs(fill = "PR (mm)")
 ```
 
-<img src="man/figures/README-unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="100%" />
+<img src="man/figures/README-unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" width="100%" />
 
 ### Daily maximum rainfall in the south?
 
@@ -89,7 +89,7 @@ ggplot() +
   labs(fill = "PR (mm)")
 ```
 
-<img src="man/figures/README-unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" width="100%" />
 
 ### Timeseries of conuty with maximum annual rainfall
 
@@ -112,11 +112,11 @@ head(data)
 #> 6 37175     6  2.52
 ```
 
-<img src="man/figures/README-unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="100%" />
 
 # 1km Landcover Grid (Categorical)
 
-One of the largest limitations of existing utilities is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mosacing 19 MODIS tiles covering CONUS.
+One of the largest limitations of existing utilities is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mos acing 19 MODIS tiles covering CONUS.
 
 
 ```r
@@ -128,10 +128,10 @@ system.time({
   lc = execute_zonal_cat(file, AOI, "geoid", rcl = rcl)
 })
 #>    user  system elapsed 
-#>   6.889   1.599   8.554
+#>   6.860   1.484   8.413
 ```
 
-<img src="man/figures/README-unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="100%" />
 
 ----
 
@@ -162,21 +162,12 @@ rcompendium::get_all_dependencies()
 #> character(0)
 #> 
 #> $direct_deps
-#> [1] "data.table"    "exactextractr"
-#> [3] "ncmeta"        "R"            
-#> [5] "raster"        "RNetCDF"      
-#> [7] "terra"        
+#> [1] "data.table"    "exactextractr" "ncmeta"        "R"             "raster"        "RNetCDF"       "terra"        
 #> 
 #> $all_deps
-#>  [1] "classInt"   "cli"        "cpp11"     
-#>  [4] "crayon"     "DBI"        "dplyr"     
-#>  [7] "e1071"      "ellipsis"   "fansi"     
-#> [10] "generics"   "glue"       "lifecycle" 
-#> [13] "magrittr"   "pillar"     "pkgconfig" 
-#> [16] "proxy"      "purrr"      "R6"        
-#> [19] "Rcpp"       "rlang"      "s2"        
-#> [22] "sf"         "sp"         "tibble"    
-#> [25] "tidyr"      "tidyselect" "units"     
+#>  [1] "classInt"   "cli"        "cpp11"      "crayon"     "DBI"        "dplyr"      "e1071"      "ellipsis"   "fansi"     
+#> [10] "generics"   "glue"       "lifecycle"  "magrittr"   "pillar"     "pkgconfig"  "proxy"      "purrr"      "R6"        
+#> [19] "Rcpp"       "rlang"      "s2"         "sf"         "sp"         "tibble"     "tidyr"      "tidyselect" "units"     
 #> [28] "utf8"       "vctrs"      "wk"
 ```
 

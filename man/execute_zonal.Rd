@@ -4,7 +4,7 @@
 \alias{execute_zonal}
 \title{Execute Spatial Intersection}
 \usage{
-execute_zonal(file = NULL, geom = NULL, ID = NULL, w = NULL)
+execute_zonal(file = NULL, geom = NULL, ID = NULL, FUN = "mean", w = NULL)
 }
 \arguments{
 \item{file}{path to a gridded file (either .tif or .nc)}
@@ -13,7 +13,9 @@ execute_zonal(file = NULL, geom = NULL, ID = NULL, w = NULL)
 
 \item{ID}{the name of the column providing the unique identified of each geom}
 
-\item{w}{a precomputed weighting grid produced with \code{weighting_grid}}
+\item{FUN}{an optional function or character vector, as described below}
+
+\item{w}{a precomputed weighting grid produced with \code{weighting_grid},}
 }
 \value{
 data.table
