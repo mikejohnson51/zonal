@@ -110,6 +110,13 @@
 <h2 class="hasAnchor">
 <a href="#methods" class="anchor"></a>Methods</h2>
 <p>The first step in computing zonal statistics are the need to compute a weight map that can be used to reallocate the gridded data with respect to the percent overlapping each cell. There are two primary packages that tackle this which include <code>intersectr</code> (which uses <code>areal</code> as a back-end) and <code>zonal</code> which uses <code>exactextractr</code>.</p>
+<p>From the <code>exactextractr</code> documentation: "_Results from <code>exactextractr</code> are more accurate than other methods because raster pixels that are partially covered by polygons are considered. The significance of partial coverage increases for polygons that are small or irregularly shaped."</p>
+<p>The same premise applies to <code>intersectr</code>/<code>areal</code>.</p>
+</div>
+<div id="so-what-is-a-weight-grid" class="section level2">
+<h2 class="hasAnchor">
+<a href="#so-what-is-a-weight-grid" class="anchor"></a>So, what is a weight grid?</h2>
+<p>A weight grid is unique to the aggregate units and grid its build from. It contains columns documenting the X and Y indexes of each grid cell along with the grid id. The X,Y are realtive to the entire grid, while the grid ID is relative to subsetwithin the bounding domain of the aggregations unit(s). Additionally the <code>w</code> stores the percent overlap between the grid cell and the aggregation unit identified by the ID column which is speified in the <code>build</code>weighting_grid` function. An example is shown below:</p>
 <div id="option-1-intersectr" class="section level3">
 <h3 class="hasAnchor">
 <a href="#option-1-intersectr" class="anchor"></a>Option 1: Intersectr:</h3>
@@ -150,7 +157,7 @@
 <div id="option-2-zonal" class="section level3">
 <h3 class="hasAnchor">
 <a href="#option-2-zonal" class="anchor"></a>Option 2: Zonal</h3>
-<p>In <code>zonal</code> grid weights are calculated using <code>exactextractr</code> as the back-end. The key function needed is <code>weighting_grid</code>.</p>
+<p>In <code>zonal</code> grid weights are calculated using <code>exactextractr</code> as the back-end. The key function is <code>weighting_grid</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">zonal</span><span class="op">)</span></code></pre></div>
 </div>
@@ -158,7 +165,7 @@
 <div id="use-cases" class="section level2">
 <h2 class="hasAnchor">
 <a href="#use-cases" class="anchor"></a>Use Cases</h2>
-<p>Here two motivating use cases are shown to compare the efficiency of these two approaches. The first covers a large area but has many small aggregation units. The second also covers a large area but has a few large polygon aggregation units. Each of these poses a unique set of demands with respect to how the calculation is performed.</p>
+<p>Here two motivating use cases are shown to compare the efficiency of these approaches. The first covers a large area but has many small aggregation units. The second covers a large area but has a few large polygon aggregation units. Each of these pose a unique set of demands with respect to how the calculation is performed.</p>
 </div>
 <div id="grid" class="section level2">
 <h2 class="hasAnchor">
@@ -183,20 +190,23 @@
 <a href="#example-01-many-small-aggregation-units" class="anchor"></a>Example 01: Many small aggregation units</h2>
 <p>Here, we look at an example with ~20,000 watersheds along the east coast.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">geom</span> <span class="op">&lt;-</span> <span class="fu">st_make_valid</span><span class="op">(</span><span class="fu">read_sf</span><span class="op">(</span><span class="st">'ngen_01a-4.gpkg'</span>, <span class="st">"catchments"</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">geom</span> <span class="op">&lt;-</span> <span class="fu">st_make_valid</span><span class="op">(</span><span class="fu">read_sf</span><span class="op">(</span><span class="st">'hydrofabric.gpkg'</span>, <span class="st">"catchments"</span><span class="op">)</span><span class="op">)</span>
 
-<span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">geom</span><span class="op">)</span></code></pre></div>
-<pre><code>## Rows: 19,700
-## Columns: 3
-## $ comid    &lt;dbl&gt; 4289595, 4290057, 4287059, 4287061, 429264…
-## $ areasqkm &lt;dbl&gt; 12.271, 4.061, 2.806, 6.787, 18.157, 27.86…
-## $ geom     &lt;MULTIPOLYGON [m]&gt; MULTIPOLYGON (((1976295 290..…</code></pre>
-<p>In total we have 19,700 aggregation units to summarize over the 366 time steps.</p>
+<span class="fu">paint</span><span class="op">(</span><span class="va">geom</span><span class="op">)</span></code></pre></div>
+<pre><code>## sf [18041, 4] 
+## active geometry column: geom (POLYGON)
+## crs: 5070 (NAD83 / Conus Albers)
+## crs unit: metre 
+## ID        chr cat-1 cat-2 cat-4 cat-5 cat-6 cat-7
+## area_sqkm dbl 12.457576 267.083595 8.319214 9.278138 60.577~
+## toID      chr nex-2 nex-3 nex-5 nex-6 nex-7 nex-8
+## geom      sfc POLY 2,024B POLY 9,064B POLY 1,656B POLY 1,81~</code></pre>
+<p>In total we have 18,041 aggregation units to summarize over the 366 time steps.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">bnch</span> <span class="op">&lt;-</span> <span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/bench/man/mark.html">mark</a></span><span class="op">(</span>
   iterations <span class="op">=</span> <span class="fl">1</span>, check <span class="op">=</span> <span class="cn">FALSE</span>, time_unit <span class="op">=</span> <span class="st">"s"</span>,
-  intersectr <span class="op">=</span> <span class="fu">intersectr_weights</span><span class="op">(</span><span class="va">file</span>, <span class="va">geom</span>, <span class="st">"comid"</span>, <span class="st">"potential_evapotranspiration"</span><span class="op">)</span>,
-  zonal      <span class="op">=</span> <span class="fu"><a href="../reference/weighting_grid.html">weighting_grid</a></span><span class="op">(</span><span class="va">s</span>, <span class="va">geom</span>, <span class="st">"comid"</span><span class="op">)</span>
+  intersectr <span class="op">=</span> <span class="fu">intersectr_weights</span><span class="op">(</span><span class="va">file</span>, <span class="va">geom</span>, <span class="st">"ID"</span>, <span class="st">"potential_evapotranspiration"</span><span class="op">)</span>,
+  zonal      <span class="op">=</span> <span class="fu"><a href="../reference/weighting_grid.html">weighting_grid</a></span><span class="op">(</span><span class="va">s</span>, <span class="va">geom</span>, <span class="st">"ID"</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 <p><img src="w-huc01-test-1.png" title="plot of chunk huc01-test" alt="plot of chunk huc01-test" width="100%"></p>
 </div>
@@ -206,22 +216,24 @@
 <p>Here, we test aggregation the 4km gridded data to 64 counties in Colorado.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">colorado</span>  <span class="op">=</span> <span class="fu">AOI</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/AOI/man/aoi_get.html">aoi_get</a></span><span class="op">(</span>state <span class="op">=</span> <span class="st">"CO"</span>, county <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span>
-<span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">colorado</span><span class="op">)</span></code></pre></div>
-<pre><code>## Rows: 64
-## Columns: 13
-## $ statefp           &lt;chr&gt; "08", "08", "08", "08", "08", "08"…
-## $ countyfp          &lt;chr&gt; "035", "095", "039", "014", "037",…
-## $ countyns          &lt;chr&gt; "00198133", "00198163", "00198136"…
-## $ affgeoid          &lt;chr&gt; "0500000US08035", "0500000US08095"…
-## $ geoid             &lt;chr&gt; "08035", "08095", "08039", "08014"…
-## $ name              &lt;chr&gt; "Douglas", "Phillips", "Elbert", "…
-## $ lsad              &lt;chr&gt; "06", "06", "06", "06", "06", "06"…
-## $ aland             &lt;dbl&gt; 2176272717, 1781724973, 4793658887…
-## $ awater            &lt;dbl&gt; 6752511, 301808, 442148, 1411781, …
-## $ state_name        &lt;chr&gt; "Colorado", "Colorado", "Colorado"…
-## $ state_abbr        &lt;chr&gt; "CO", "CO", "CO", "CO", "CO", "CO"…
-## $ jurisdiction_type &lt;chr&gt; "state", "state", "state", "state"…
-## $ geometry          &lt;MULTIPOLYGON [°]&gt; MULTIPOLYGON (((-105.…</code></pre>
+<span class="fu">paint</span><span class="op">(</span><span class="va">colorado</span><span class="op">)</span></code></pre></div>
+<pre><code>## sf [64, 13] 
+## active geometry column: geometry (MULTIPOLYGON)
+## crs: 4269 (NAD83)
+## crs unit: degree 
+## statefp           chr 08 08 08 08 08 08
+## countyfp          chr 035 095 039 014 037 053
+## countyns          chr 00198133 00198163 00198136 01945881 0~
+## affgeoid          chr 0500000US08035 0500000US08095 0500000~
+## geoid             chr 08035 08095 08039 08014 08037 08053
+## name              chr Douglas Phillips Elbert Broomfield Ea~
+## lsad              chr 06 06 06 06 06 06
+## aland             dbl 2176272717 1781724973 4793658887 8547~
+## awater            dbl 6752511 301808 442148 1411781 1884999~
+## state_name        chr Colorado Colorado Colorado Colorado C~
+## state_abbr        chr CO CO CO CO CO CO
+## jurisdiction_type chr state state state state state state
+## geometry          sfc MPOLY 872B MPOLY 824B MPOLY 824B MPOL~</code></pre>
 <p>In total we have 64 aggregation units to summarize over the 366 time steps.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">bnch2</span> <span class="op">&lt;-</span> <span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/bench/man/mark.html">mark</a></span><span class="op">(</span>
@@ -230,22 +242,6 @@
   zonal      <span class="op">=</span> <span class="fu"><a href="../reference/weighting_grid.html">weighting_grid</a></span><span class="op">(</span><span class="va">file</span>, <span class="va">colorado</span>, <span class="st">"name"</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 <p><img src="w-colorado-test-1.png" title="plot of chunk colorado-test" alt="plot of chunk colorado-test" width="100%"></p>
-<p>Notably the <code>intersectr</code> approach, based on vector intersections, is unable to scale well when the aggregation units are large.</p>
-</div>
-<div id="so-what-is-a-weight-grid" class="section level2">
-<h2 class="hasAnchor">
-<a href="#so-what-is-a-weight-grid" class="anchor"></a>So, what is a weight grid?</h2>
-<p>A weight grid is unique to the aggregate units and grid its build from. It contains columns documenting the X and Y indexes of each grid cell along with the grid id. The X,Y are realtive to the entire grid, while the grid ID is relative to subsetwithin the bounding domain of the aggregations unit(s). Additionally the <code>w</code> stores the percent overlap between the grid cell and the aggregation unit identified by the ID column which is speified in the <code>build</code>weighting_grid` function. An example is shown below:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">zonal</span>      <span class="op">=</span> <span class="fu">zonal</span><span class="fu">::</span><span class="fu"><a href="../reference/weighting_grid.html">weighting_grid</a></span><span class="op">(</span><span class="va">file</span>, <span class="va">colorado</span>, <span class="st">"name"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">zonal</span><span class="op">)</span></code></pre></div>
-<pre><code>##      name   Y   X grid_id      w
-## 1: Moffat 203 378       1 0.2725
-## 2: Moffat 203 379       2 0.9153
-## 3: Moffat 203 380       3 0.9146
-## 4: Moffat 203 381       4 0.9139
-## 5: Moffat 203 382       5 0.9132
-## 6: Moffat 203 383       6 0.9125</code></pre>
 </div>
   </div>
 
