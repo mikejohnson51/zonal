@@ -109,30 +109,36 @@ Our first example uses a hydrofabric developed for the Northeast USA.
 
 
 ```r
-geom <- read_sf('ngen_01a-4.gpkg', "catchments") %>% 
-  st_make_valid()
-
-glimpse(geom)
+geom <- read_sf('hydrofabric.gpkg', "catchments")
+paint(geom)
 ```
 
 ```
-## Rows: 19,700
-## Columns: 3
-## $ comid    [3m[38;5;246m<dbl>[39m[23m 4289595, 4290057, 4287059, 4287061, 4292649, 4292651, 4287…
-## $ areasqkm [3m[38;5;246m<dbl>[39m[23m 12.2707, 4.0614, 2.8056, 6.7867, 18.1573, 27.8620, 11.6930…
-## $ geom     [3m[38;5;246m<MULTIPOLYGON [m]>[39m[23m MULTIPOLYGON (((1976295 290..., MULTIPOLYGON …
+## sf [18041, 4] 
+## active geometry column: geom (POLYGON)
+## crs: 5070 (NAD83 / Conus Albers)
+## crs unit: metre 
+## ID        chr cat-1 cat-2 cat-4 cat-5 cat-6 cat-7
+## area_sqkm dbl 12.457576 267.083595 8.319214 9.278138 60.577~
+## toID      chr nex-2 nex-3 nex-5 nex-6 nex-7 nex-8
+## geom      sfc POLY 2,024B POLY 9,064B POLY 1,656B POLY 1,81~
 ```
 
-In total we have 19,700 aggregation units to summarize over the 366 time steps. Both zonal and intersectr are designed to precompute a weight grid. Therefore we time how long it takes to do this using each method:
+In total we have 18,041 aggregation units to summarize over the 366 time steps. Both zonal and intersectr are designed to precompute a weight grid. Therefore we time how long it takes to do this using each method:
 
 
 ```r
 int_time_huc01 = system.time({
-  intersectr_input = intersectr_prep(file, geom, ID = "comid", variable = 'potential_evapotranspiration')
+  intersectr_input = intersectr_prep(file, 
+                                     geom, 
+                                     ID = "ID", 
+                                     variable = 'potential_evapotranspiration')
 })
 
 zonal_time_huc01 = system.time({
-  zonal_w = weighting_grid(file, geom, ID = "comid")
+  zonal_w = weighting_grid(file, 
+                           geom, 
+                           ID = "ID")
 })
 ```
 
@@ -155,8 +161,8 @@ huc01_bnch <- bench::mark(
                                t_var = intersectr_input$t, 
                                start_datetime = NULL, 
                                end_datetime = NULL),
-  exactextractr            = exactrextract_process(file, geom, "comid"),
-  zonal_full               = execute_zonal(file, geom, "comid"),
+  exactextractr            = exactrextract_process(file, geom, "ID"),
+  zonal_full               = execute_zonal(file, geom, "ID"),
   zonal_staged_weights     = execute_zonal(file, w = zonal_w)
 )
 ```
@@ -181,30 +187,22 @@ Our second example looks at the timings for an aggregation over a large area wit
 ## Bounding box:  xmin: -87.63 ymin: 24.5 xmax: -80.03 ymax: 31
 ## Geodetic CRS:  NAD83
 ## First 10 features:
-##     statefp countyfp countyns       affgeoid geoid      name lsad      aland
-## 9        12      027 00294452 0500000US12027 12027    DeSoto   06 1649978040
-## 97       12      109 00308371 0500000US12109 12109 St. Johns   06 1555793097
-## 143      12      049 00295746 0500000US12049 12049    Hardee   06 1651867900
-## 285      12      125 00306913 0500000US12125 12125     Union   06  630807237
-## 398      12      005 00295738 0500000US12005 12005       Bay   06 1964402055
-## 403      12      039 00306918 0500000US12039 12039   Gadsden   06 1337193228
-## 404      12      073 00306916 0500000US12073 12073      Leon   06 1727171525
-##        awater state_name state_abbr jurisdiction_type
-## 9     6247257    Florida         FL             state
-## 97  571962797    Florida         FL             state
-## 143   1439673    Florida         FL             state
-## 285  16049079    Florida         FL             state
-## 398 711451660    Florida         FL             state
-## 403  31687293    Florida         FL             state
-## 404  90453994    Florida         FL             state
-##                           geometry
-## 9   MULTIPOLYGON (((-82.06 27.2...
-## 97  MULTIPOLYGON (((-81.68 30.1...
-## 143 MULTIPOLYGON (((-82.05 27.6...
-## 285 MULTIPOLYGON (((-82.58 29.9...
-## 398 MULTIPOLYGON (((-85.99 30.3...
-## 403 MULTIPOLYGON (((-84.93 30.6...
-## 404 MULTIPOLYGON (((-84.72 30.3...
+##     statefp countyfp countyns       affgeoid geoid      name lsad      aland    awater state_name
+## 9        12      027 00294452 0500000US12027 12027    DeSoto   06 1649978040   6247257    Florida
+## 97       12      109 00308371 0500000US12109 12109 St. Johns   06 1555793097 571962797    Florida
+## 143      12      049 00295746 0500000US12049 12049    Hardee   06 1651867900   1439673    Florida
+## 285      12      125 00306913 0500000US12125 12125     Union   06  630807237  16049079    Florida
+## 398      12      005 00295738 0500000US12005 12005       Bay   06 1964402055 711451660    Florida
+## 403      12      039 00306918 0500000US12039 12039   Gadsden   06 1337193228  31687293    Florida
+## 404      12      073 00306916 0500000US12073 12073      Leon   06 1727171525  90453994    Florida
+##     state_abbr jurisdiction_type                       geometry
+## 9           FL             state MULTIPOLYGON (((-82.06 27.2...
+## 97          FL             state MULTIPOLYGON (((-81.68 30.1...
+## 143         FL             state MULTIPOLYGON (((-82.05 27.6...
+## 285         FL             state MULTIPOLYGON (((-82.58 29.9...
+## 398         FL             state MULTIPOLYGON (((-85.99 30.3...
+## 403         FL             state MULTIPOLYGON (((-84.93 30.6...
+## 404         FL             state MULTIPOLYGON (((-84.72 30.3...
 ##  [ reached 'max' / getOption("max.print") -- omitted 3 rows ]
 ```
 
@@ -242,5 +240,3 @@ fl_bnch <- bench::mark(
 ```
 
 <img src="i-FL-tests-1.png" title="plot of chunk FL-tests" alt="plot of chunk FL-tests" width="100%" />
-
-Again, similar results are found.
