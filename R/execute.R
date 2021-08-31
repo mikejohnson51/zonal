@@ -3,6 +3,7 @@
   return(ext[length(ext)])
 } 
 
+
 #' Execute Spatial Intersection
 #' @param file path to a gridded file (either .tif or .nc)
 #' @param geom sf object of aggregation units 
@@ -30,23 +31,21 @@ execute_zonal    = function(file = NULL,
 
   if(FUN == 'mean'){
     FUN = function(x, w) { sum((x * w), na.rm = TRUE)  / sum(w, na.rm = TRUE)}
-  }
-  
-  if(FUN == "max"){
+  } else if(FUN == "max"){
     FUN = function(x, w) { suppressWarnings(max(x, na.rm = TRUE)) }
-  }
-  
-  if(FUN == "min"){
+  } else if(FUN == "min"){
     FUN = function(x, w) { suppressWarnings(min(x, na.rm = TRUE)) }
+  } else {
+    stop("FUN not valid...")
   }
-  
-  
 
   threds = getDTthreads()
   
   setDTthreads(0)
-    dt2 = dt[, lapply(.SD, FUN = FUN, w = w), keyby = eval(ID), .SDcols = cols]
+    exe = dt[, lapply(.SD, FUN = FUN, w = w), keyby = eval(ID), .SDcols = cols]
   setDTthreads(threds)
+  
+  return(exe)
 }
 
 
