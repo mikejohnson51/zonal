@@ -117,15 +117,16 @@
 <a href="#define-aggregations-geometries-and-geogrid" class="anchor"></a>Define Aggregations Geometries and Geogrid</h3>
 <p>Here we are using a version of the <code>ngen</code> hydrofabric:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">geom</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/valid.html">st_make_valid</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html">read_sf</a></span><span class="op">(</span><span class="st">'ngen_01a-4.gpkg'</span>, <span class="st">"catchments"</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">geom</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html">read_sf</a></span><span class="op">(</span><span class="st">'/Users/mjohnson/github/hydroresolve/releases//beta/01a/hydrofabric.gpkg'</span>, <span class="st">"catchments"</span><span class="op">)</span>
 <span class="fu">paint</span><span class="op">(</span><span class="va">geom</span><span class="op">)</span></code></pre></div>
-<pre><code>## sf [19700, 3] 
-## active geometry column: geom (MULTIPOLYGON, POLYGON)
+<pre><code>## sf [18041, 4] 
+## active geometry column: geom (POLYGON)
 ## crs: 5070 (NAD83 / Conus Albers)
 ## crs unit: metre 
-## comid    dbl 4289595 4290057 4287059 4287061 4292649 4292651
-## areasqkm dbl 12.270742 4.061445 2.805607 6.786665 18.157307~
-## geom     sfc MPOLY 2,024B MPOLY 1,576B MPOLY 1,768B MPOLY 1~</code></pre>
+## ID        chr cat-1 cat-2 cat-4 cat-5 cat-6 cat-7
+## area_sqkm dbl 12.457576 267.083595 8.319214 9.278138 60.577~
+## toID      chr nex-2 nex-3 nex-5 nex-6 nex-7 nex-8
+## geom      sfc POLY 2,024B POLY 9,064B POLY 1,656B POLY 1,81~</code></pre>
 <p>And the <code>soilproperties_CONUS_FullRouting</code> file from NWM v2.16. Can download from <a href="https://www.nco.ncep.noaa.gov/pmb/codes/nwprod/nwm.v2.1.6/parm/domain/soilproperties_CONUS_FullRouting.nc">here</a></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="op">(</span><span class="va">f</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html">rast</a></span><span class="op">(</span><span class="st">'soilproperties_CONUS_FullRouting.nc'</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -172,17 +173,17 @@
 <a href="#build-weight-grid" class="anchor"></a>Build Weight Grid</h3>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">w_time</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
-  <span class="va">zonal_w</span> <span class="op">=</span> <span class="fu"><a href="../reference/weighting_grid.html">weighting_grid</a></span><span class="op">(</span>file <span class="op">=</span> <span class="va">f</span>, geom <span class="op">=</span> <span class="va">geom</span>, ID <span class="op">=</span> <span class="st">"comid"</span><span class="op">)</span>
+  <span class="va">zonal_w</span> <span class="op">=</span> <span class="fu"><a href="../reference/weighting_grid.html">weighting_grid</a></span><span class="op">(</span>file <span class="op">=</span> <span class="va">f</span>, geom <span class="op">=</span> <span class="va">geom</span>, ID <span class="op">=</span> <span class="st">"ID"</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 
 <span class="fu">paint</span><span class="op">(</span><span class="va">zonal_w</span><span class="op">)</span></code></pre></div>
-<pre><code>## data.table [340898, 5] 
+<pre><code>## data.table [330755, 5] 
 ## keys: grid_id 
-## comid   dbl 4287919 4287919 4287919 4287919 4287919 4287919
+## ID      chr cat-72 cat-72 cat-72 cat-72 cat-72 cat-72
 ## Y       dbl 689 689 689 689 689 689
 ## X       dbl 4310 4311 4312 4313 4314 4315
 ## grid_id dbl 175 176 177 178 179 180
-## w       dbl 0.407925 0.360615 0.203825 0.096122 0.223531 0.~</code></pre>
+## w       dbl 0.407517 0.360609 0.203826 0.096122 0.22353 0.0~</code></pre>
 </div>
 <div id="execute-intersection" class="section level3">
 <h3 class="hasAnchor">
@@ -192,68 +193,72 @@
   <span class="va">out</span> <span class="op">=</span> <span class="fu">zonal</span><span class="fu">::</span><span class="fu"><a href="../reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span><span class="va">f</span>, w <span class="op">=</span> <span class="va">zonal_w</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/pkg/terra/man/names.html">names</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html">c</a></span><span class="op">(</span><span class="st">'comid'</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/names.html">names</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/terra/man/names.html">names</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html">c</a></span><span class="op">(</span><span class="st">'ID'</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/names.html">names</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span>
 
 <span class="fu">paint</span><span class="op">(</span><span class="va">out</span><span class="op">)</span></code></pre></div>
-<pre><code>## data.table [19700, 46] 
-## keys: comid 
-## comid                            dbl 845 847 851 857 867 869
-## bexp_soil_layers_stag=1_Time=1   dbl 7.315043 7.120261 7.15~
-## bexp_soil_layers_stag=2_Time=1   dbl 7.315043 7.120261 7.15~
-## bexp_soil_layers_stag=3_Time=1   dbl 7.315043 7.120261 7.15~
-## bexp_soil_layers_stag=4_Time=1   dbl 7.315043 7.120261 7.15~
-## cwpvt_Time=1                     dbl 0.359045 0.359133 0.35~
+<pre><code>## data.table [18041, 46] 
+## keys: ID 
+## ID                               chr cat-1 cat-10 cat-100 c~
+## bexp_soil_layers_stag=1_Time=1   dbl 8.282019 8.3008 4.4022~
+## bexp_soil_layers_stag=2_Time=1   dbl 8.282019 8.3008 4.4022~
+## bexp_soil_layers_stag=3_Time=1   dbl 8.282019 8.3008 4.4022~
+## bexp_soil_layers_stag=4_Time=1   dbl 8.282019 8.3008 4.4022~
+## cwpvt_Time=1                     dbl 0.358165 0.358331 0.35~
 ## dksat_soil_layers_stag=1_Time=1  dbl 0.000004 0.000004 0.00~
 ## dksat_soil_layers_stag=2_Time=1  dbl 0.000004 0.000004 0.00~
 ## dksat_soil_layers_stag=3_Time=1  dbl 0.000004 0.000004 0.00~
 ## dksat_soil_layers_stag=4_Time=1  dbl 0.000004 0.000004 0.00~
-## dwsat_soil_layers_stag=1_Time=1  dbl 0.000021 0.000018 0.00~
-## dwsat_soil_layers_stag=2_Time=1  dbl 0.000021 0.000018 0.00~
-## dwsat_soil_layers_stag=3_Time=1  dbl 0.000021 0.000018 0.00~
-## dwsat_soil_layers_stag=4_Time=1  dbl 0.000021 0.000018 0.00~
-## hvt_Time=1                       dbl 16.594097 15.639253 14~
-## mfsno_Time=1                     dbl 3.96749 3.988473 3.986~
-## mp_Time=1                        dbl 9.5518 9.972461 9.4473~
-## psisat_soil_layers_stag=1_Time=1 dbl 0.644273 0.529957 0.61~
-## psisat_soil_layers_stag=2_Time=1 dbl 0.644273 0.529957 0.61~
-## psisat_soil_layers_stag=3_Time=1 dbl 0.644273 0.529957 0.61~
-## psisat_soil_layers_stag=4_Time=1 dbl 0.644273 0.529957 0.61~
-## quartz_soil_layers_stag=1_Time=1 dbl 0.292597 0.335041 0.30~
-## quartz_soil_layers_stag=2_Time=1 dbl 0.292597 0.335041 0.30~
-## quartz_soil_layers_stag=3_Time=1 dbl 0.292597 0.335041 0.30~
-## quartz_soil_layers_stag=4_Time=1 dbl 0.292597 0.335041 0.30~
+## dwsat_soil_layers_stag=1_Time=1  dbl 0.000023 0.000024 0.00~
+## dwsat_soil_layers_stag=2_Time=1  dbl 0.000023 0.000024 0.00~
+## dwsat_soil_layers_stag=3_Time=1  dbl 0.000023 0.000024 0.00~
+## dwsat_soil_layers_stag=4_Time=1  dbl 0.000023 0.000024 0.00~
+## hvt_Time=1                       dbl 16 19.315861 9.692179 ~
+## mfsno_Time=1                     dbl 3.642424 3.735388 1.16~
+## mp_Time=1                        dbl 12.393361 8.971084 9.9~
+## psisat_soil_layers_stag=1_Time=1 dbl 0.716336 0.759 0.18949~
+## psisat_soil_layers_stag=2_Time=1 dbl 0.716336 0.759 0.18949~
+## psisat_soil_layers_stag=3_Time=1 dbl 0.716336 0.759 0.18949~
+## psisat_soil_layers_stag=4_Time=1 dbl 0.716336 0.759 0.18949~
+## quartz_soil_layers_stag=1_Time=1 dbl 0.265841 0.25 0.539492~
+## quartz_soil_layers_stag=2_Time=1 dbl 0.265841 0.25 0.539492~
+## quartz_soil_layers_stag=3_Time=1 dbl 0.265841 0.25 0.539492~
+## quartz_soil_layers_stag=4_Time=1 dbl 0.265841 0.25 0.539492~
 ## refdk_Time=1                     dbl 0.000002 0.000002 0.00~
-## refkdt_Time=1                    dbl 1.010987 0.513018 0.55~
-## rsurfexp_Time=1                  dbl 1.132266 1.139125 1.13~
-## slope_Time=1                     dbl 0.072485 0.037253 0.04~
-## smcdry_soil_layers_stag=1_Time=1 dbl 0.078888 0.073795 0.07~
-## smcdry_soil_layers_stag=2_Time=1 dbl 0.078888 0.073795 0.07~
-## smcdry_soil_layers_stag=3_Time=1 dbl 0.078888 0.073795 0.07~
-## smcdry_soil_layers_stag=4_Time=1 dbl 0.078888 0.073795 0.07~
-## smcmax_soil_layers_stag=1_Time=1 dbl 0.482493 0.4781 0.4852~
-## smcmax_soil_layers_stag=2_Time=1 dbl 0.482493 0.4781 0.4852~
-## smcmax_soil_layers_stag=3_Time=1 dbl 0.482493 0.4781 0.4852~
-## smcmax_soil_layers_stag=4_Time=1 dbl 0.482493 0.4781 0.4852~
-## smcref_soil_layers_stag=1_Time=1 dbl 0.351197 0.342425 0.34~
-## smcref_soil_layers_stag=2_Time=1 dbl 0.351197 0.342425 0.34~
-## smcref_soil_layers_stag=3_Time=1 dbl 0.351197 0.342425 0.34~
-## smcref_soil_layers_stag=4_Time=1 dbl 0.351197 0.342425 0.34~
-## smcwlt_soil_layers_stag=1_Time=1 dbl 0.078888 0.073795 0.07~
-## smcwlt_soil_layers_stag=2_Time=1 dbl 0.078888 0.073795 0.07~
-## smcwlt_soil_layers_stag=3_Time=1 dbl 0.078888 0.073795 0.07~
-## smcwlt_soil_layers_stag=4_Time=1 dbl 0.078888 0.073795 0.07~
-## vcmx25_Time=1                    dbl 63.790606 68.996715 62~</code></pre>
+## refkdt_Time=1                    dbl 3.81326 3.861417 2.528~
+## rsurfexp_Time=1                  dbl 1.191117 1.145731 2.40~
+## slope_Time=1                     dbl 0.258123 0.267325 0.01~
+## smcdry_soil_layers_stag=1_Time=1 dbl 0.082099 0.084 0.03394~
+## smcdry_soil_layers_stag=2_Time=1 dbl 0.082099 0.084 0.03394~
+## smcdry_soil_layers_stag=3_Time=1 dbl 0.082099 0.084 0.03394~
+## smcdry_soil_layers_stag=4_Time=1 dbl 0.082099 0.084 0.03394~
+## smcmax_soil_layers_stag=1_Time=1 dbl 0.454912 0.456694 0.69~
+## smcmax_soil_layers_stag=2_Time=1 dbl 0.454912 0.456694 0.69~
+## smcmax_soil_layers_stag=3_Time=1 dbl 0.454912 0.456694 0.69~
+## smcmax_soil_layers_stag=4_Time=1 dbl 0.454912 0.456694 0.69~
+## smcref_soil_layers_stag=1_Time=1 dbl 0.356726 0.36 0.191197~
+## smcref_soil_layers_stag=2_Time=1 dbl 0.356726 0.36 0.191197~
+## smcref_soil_layers_stag=3_Time=1 dbl 0.356726 0.36 0.191197~
+## smcref_soil_layers_stag=4_Time=1 dbl 0.356726 0.36 0.191197~
+## smcwlt_soil_layers_stag=1_Time=1 dbl 0.082099 0.084 0.03394~
+## smcwlt_soil_layers_stag=2_Time=1 dbl 0.082099 0.084 0.03394~
+## smcwlt_soil_layers_stag=3_Time=1 dbl 0.082099 0.084 0.03394~
+## smcwlt_soil_layers_stag=4_Time=1 dbl 0.082099 0.084 0.03394~
+## vcmx25_Time=1                    dbl 60.770485 51.91229 43.~</code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/hist.html">hist</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">`bexp_soil_layers_stag=1_Time=1`</span><span class="op">)</span></code></pre></div>
 <p><img src="nwm-nwm-hist-1.png" title="plot of chunk nwm-hist" alt="plot of chunk nwm-hist" width="100%"></p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">spat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/merge.html">merge</a></span><span class="op">(</span><span class="va">geom</span>, <span class="va">out</span>, by <span class="op">=</span> <span class="st">"comid"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">spat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/merge.html">merge</a></span><span class="op">(</span><span class="va">geom</span>, <span class="va">out</span>, by <span class="op">=</span> <span class="st">"ID"</span><span class="op">)</span>
 
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">ggplot2</span><span class="op">)</span>
 
-<span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
+<span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html">plot</a></span><span class="op">(</span><span class="va">f</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<p><img src="nwm-nwm-map-1.png" title="plot of chunk nwm-map" alt="plot of chunk nwm-map" width="100%"></p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spat</span>, <span class="fu">aes</span><span class="op">(</span>fill <span class="op">=</span> <span class="va">`bexp_soil_layers_stag=1_Time=1`</span><span class="op">)</span>, color <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="op">+</span> 
   <span class="fu">scale_fill_viridis_c</span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p><img src="nwm-nwm-map-1.png" title="plot of chunk nwm-map" alt="plot of chunk nwm-map" width="100%"></p>
+<p><img src="nwm-nwm-map-2.png" title="plot of chunk nwm-map" alt="plot of chunk nwm-map" width="100%"></p>
 </div>
 <div id="summary" class="section level3">
 <h3 class="hasAnchor">
