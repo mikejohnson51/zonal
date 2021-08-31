@@ -1,6 +1,10 @@
 ---
 title: "NWM Channel Routing Application"
-output: html_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Weight Maps}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 
@@ -23,18 +27,19 @@ Here we are using a version of the `ngen` hydrofabric:
 
 
 ```r
-geom <- st_make_valid(read_sf('ngen_01a-4.gpkg', "catchments"))
+geom <- read_sf('/Users/mjohnson/github/hydroresolve/releases//beta/01a/hydrofabric.gpkg', "catchments")
 paint(geom)
 ```
 
 ```
-## sf [19700, 3] 
-## active geometry column: geom (MULTIPOLYGON, POLYGON)
+## sf [18041, 4] 
+## active geometry column: geom (POLYGON)
 ## crs: 5070 (NAD83 / Conus Albers)
 ## crs unit: metre 
-## comid    dbl 4289595 4290057 4287059 4287061 4292649 4292651
-## areasqkm dbl 12.270742 4.061445 2.805607 6.786665 18.157307~
-## geom     sfc MPOLY 2,024B MPOLY 1,576B MPOLY 1,768B MPOLY 1~
+## ID        chr cat-1 cat-2 cat-4 cat-5 cat-6 cat-7
+## area_sqkm dbl 12.457576 267.083595 8.319214 9.278138 60.577~
+## toID      chr nex-2 nex-3 nex-5 nex-6 nex-7 nex-8
+## geom      sfc POLY 2,024B POLY 9,064B POLY 1,656B POLY 1,81~
 ```
 
 And the `soilproperties_CONUS_FullRouting` file from NWM v2.16. Can download from [here](https://www.nco.ncep.noaa.gov/pmb/codes/nwprod/nwm.v2.1.6/parm/domain/soilproperties_CONUS_FullRouting.nc)
@@ -99,20 +104,20 @@ f
 
 ```r
 w_time = system.time({
-  zonal_w = weighting_grid(file = f, geom = geom, ID = "comid")
+  zonal_w = weighting_grid(file = f, geom = geom, ID = "ID")
 })
 
 paint(zonal_w)
 ```
 
 ```
-## data.table [340898, 5] 
+## data.table [330755, 5] 
 ## keys: grid_id 
-## comid   dbl 4287919 4287919 4287919 4287919 4287919 4287919
+## ID      chr cat-72 cat-72 cat-72 cat-72 cat-72 cat-72
 ## Y       dbl 689 689 689 689 689 689
 ## X       dbl 4310 4311 4312 4313 4314 4315
 ## grid_id dbl 175 176 177 178 179 180
-## w       dbl 0.407925 0.360615 0.203825 0.096122 0.223531 0.~
+## w       dbl 0.407517 0.360609 0.203826 0.096122 0.22353 0.0~
 ```
 
 ### Execute Intersection
@@ -123,60 +128,60 @@ z_time = system.time({
   out = zonal::execute_zonal(f, w = zonal_w)
 })
 
-names(out) = c('comid', names(f))
+names(out) = c('ID', names(f))
 
 paint(out)
 ```
 
 ```
-## data.table [19700, 46] 
-## keys: comid 
-## comid                            dbl 845 847 851 857 867 869
-## bexp_soil_layers_stag=1_Time=1   dbl 7.315043 7.120261 7.15~
-## bexp_soil_layers_stag=2_Time=1   dbl 7.315043 7.120261 7.15~
-## bexp_soil_layers_stag=3_Time=1   dbl 7.315043 7.120261 7.15~
-## bexp_soil_layers_stag=4_Time=1   dbl 7.315043 7.120261 7.15~
-## cwpvt_Time=1                     dbl 0.359045 0.359133 0.35~
+## data.table [18041, 46] 
+## keys: ID 
+## ID                               chr cat-1 cat-10 cat-100 c~
+## bexp_soil_layers_stag=1_Time=1   dbl 8.282019 8.3008 4.4022~
+## bexp_soil_layers_stag=2_Time=1   dbl 8.282019 8.3008 4.4022~
+## bexp_soil_layers_stag=3_Time=1   dbl 8.282019 8.3008 4.4022~
+## bexp_soil_layers_stag=4_Time=1   dbl 8.282019 8.3008 4.4022~
+## cwpvt_Time=1                     dbl 0.358165 0.358331 0.35~
 ## dksat_soil_layers_stag=1_Time=1  dbl 0.000004 0.000004 0.00~
 ## dksat_soil_layers_stag=2_Time=1  dbl 0.000004 0.000004 0.00~
 ## dksat_soil_layers_stag=3_Time=1  dbl 0.000004 0.000004 0.00~
 ## dksat_soil_layers_stag=4_Time=1  dbl 0.000004 0.000004 0.00~
-## dwsat_soil_layers_stag=1_Time=1  dbl 0.000021 0.000018 0.00~
-## dwsat_soil_layers_stag=2_Time=1  dbl 0.000021 0.000018 0.00~
-## dwsat_soil_layers_stag=3_Time=1  dbl 0.000021 0.000018 0.00~
-## dwsat_soil_layers_stag=4_Time=1  dbl 0.000021 0.000018 0.00~
-## hvt_Time=1                       dbl 16.594097 15.639253 14~
-## mfsno_Time=1                     dbl 3.96749 3.988473 3.986~
-## mp_Time=1                        dbl 9.5518 9.972461 9.4473~
-## psisat_soil_layers_stag=1_Time=1 dbl 0.644273 0.529957 0.61~
-## psisat_soil_layers_stag=2_Time=1 dbl 0.644273 0.529957 0.61~
-## psisat_soil_layers_stag=3_Time=1 dbl 0.644273 0.529957 0.61~
-## psisat_soil_layers_stag=4_Time=1 dbl 0.644273 0.529957 0.61~
-## quartz_soil_layers_stag=1_Time=1 dbl 0.292597 0.335041 0.30~
-## quartz_soil_layers_stag=2_Time=1 dbl 0.292597 0.335041 0.30~
-## quartz_soil_layers_stag=3_Time=1 dbl 0.292597 0.335041 0.30~
-## quartz_soil_layers_stag=4_Time=1 dbl 0.292597 0.335041 0.30~
+## dwsat_soil_layers_stag=1_Time=1  dbl 0.000023 0.000024 0.00~
+## dwsat_soil_layers_stag=2_Time=1  dbl 0.000023 0.000024 0.00~
+## dwsat_soil_layers_stag=3_Time=1  dbl 0.000023 0.000024 0.00~
+## dwsat_soil_layers_stag=4_Time=1  dbl 0.000023 0.000024 0.00~
+## hvt_Time=1                       dbl 16 19.315861 9.692179 ~
+## mfsno_Time=1                     dbl 3.642424 3.735388 1.16~
+## mp_Time=1                        dbl 12.393361 8.971084 9.9~
+## psisat_soil_layers_stag=1_Time=1 dbl 0.716336 0.759 0.18949~
+## psisat_soil_layers_stag=2_Time=1 dbl 0.716336 0.759 0.18949~
+## psisat_soil_layers_stag=3_Time=1 dbl 0.716336 0.759 0.18949~
+## psisat_soil_layers_stag=4_Time=1 dbl 0.716336 0.759 0.18949~
+## quartz_soil_layers_stag=1_Time=1 dbl 0.265841 0.25 0.539492~
+## quartz_soil_layers_stag=2_Time=1 dbl 0.265841 0.25 0.539492~
+## quartz_soil_layers_stag=3_Time=1 dbl 0.265841 0.25 0.539492~
+## quartz_soil_layers_stag=4_Time=1 dbl 0.265841 0.25 0.539492~
 ## refdk_Time=1                     dbl 0.000002 0.000002 0.00~
-## refkdt_Time=1                    dbl 1.010987 0.513018 0.55~
-## rsurfexp_Time=1                  dbl 1.132266 1.139125 1.13~
-## slope_Time=1                     dbl 0.072485 0.037253 0.04~
-## smcdry_soil_layers_stag=1_Time=1 dbl 0.078888 0.073795 0.07~
-## smcdry_soil_layers_stag=2_Time=1 dbl 0.078888 0.073795 0.07~
-## smcdry_soil_layers_stag=3_Time=1 dbl 0.078888 0.073795 0.07~
-## smcdry_soil_layers_stag=4_Time=1 dbl 0.078888 0.073795 0.07~
-## smcmax_soil_layers_stag=1_Time=1 dbl 0.482493 0.4781 0.4852~
-## smcmax_soil_layers_stag=2_Time=1 dbl 0.482493 0.4781 0.4852~
-## smcmax_soil_layers_stag=3_Time=1 dbl 0.482493 0.4781 0.4852~
-## smcmax_soil_layers_stag=4_Time=1 dbl 0.482493 0.4781 0.4852~
-## smcref_soil_layers_stag=1_Time=1 dbl 0.351197 0.342425 0.34~
-## smcref_soil_layers_stag=2_Time=1 dbl 0.351197 0.342425 0.34~
-## smcref_soil_layers_stag=3_Time=1 dbl 0.351197 0.342425 0.34~
-## smcref_soil_layers_stag=4_Time=1 dbl 0.351197 0.342425 0.34~
-## smcwlt_soil_layers_stag=1_Time=1 dbl 0.078888 0.073795 0.07~
-## smcwlt_soil_layers_stag=2_Time=1 dbl 0.078888 0.073795 0.07~
-## smcwlt_soil_layers_stag=3_Time=1 dbl 0.078888 0.073795 0.07~
-## smcwlt_soil_layers_stag=4_Time=1 dbl 0.078888 0.073795 0.07~
-## vcmx25_Time=1                    dbl 63.790606 68.996715 62~
+## refkdt_Time=1                    dbl 3.81326 3.861417 2.528~
+## rsurfexp_Time=1                  dbl 1.191117 1.145731 2.40~
+## slope_Time=1                     dbl 0.258123 0.267325 0.01~
+## smcdry_soil_layers_stag=1_Time=1 dbl 0.082099 0.084 0.03394~
+## smcdry_soil_layers_stag=2_Time=1 dbl 0.082099 0.084 0.03394~
+## smcdry_soil_layers_stag=3_Time=1 dbl 0.082099 0.084 0.03394~
+## smcdry_soil_layers_stag=4_Time=1 dbl 0.082099 0.084 0.03394~
+## smcmax_soil_layers_stag=1_Time=1 dbl 0.454912 0.456694 0.69~
+## smcmax_soil_layers_stag=2_Time=1 dbl 0.454912 0.456694 0.69~
+## smcmax_soil_layers_stag=3_Time=1 dbl 0.454912 0.456694 0.69~
+## smcmax_soil_layers_stag=4_Time=1 dbl 0.454912 0.456694 0.69~
+## smcref_soil_layers_stag=1_Time=1 dbl 0.356726 0.36 0.191197~
+## smcref_soil_layers_stag=2_Time=1 dbl 0.356726 0.36 0.191197~
+## smcref_soil_layers_stag=3_Time=1 dbl 0.356726 0.36 0.191197~
+## smcref_soil_layers_stag=4_Time=1 dbl 0.356726 0.36 0.191197~
+## smcwlt_soil_layers_stag=1_Time=1 dbl 0.082099 0.084 0.03394~
+## smcwlt_soil_layers_stag=2_Time=1 dbl 0.082099 0.084 0.03394~
+## smcwlt_soil_layers_stag=3_Time=1 dbl 0.082099 0.084 0.03394~
+## smcwlt_soil_layers_stag=4_Time=1 dbl 0.082099 0.084 0.03394~
+## vcmx25_Time=1                    dbl 60.770485 51.91229 43.~
 ```
 
 ```r
@@ -187,15 +192,22 @@ hist(out$`bexp_soil_layers_stag=1_Time=1`)
 
 
 ```r
-spat = merge(geom, out, by = "comid")
+spat = merge(geom, out, by = "ID")
 
+library(ggplot2)
 
+plot(f[[1]])
+```
+
+<img src="nwm-nwm-map-1.png" title="plot of chunk nwm-map" alt="plot of chunk nwm-map" width="100%" />
+
+```r
 ggplot() + 
   geom_sf(data = spat, aes(fill = `bexp_soil_layers_stag=1_Time=1`), color = NA) + 
   scale_fill_viridis_c()
 ```
 
-<img src="nwm-nwm-map-1.png" title="plot of chunk nwm-map" alt="plot of chunk nwm-map" width="100%" />
+<img src="nwm-nwm-map-2.png" title="plot of chunk nwm-map" alt="plot of chunk nwm-map" width="100%" />
 
 ### Summary 
 
