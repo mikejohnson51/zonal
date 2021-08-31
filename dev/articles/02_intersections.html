@@ -195,23 +195,29 @@
 <a href="#example-1-huc01" class="anchor"></a>Example 1: HUC01</h2>
 <p>Our first example uses a hydrofabric developed for the Northeast USA.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">geom</span> <span class="op">&lt;-</span> <span class="fu">read_sf</span><span class="op">(</span><span class="st">'ngen_01a-4.gpkg'</span>, <span class="st">"catchments"</span><span class="op">)</span> <span class="op">%&gt;%</span> 
-  <span class="fu">st_make_valid</span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html">glimpse</a></span><span class="op">(</span><span class="va">geom</span><span class="op">)</span></code></pre></div>
-<pre><code>## Rows: 19,700
-## Columns: 3
-## $ comid    [3m[38;5;246m&lt;dbl&gt;[39m[23m 4289595, 4290057, 4287059, 4287061, 4292649, 4292651, 4287…
-## $ areasqkm [3m[38;5;246m&lt;dbl&gt;[39m[23m 12.2707, 4.0614, 2.8056, 6.7867, 18.1573, 27.8620, 11.6930…
-## $ geom     [3m[38;5;246m&lt;MULTIPOLYGON [m]&gt;[39m[23m MULTIPOLYGON (((1976295 290..., MULTIPOLYGON …</code></pre>
-<p>In total we have 19,700 aggregation units to summarize over the 366 time steps. Both zonal and intersectr are designed to precompute a weight grid. Therefore we time how long it takes to do this using each method:</p>
+<code class="sourceCode R"><span class="va">geom</span> <span class="op">&lt;-</span> <span class="fu">read_sf</span><span class="op">(</span><span class="st">'hydrofabric.gpkg'</span>, <span class="st">"catchments"</span><span class="op">)</span>
+<span class="fu">paint</span><span class="op">(</span><span class="va">geom</span><span class="op">)</span></code></pre></div>
+<pre><code>## sf [18041, 4] 
+## active geometry column: geom (POLYGON)
+## crs: 5070 (NAD83 / Conus Albers)
+## crs unit: metre 
+## ID        chr cat-1 cat-2 cat-4 cat-5 cat-6 cat-7
+## area_sqkm dbl 12.457576 267.083595 8.319214 9.278138 60.577~
+## toID      chr nex-2 nex-3 nex-5 nex-6 nex-7 nex-8
+## geom      sfc POLY 2,024B POLY 9,064B POLY 1,656B POLY 1,81~</code></pre>
+<p>In total we have 18,041 aggregation units to summarize over the 366 time steps. Both zonal and intersectr are designed to precompute a weight grid. Therefore we time how long it takes to do this using each method:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">int_time_huc01</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
-  <span class="va">intersectr_input</span> <span class="op">=</span> <span class="fu">intersectr_prep</span><span class="op">(</span><span class="va">file</span>, <span class="va">geom</span>, ID <span class="op">=</span> <span class="st">"comid"</span>, variable <span class="op">=</span> <span class="st">'potential_evapotranspiration'</span><span class="op">)</span>
+  <span class="va">intersectr_input</span> <span class="op">=</span> <span class="fu">intersectr_prep</span><span class="op">(</span><span class="va">file</span>, 
+                                     <span class="va">geom</span>, 
+                                     ID <span class="op">=</span> <span class="st">"ID"</span>, 
+                                     variable <span class="op">=</span> <span class="st">'potential_evapotranspiration'</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 
 <span class="va">zonal_time_huc01</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
-  <span class="va">zonal_w</span> <span class="op">=</span> <span class="fu"><a href="../reference/weighting_grid.html">weighting_grid</a></span><span class="op">(</span><span class="va">file</span>, <span class="va">geom</span>, ID <span class="op">=</span> <span class="st">"comid"</span><span class="op">)</span>
+  <span class="va">zonal_w</span> <span class="op">=</span> <span class="fu"><a href="../reference/weighting_grid.html">weighting_grid</a></span><span class="op">(</span><span class="va">file</span>, 
+                           <span class="va">geom</span>, 
+                           ID <span class="op">=</span> <span class="st">"ID"</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span></code></pre></div>
 <p>Next, we benchmark the time it takes to do the following: - run the <code>intersectr</code> workflow with precomputed weights - run the <code>exactextractr</code> workflow - run the <code>zonal</code> workflow - run the <code>zonal</code> workflow with precomputed weights</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -226,8 +232,8 @@
                                t_var <span class="op">=</span> <span class="va">intersectr_input</span><span class="op">$</span><span class="va">t</span>, 
                                start_datetime <span class="op">=</span> <span class="cn">NULL</span>, 
                                end_datetime <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>,
-  exactextractr            <span class="op">=</span> <span class="fu">exactrextract_process</span><span class="op">(</span><span class="va">file</span>, <span class="va">geom</span>, <span class="st">"comid"</span><span class="op">)</span>,
-  zonal_full               <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span><span class="va">file</span>, <span class="va">geom</span>, <span class="st">"comid"</span><span class="op">)</span>,
+  exactextractr            <span class="op">=</span> <span class="fu">exactrextract_process</span><span class="op">(</span><span class="va">file</span>, <span class="va">geom</span>, <span class="st">"ID"</span><span class="op">)</span>,
+  zonal_full               <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span><span class="va">file</span>, <span class="va">geom</span>, <span class="st">"ID"</span><span class="op">)</span>,
   zonal_staged_weights     <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span><span class="va">file</span>, w <span class="op">=</span> <span class="va">zonal_w</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 <p><img src="i-huc01-tests-1.png" title="plot of chunk huc01-tests" alt="plot of chunk huc01-tests" width="100%"></p>
@@ -245,30 +251,22 @@
 ## Bounding box:  xmin: -87.63 ymin: 24.5 xmax: -80.03 ymax: 31
 ## Geodetic CRS:  NAD83
 ## First 10 features:
-##     statefp countyfp countyns       affgeoid geoid      name lsad      aland
-## 9        12      027 00294452 0500000US12027 12027    DeSoto   06 1649978040
-## 97       12      109 00308371 0500000US12109 12109 St. Johns   06 1555793097
-## 143      12      049 00295746 0500000US12049 12049    Hardee   06 1651867900
-## 285      12      125 00306913 0500000US12125 12125     Union   06  630807237
-## 398      12      005 00295738 0500000US12005 12005       Bay   06 1964402055
-## 403      12      039 00306918 0500000US12039 12039   Gadsden   06 1337193228
-## 404      12      073 00306916 0500000US12073 12073      Leon   06 1727171525
-##        awater state_name state_abbr jurisdiction_type
-## 9     6247257    Florida         FL             state
-## 97  571962797    Florida         FL             state
-## 143   1439673    Florida         FL             state
-## 285  16049079    Florida         FL             state
-## 398 711451660    Florida         FL             state
-## 403  31687293    Florida         FL             state
-## 404  90453994    Florida         FL             state
-##                           geometry
-## 9   MULTIPOLYGON (((-82.06 27.2...
-## 97  MULTIPOLYGON (((-81.68 30.1...
-## 143 MULTIPOLYGON (((-82.05 27.6...
-## 285 MULTIPOLYGON (((-82.58 29.9...
-## 398 MULTIPOLYGON (((-85.99 30.3...
-## 403 MULTIPOLYGON (((-84.93 30.6...
-## 404 MULTIPOLYGON (((-84.72 30.3...
+##     statefp countyfp countyns       affgeoid geoid      name lsad      aland    awater state_name
+## 9        12      027 00294452 0500000US12027 12027    DeSoto   06 1649978040   6247257    Florida
+## 97       12      109 00308371 0500000US12109 12109 St. Johns   06 1555793097 571962797    Florida
+## 143      12      049 00295746 0500000US12049 12049    Hardee   06 1651867900   1439673    Florida
+## 285      12      125 00306913 0500000US12125 12125     Union   06  630807237  16049079    Florida
+## 398      12      005 00295738 0500000US12005 12005       Bay   06 1964402055 711451660    Florida
+## 403      12      039 00306918 0500000US12039 12039   Gadsden   06 1337193228  31687293    Florida
+## 404      12      073 00306916 0500000US12073 12073      Leon   06 1727171525  90453994    Florida
+##     state_abbr jurisdiction_type                       geometry
+## 9           FL             state MULTIPOLYGON (((-82.06 27.2...
+## 97          FL             state MULTIPOLYGON (((-81.68 30.1...
+## 143         FL             state MULTIPOLYGON (((-82.05 27.6...
+## 285         FL             state MULTIPOLYGON (((-82.58 29.9...
+## 398         FL             state MULTIPOLYGON (((-85.99 30.3...
+## 403         FL             state MULTIPOLYGON (((-84.93 30.6...
+## 404         FL             state MULTIPOLYGON (((-84.72 30.3...
 ##  [ reached 'max' / getOption("max.print") -- omitted 3 rows ]</code></pre>
 <p>The same functions and timing from example 1 are computed:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -296,7 +294,6 @@
   zonal_staged_weights     <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span><span class="va">file</span>, w <span class="op">=</span> <span class="va">zonal_w_florida</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 <p><img src="i-FL-tests-1.png" title="plot of chunk FL-tests" alt="plot of chunk FL-tests" width="100%"></p>
-<p>Again, similar results are found.</p>
 </div>
   </div>
 
