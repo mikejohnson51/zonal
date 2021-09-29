@@ -10,20 +10,30 @@ Authors@R:
 Maintainer: Mike Johnson <mikecp11@gmail.com>
 BugReports: https://github.com/mikejohnson51/zonal/issues
 Description: Given a gridded and vector based input, compute weighted mean and percent coverage.
-Depends: R(>= 3.5.0)
+Depends: R (>= 3.4), R(>= 3.5.0)
 Imports: 
     data.table,
     exactextractr,
     ncmeta,
     raster,
     RNetCDF,
+    sf,
     terra
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 VignetteBuilder: knitr
 Suggests: 
+    AOI,
+    bench,
+    dplyr,
+    ggplot2,
+    intersectr,
     knitr,
-    rmarkdown
+    paint,
+    R.utils,
+    rmarkdown,
+    tidyr,
+    wrfhydroSubsetter
