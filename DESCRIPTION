@@ -26,14 +26,4 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 VignetteBuilder: knitr
 Suggests: 
-    AOI,
-    bench,
-    dplyr,
-    ggplot2,
-    intersectr,
-    knitr,
-    paint,
-    R.utils,
-    rmarkdown,
-    tidyr,
-    wrfhydroSubsetter
+    rmarkdown
