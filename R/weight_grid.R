@@ -22,44 +22,53 @@
 #' @return a data.table
 #' @export
 #' @importFrom raster stack
-#' @importFrom terra rast crop ncell crs ext project vect
+#' @importFrom sf sf_use_s2 st_as_sfc st_bbox st_crs st_set_crs st_transform st_intersection st_cast
+#' @importFrom terra rast ext vect rowColFromCell crop values ncell
 #' @importFrom exactextractr exact_extract
 #' @importFrom data.table setDT rbindlist setnames `:=`
 
 weighting_grid = function(file, geom, ID){
-  
-  if(grepl("raster|character", class(file), ignore.case = TRUE)){ file = file[[1]] }
-  
-  r    = suppressWarnings({ terra::rast(file)[[1]] })
-  
-  y.dim = dim(r)[1]
-  x.dim = dim(r)[2]
-  
-  cols <- rows <- r[[1]]
-  cols[]      = (rep(1:y.dim, each = x.dim))
-  names(cols) = 'Y'
-  rows[]      = (rep(1:x.dim, times = y.dim))
-  names(rows) = 'X'
-  
-  # We are doing this because terra snap out often crashes R!
-  vect = terra::project(terra::vect(geom), terra::crs(r))
-  ext  = terra::ext(vect)
-  res  = terra::res(r)[1]
-  ext  = c(ext$xmin, ext$xmax, ext$ymin, ext$ymax)
 
-  st =  terra::crop(terra::rast(list(cols, rows)), ext, snap = "out")
+  
+  sf::sf_use_s2(FALSE)
+  
+  r = if(grepl("raster", class(file), ignore.case = TRUE)){
+    file[[1]]
+  } else {
+    suppressWarnings({ terra::rast(file)[[1]] })
+  }
+  
+  r_crs = crs(r)
+  
+  domain = sf::st_as_sfc(sf::st_bbox(as.vector(terra::ext(r)))) %>% 
+    sf::st_set_crs(r_crs)
+  
+  g_bbox = sf::st_as_sfc(sf::st_bbox(geom), crs = sf::st_crs(geom)) %>% 
+    sf::st_transform(r_crs) %>% 
+    sf::st_intersection(domain)
 
-  cells        = st[[1]]
-  names(cells) = 'grid_id'
-  cells[] = 1:terra::ncell(cells)
-  s       = terra::rast(list(st, cells))
+  g_pts = sf::st_cast(g_bbox, "POINT")
+  
+  ind = terra::extract(r, vect(g_pts), cells = T)
+  
+  ind2 = terra::rowColFromCell(r, ind$cell)
+  
+  Y <- X <- grid_cells <-  terra::crop(r, vect(g_bbox), snap = "out")
+  
+  values(Y) = (rep(min(ind2[,1]):max(ind2[,1]), each = dim(Y)[2]))
+  values(X) = (rep(min(ind2[,2]):max(ind2[,2]), times = dim(X)[1]))
+  values(grid_cells) = 1:ncell(X)
+  
+  s = rast(list(X,Y,grid_cells))
+  names(s) = c("X", "Y", "grid_id")
 
-  out1 = suppressWarnings({ exactextractr::exact_extract(raster::stack(s), 
-                                                         geom, 
+  out1 = suppressWarnings({ exactextractr::exact_extract(raster::stack(s),
+                                                         geom,
                                                          progress = FALSE,
                                                          include_cols = ID) })
-  
-  out2 = data.table::rbindlist(out1) 
+
+  out2 = data.table::rbindlist(out1)
   data.table::setnames(out2, "coverage_fraction", "w")
   data.table::setDT(out2, key = "grid_id")
 }
+
