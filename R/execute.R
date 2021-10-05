@@ -26,7 +26,7 @@ execute_zonal    = function(file = NULL,
   ID = names(w)[!names(w) %in% w_names]
 
   dt = .zonal_io(file, w)
-  
+
   cols = names(dt)[!names(dt) %in% c(ID, w_names)]
 
   if(FUN == 'mean'){

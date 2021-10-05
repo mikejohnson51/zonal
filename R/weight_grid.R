@@ -22,44 +22,28 @@
 #' @return a data.table
 #' @export
 #' @importFrom raster stack
-#' @importFrom sf sf_use_s2 st_as_sfc st_bbox st_crs st_set_crs st_transform st_intersection st_cast
-#' @importFrom terra rast ext vect rowColFromCell crop values ncell
+#' @importFrom terra rast ext project vect crs crop cells `values<-` colFromCell rowFromCell
 #' @importFrom exactextractr exact_extract
-#' @importFrom data.table setDT rbindlist setnames `:=`
+#' @importFrom data.table setDT rbindlist setnames
 
 weighting_grid = function(file, geom, ID){
 
-  
-  sf::sf_use_s2(FALSE)
-  
   r = if(grepl("raster", class(file), ignore.case = TRUE)){
     file[[1]]
   } else {
-    suppressWarnings({ terra::rast(file)[[1]] })
+    suppressWarnings({ rast(file)[[1]] })
   }
   
-  r_crs = crs(r)
+  ext = ext(project(vect(geom), terra::crs(r)))
   
-  domain = sf::st_as_sfc(sf::st_bbox(as.vector(terra::ext(r)))) %>% 
-    sf::st_set_crs(r_crs)
-  
-  g_bbox = sf::st_as_sfc(sf::st_bbox(geom), crs = sf::st_crs(geom)) %>% 
-    sf::st_transform(r_crs) %>% 
-    sf::st_intersection(domain)
+  Y <- X <- grid_cells <- crop(r, ext, snap = "out")
 
-  g_pts = sf::st_cast(g_bbox, "POINT")
+  cells = cells(r, ext(Y))
+  values(Y) = colFromCell(r, cells)
+  values(X) = rowFromCell(r, cells)
+  values(grid_cells) = 1:length(cells)
   
-  ind = terra::extract(r, vect(g_pts), cells = T)
-  
-  ind2 = terra::rowColFromCell(r, ind$cell)
-  
-  Y <- X <- grid_cells <-  terra::crop(r, vect(g_bbox), snap = "out")
-  
-  values(Y) = (rep(min(ind2[,1]):max(ind2[,1]), each = dim(Y)[2]))
-  values(X) = (rep(min(ind2[,2]):max(ind2[,2]), times = dim(X)[1]))
-  values(grid_cells) = 1:ncell(X)
-  
-  s = rast(list(X,Y,grid_cells))
+  s = c(X, Y, grid_cells)
   names(s) = c("X", "Y", "grid_id")
 
   out1 = suppressWarnings({ exactextractr::exact_extract(raster::stack(s),
@@ -67,8 +51,8 @@ weighting_grid = function(file, geom, ID){
                                                          progress = FALSE,
                                                          include_cols = ID) })
 
-  out2 = data.table::rbindlist(out1)
-  data.table::setnames(out2, "coverage_fraction", "w")
-  data.table::setDT(out2, key = "grid_id")
+  out2 = rbindlist(out1)
+  setnames(out2, "coverage_fraction", "w")
+  setDT(out2, key = "grid_id")
 }
 
