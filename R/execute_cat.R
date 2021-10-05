@@ -9,8 +9,7 @@
 #' If left NULL (default) the headings will not be altered.
 #' @return a data.table
 #' @export
-#' @importFrom raster stack ncell xyFromCell cellFromRowCol crop extent
-#' @importFrom data.table data.table setnames setkey
+#' @importFrom data.table data.table setnames setkey `:=`
 
 execute_zonal_cat    = function(file = NULL, geom = NULL, ID = NULL, w = NULL, rcl = NULL){
   

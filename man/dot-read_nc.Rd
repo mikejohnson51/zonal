@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_io.R
 \name{.read_nc}
 \alias{.read_nc}
-\title{Data Extration from NetCDF}
+\title{Data Extraction from NetCDF}
 \usage{
 .read_nc(file, w)
 }
@@ -15,5 +15,5 @@
 data.table
 }
 \description{
-Data Extration from NetCDF
+Data Extraction from NetCDF
 }
