@@ -12,7 +12,7 @@ output: github_document
 [![R CMD Check](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml)
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![LifeCycle](man/figures/lifecycle/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![Dependencies](https://img.shields.io/badge/dependencies-8/29-orange?style=flat)](#)
+[![Dependencies](https://img.shields.io/badge/dependencies-7/30-orange?style=flat)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
 [![Website deployment](https://github.com/mikejohnson51/zonal/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/mikejohnson51/zonal/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
@@ -50,7 +50,7 @@ system.time({
   pr_zone = execute_zonal(file, w = w)
 })
 #>    user  system elapsed 
-#>   7.766   1.256   9.190
+#>  40.713   8.789  50.275
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
 #> [1] 1421  367
@@ -72,7 +72,7 @@ ggplot() +
   labs(fill = "PR (mm)")
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="100%" />
+<img src="man/figures/README-unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" width="100%" />
 
 ### Daily maximum rainfall in the south?
 
@@ -88,7 +88,7 @@ ggplot() +
   labs(fill = "PR (mm)")
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" width="100%" />
 
 ### Timeseries of conuty with maximum annual rainfall
 
@@ -111,7 +111,7 @@ head(data)
 #> 6 37175     6  2.52
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-1.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="100%" />
 
 # 1km Landcover Grid (Categorical)
 
@@ -127,10 +127,10 @@ system.time({
   lc = execute_zonal_cat(file, AOI, "geoid", rcl = rcl)
 })
 #>    user  system elapsed 
-#>   7.099   1.412   8.686
+#>   7.494   1.556   9.184
 ```
 
-<img src="man/figures/README-unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="100%" />
 
 ----
 
@@ -161,14 +161,13 @@ rcompendium::get_all_dependencies()
 #> character(0)
 #> 
 #> $direct_deps
-#> [1] "data.table"    "exactextractr" "ncmeta"        "R"             "raster"        "RNetCDF"      
-#> [7] "sf"            "terra"        
+#> [1] "data.table"    "exactextractr" "ncmeta"        "R"             "raster"        "RNetCDF"       "terra"        
 #> 
 #> $all_deps
-#>  [1] "classInt"   "cli"        "cpp11"      "crayon"     "DBI"        "dplyr"      "e1071"      "ellipsis"  
-#>  [9] "fansi"      "generics"   "glue"       "lifecycle"  "magrittr"   "pillar"     "pkgconfig"  "proxy"     
-#> [17] "purrr"      "R6"         "Rcpp"       "rlang"      "s2"         "sp"         "tibble"     "tidyr"     
-#> [25] "tidyselect" "units"      "utf8"       "vctrs"      "wk"
+#>  [1] "classInt"   "cli"        "cpp11"      "crayon"     "DBI"        "dplyr"      "e1071"      "ellipsis"   "fansi"     
+#> [10] "generics"   "glue"       "lifecycle"  "magrittr"   "pillar"     "pkgconfig"  "proxy"      "purrr"      "R6"        
+#> [19] "Rcpp"       "rlang"      "s2"         "sf"         "sp"         "tibble"     "tidyr"      "tidyselect" "units"     
+#> [28] "utf8"       "vctrs"      "wk"
 ```
 
 Similar R packages:

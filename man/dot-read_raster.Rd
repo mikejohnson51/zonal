@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_io.R
 \name{.read_raster}
 \alias{.read_raster}
-\title{Data Extration from tif(s) & Raster/spatRaster}
+\title{Data Extraction from tif(s) & Raster/spatRaster}
 \usage{
 .read_raster(file, w, layer = -1)
 }
@@ -17,5 +17,5 @@
 data.table
 }
 \description{
-Data Extration from tif(s) & Raster/spatRaster
+Data Extraction from tif(s) & Raster/spatRaster
 }

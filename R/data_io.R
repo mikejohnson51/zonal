@@ -1,7 +1,7 @@
 # Avoid import from stats, only needed on vector
 .na.omit = function(x){ x[!is.na(x)] }
 
-#' Data Extration from tif(s) & Raster/spatRaster
+#' Data Extraction from tif(s) & Raster/spatRaster
 #' @param file a in-memory Raster(layer, stack, brick), SpatRaster, or file path(s)
 #' @param w a weight grid
 #' @param layer the layer to extract from. If -1 (default), get all layers
@@ -15,15 +15,15 @@
   if(max(layer) < terra::nlyr(file) & min(layer) > 0 ){
     file = file[[layer]]
   }
-
-  mins = terra::xyFromCell(file, terra::cellFromRowCol(file, min(w$Y), min(w$X)))
-  maxs = terra::xyFromCell(file, terra::cellFromRowCol(file, max(w$Y), max(w$X)))
-
-  cats =  terra::crop(file, 
-                      terra::ext(c(mins[1], maxs[1], maxs[2], mins[2])),
-                      snap = "out")
   
-  df = as.data.frame(cats[])
+  mins = terra::xyFromCell(file, terra::cellFromRowCol(file, min(w$X), min(w$Y)))
+  maxs = terra::xyFromCell(file, terra::cellFromRowCol(file, max(w$X), max(w$Y)))
+
+  st =  terra::crop(file, 
+                    terra::ext(c(mins[1], maxs[1], maxs[2], mins[2])),
+                    snap = "out")
+  
+  df = as.data.frame(st[])
 
   names(df) <- paste0('V', 1:ncol(df))
   df$grid_id = 1:nrow(df)
@@ -32,7 +32,7 @@
 
 
 
-#' Data Extration from NetCDF
+#' Data Extraction from NetCDF
 #' @param file a netcdf file path
 #' @param w a weight grid
 #' @return data.table
@@ -61,25 +61,24 @@
                           var.inq.nc(file, T_name)$dimids))
   } 
   
-  
   var = RNetCDF::var.get.nc(
     file,
     var_name,
-    start = c(min(w$X), min(w$Y), 1)[dimid_order],
-    count = c(max(w$X) - min(w$X) + 1,
-              max(w$Y) - min(w$Y) + 1,
+    start = c(min(w$Y), min(w$X), 1)[dimid_order],
+    count = c(max(w$Y) - min(w$Y) + 1,
+              max(w$X) - min(w$X) + 1,
               NA)[dimid_order],
     unpack = TRUE
   )
   
-  time_steps <-
-    RNetCDF::utcal.nc(
-      RNetCDF::att.get.nc(file, T_name, "units"),
-      RNetCDF::var.get.nc(file, T_name, unpack = TRUE),
-      "c"
-    ) %>%
-    as.Date() %>%
-    as.character()
+  # time_steps <-
+  #   RNetCDF::utcal.nc(
+  #     RNetCDF::att.get.nc(file, T_name, "units"),
+  #     RNetCDF::var.get.nc(file, T_name, unpack = TRUE),
+  #     "c"
+  #   ) %>%
+  #   as.Date() %>%
+  #   as.character()
 
   if (length(dim(var)) == 2) {
     var = as.numeric(matrix(var, ncol = 1, byrow = FALSE))
@@ -120,6 +119,5 @@
   }
   
   merge.data.table(out, w, by = "grid_id")
-} 
-
+}
 
