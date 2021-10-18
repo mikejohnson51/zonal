@@ -20,7 +20,7 @@ The same premise applies to `intersectr`/`areal`.
 
 ## So, what is a weight grid? 
 
-A weight grid is unique to the aggregate units and grid its build from. It contains columns documenting the X and Y indexes of each grid cell along with the grid id. The X,Y are realtive to the entire grid, while the grid ID is relative to subsetwithin the bounding domain of the aggregations unit(s). Additionally the `w` stores the percent overlap between the grid cell and the aggregation unit identified by the ID column which is speified in the `build`weighting_grid` function. An example is shown below:
+A weight grid is unique to the aggregate units and grid its build from. It contains columns documenting the X and Y indexes of each grid cell along with the grid id. The X,Y are relative to the entire grid, while the grid ID is relative to subset within the bounding domain of the aggregations unit(s). Additionally the `w` stores the percent overlap between the grid cell and the aggregation unit identified by the ID column which is specified in the `build`weighting_grid` function. An example is shown below:
 
 
 ### Option 1: Intersectr: 
