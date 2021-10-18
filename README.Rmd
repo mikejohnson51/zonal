@@ -90,7 +90,7 @@ ggplot() +
   labs(fill = "PR (mm)")
 ```
 
-### Timeseries of conuty with maximum annual rainfall
+### Timeseries of county with maximum annual rainfall
 
 ```{r}
 data = pr_zone %>% 
