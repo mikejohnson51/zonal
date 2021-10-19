@@ -43,9 +43,9 @@ Looking at the grid we can see in consists of 13367936 grid cells each with a 10
 
 ### Example 1: Basic Use
 
-First, we want to identify the percent of each land cover within each county in the USA Northeast. Doing this follows the same process as all `zonal` workflows and requires (1) identifiying the aggregation units, (2) building a weight grid and (3) running the intersection.
+First, we want to identify the percent of each land cover within each county in the USA Northeast. Doing this follows the same process as all `zonal` workflows and requires (1) identifying the aggregation units, (2) building a weight grid and (3) running the intersection.
 
-#### Define aggreation units
+#### Define aggregation units
 
 
 ```r
@@ -105,7 +105,7 @@ plot(to_plot['13'], main = "Urban")
 
 <img src="c-NE-urban-1.png" title="plot of chunk NE-urban" alt="plot of chunk NE-urban" width="100%" />
 
-### Example 2: Definining Classes 
+### Example 2: Defining Classes 
 
 While the above works, calling on fields by their numeric ID is prone to error. Instead, this example shows how a reclassification table can be supplied to modify the column headings of the output table.
 
@@ -188,7 +188,7 @@ plot(filter(midwest, value == 'urban')['percentage'],
 
 ### Further user-based aggregates
 
-In the MODIS land cover scheme there are 5 classes loosly representing forest. If wanted to aggregate these to a single forest class, we can use the output `zonal` table.
+In the MODIS land cover scheme there are 5 classes loosely representing forest. If wanted to aggregate these to a single forest class, we can use the output `zonal` table.
 
 
 ```r
@@ -205,7 +205,7 @@ plot(forest['forest'], main = "Forest")
 
 ## Compare with exactextractr
 
-From the `exactectractr` vignettes there is an example to compute class statistics using `dplyr`. Here we compare that approach, to one supplimented with `data.table`, to `zonal` with pre-computed weights, and to a single `zonal` execution.
+From the `exactectractr` vignettes there is an example to compute class statistics using `dplyr`. Here we compare that approach, to one supplemented with `data.table`, to `zonal` with pre-computed weights, and to a single `zonal` execution.
 
 
 ```r
