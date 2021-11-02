@@ -18,6 +18,7 @@ library(dplyr)
 library(sf)
 library(tidyr)
 library(terra)
+library(paint)
 ```
 
 In `zonal` categorical data is handled with `execute_zonal_cat` which computes the relative proportion of a numeric class in each aggregation unit. In the following we illustrate its use using a mosaiced 1km grid containing MODIS 2019 land cover.
@@ -39,11 +40,11 @@ file = '2019-01-01.tif'
 ## name        : Land_Cover_Type_1
 ```
 
-Looking at the grid we can see in consists of 13367936 grid cells each with a 1000 meter by 1000 meter resolution. Additionally, there are 18 unique values in the grid (17 landcover and one nodata value).
+Looking at the grid we can see in consists of 13367936 grid cells each with a 1000 meter by 1000 meter resolution. Additionally, there are 18 unique values in the grid (17 land cover and one _nodata_ value).
 
 ### Example 1: Basic Use
 
-First, we want to identify the percent of each land cover within each county in the USA Northeast. Doing this follows the same process as all `zonal` workflows and requires (1) identifiying the aggregation units, (2) building a weight grid and (3) running the intersection.
+First, we want to identify the percent of each land cover within each county in the USA Northeast. Doing this follows the same process as all `zonal` workflows and requires (1) identifying the aggregation units, (2) building a weight grid and (3) running the intersection.
 
 #### Define aggreation units
 
@@ -60,25 +61,24 @@ plot(AOI$geometry, main = paste(nrow(AOI), "counties"))
 
 ```r
 system.time({
-  lc = execute_zonal_cat(r, geom = AOI, "geoid")
+  lc = execute_zonal_cat(file, geom = AOI, ID = "geoid")
 })
 ```
 
 ```
 ##    user  system elapsed 
-##   3.041   1.170   4.607
+##   0.966   0.314   1.296
 ```
 
 ```r
-glimpse(lc)
+paint(lc)
 ```
 
 ```
-## Rows: 1,998
-## Columns: 3
-## $ geoid      <chr> "23003", "23003", "23003", "23003", "23003", "23003", …
-## $ value      <dbl> 8, 13, 10, 4, 5, 9, 12, 14, 17, 1, 11, 4, 5, 8, 10, 1,…
-## $ percentage <dbl> 0.1333440, 0.0012883, 0.0137853, 0.1660485, 0.6205781,…
+## data.table [1998, 3] 
+## geoid      chr 23003 23003 23003 23003 23003 23003
+## value      dbl 8 13 10 4 5 9
+## percentage dbl 0.133344 0.001288 0.013785 0.166048 0.620578~
 ```
 
 #### Exploring the data
@@ -88,7 +88,43 @@ glimpse(lc)
 to_plot = lc %>% 
   pivot_wider(names_from = value, values_from = percentage) %>% 
   right_join(AOI) %>% 
-  st_as_sf()
+  st_as_sf() 
+
+paint(to_plot)
+```
+
+```
+## sf [217, 27] 
+## active geometry column: geometry (MULTIPOLYGON)
+## crs: 4269 (NAD83)
+## crs unit: degree 
+## geoid             chr 23003 23021 23019 23025 23029 23009
+## 8                 dbl 0.133344 0.039851 0.169854 0.090216 0~
+## 13                dbl 0.001288 0.001497 0.010607 0.002855 0~
+## 10                dbl 0.013785 0.001063 0.006269 0.001752 0~
+## 4                 dbl 0.166048 0.206227 0.148822 0.357611 0~
+## 5                 dbl 0.620578 0.6885 0.628569 0.526434 0.6~
+## 9                 dbl 0.002005 0.000704 0.000325 0.000283 0~
+## 12                dbl 0.040466 NA 0.000541 0.00008 0.000131~
+## 14                dbl 0.015611 NA 0.001082 0.00066 NA NA
+## 17                dbl 0.005139 0.040602 0.023043 0.011352 0~
+## 1                 dbl 0.001408 0.0135 0.010113 0.0075 0.083~
+## 11                dbl 0.000327 0.008056 0.000775 0.001257 0~
+## 3                 dbl NA NA NA NA NA 0.000181
+## 16                dbl NA NA NA NA NA NA
+## 7                 dbl NA NA NA NA NA NA
+## statefp           chr 23 23 23 23 23 23
+## countyfp          chr 003 021 019 025 029 009
+## countyns          chr 00581287 00581296 00581295 00581298 0~
+## affgeoid          chr 0500000US23003 0500000US23021 0500000~
+## name              chr Aroostook Piscataquis Penobscot Somer~
+## lsad              chr 06 06 06 06 06 06
+## aland             dbl 17278038268 10258683458 8798667306 10~
+## awater            dbl 405253178 1080382095 414015520 437895~
+## state_name        chr Maine Maine Maine Maine Maine Maine
+## state_abbr        chr ME ME ME ME ME ME
+## jurisdiction_type chr state state state state state state
+## geometry          sfc MPOLY 1,560B MPOLY 1,128B MPOLY 1,384~
 ```
 
 
@@ -113,7 +149,8 @@ While the above works, calling on fields by their numeric ID is prone to error. 
 
 
 ```r
-AOI  = AOI::aoi_get(state = "North Central", county = "all")
+AOI  = AOI::aoi_get(state = "West", county = "all") %>% 
+  filter(!state_abbr %in% c("AK", "HI"))
 plot(AOI$geometry, main = paste(nrow(AOI), "counties"))
 ```
 
@@ -128,17 +165,13 @@ A reclassification table tells us what each numeric value represents in a catego
 rcl = read.csv("modis_lc.csv") %>% 
   dplyr::select(from = Class, to = short)
 
-head(rcl)
+paint(rcl)
 ```
 
 ```
-##   from               to
-## 1    1 evergreen_needle
-## 2    2  evergreen_broad
-## 3    3 deciduous_needle
-## 4    4  deciduous_broad
-## 5    5     mixed_forest
-## 6    6     closed_shrub
+## data.frame [17, 2] 
+## from int 1 2 3 4 5 6
+## to   chr evergreen_needle evergreen_broad deciduous_needle ~
 ```
 
 #### Build a weight grid and execute intersection
@@ -146,25 +179,24 @@ head(rcl)
 
 ```r
 system.time({
-  lc = execute_zonal_cat(r, geom = AOI, ID = "geoid", rcl = rcl)
+  lc = execute_zonal_cat(file, geom = AOI, ID = "geoid", rcl = rcl)
 })
 ```
 
 ```
 ##    user  system elapsed 
-##   6.288   2.013   8.837
+##   3.087   0.752   3.849
 ```
 
 ```r
-glimpse(lc)
+paint(lc)
 ```
 
 ```
-## Rows: 7,103
-## Columns: 3
-## $ geoid      <chr> "27077", "27077", "27077", "27077", "27077", "27077", …
-## $ value      <chr> "woody_savanna", "deciduous_broad", "grassland", "mixe…
-## $ percentage <dbl> 0.355295, 0.095976, 0.045633, 0.141788, 0.015364, 0.25…
+## data.table [3623, 3] 
+## geoid      chr 53073 53073 53073 53073 53073 53073
+## value      chr water urban savanna mixed_forest wetlands wo~
+## percentage dbl 0.046939 0.007611 0.096397 0.091955 0.005484~
 ```
 
 #### Explore the data
@@ -172,16 +204,14 @@ glimpse(lc)
 
 ```r
 midwest = merge(AOI, lc)
-plot(filter(midwest, value == 'croplands')['percentage'], 
-            main = "Croplands")
+plot(filter(midwest, value == 'croplands')['percentage'], main = "Croplands")
 ```
 
 <img src="c-NC-crops-1.png" title="plot of chunk NC-crops" alt="plot of chunk NC-crops" width="100%" />
 
 
 ```r
-plot(filter(midwest, value == 'urban')['percentage'], 
-            main = "Urban")
+plot(filter(midwest, value == 'urban')['percentage'], main = "Urban")
 ```
 
 <img src="c-NC-urban-1.png" title="plot of chunk NC-urban" alt="plot of chunk NC-urban" width="100%" />

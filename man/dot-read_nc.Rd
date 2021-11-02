@@ -4,12 +4,12 @@
 \alias{.read_nc}
 \title{Data Extraction from NetCDF}
 \usage{
-.read_nc(file, w)
+.read_nc(file, dims)
 }
 \arguments{
 \item{file}{a netcdf file path}
 
-\item{w}{a weight grid}
+\item{dims}{the row and column IDs to extract data between (xmin xmax ymin ymax)}
 }
 \value{
 data.table

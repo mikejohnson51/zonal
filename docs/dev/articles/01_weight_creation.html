@@ -93,7 +93,7 @@
 
       
 
-      </header><script src="01_weight_creation_files/header-attrs-2.10/header-attrs.js"></script><div class="row">
+      </header><script src="01_weight_creation_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Weight Maps</h1>
@@ -110,7 +110,7 @@
 <h2 class="hasAnchor">
 <a href="#methods" class="anchor"></a>Methods</h2>
 <p>The first step in computing zonal statistics are the need to compute a weight map that can be used to reallocate the gridded data with respect to the percent overlapping each cell. There are two primary packages that tackle this which include <code>intersectr</code> (which uses <code>areal</code> as a back-end) and <code>zonal</code> which uses <code>exactextractr</code>.</p>
-<p>From the <code>exactextractr</code> documentation: "_Results from <code>exactextractr</code> are more accurate than other methods because raster pixels that are partially covered by polygons are considered. The significance of partial coverage increases for polygons that are small or irregularly shaped."</p>
+<p>From the <code>exactextractr</code> documentation: “_Results from <code>exactextractr</code> are more accurate than other methods because raster pixels that are partially covered by polygons are considered. The significance of partial coverage increases for polygons that are small or irregularly shaped.”</p>
 <p>The same premise applies to <code>intersectr</code>/<code>areal</code>.</p>
 </div>
 <div id="so-what-is-a-weight-grid" class="section level2">
@@ -178,7 +178,7 @@
 ## dimensions  : 585, 1386, 366  (nrow, ncol, nlyr)
 ## resolution  : 0.04167, 0.04167  (x, y)
 ## extent      : -124.8, -67.04, 25.05, 49.42  (xmin, xmax, ymin, ymax)
-## coord. ref. : +proj=longlat +datum=WGS84 +no_defs 
+## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
 ## source      : pet_2020.nc 
 ## varname     : potential_evapotranspiration (pet) 
 ## names       : poten~43829, poten~43830, poten~43831, poten~43832, poten~43833, poten~43834, ... 

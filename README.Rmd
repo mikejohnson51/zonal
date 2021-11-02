@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 [![R CMD Check](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml)
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![LifeCycle](man/figures/lifecycle/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![Dependencies](https://img.shields.io/badge/dependencies-7/30-orange?style=flat)](#)
+[![Dependencies](https://img.shields.io/badge/dependencies-8/29-orange?style=flat)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
 [![Website deployment](https://github.com/mikejohnson51/zonal/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/mikejohnson51/zonal/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
@@ -53,7 +53,7 @@ AOI  <- AOI::aoi_get(state = "south", county = "all")
 
 system.time({
   # Build Weight Grid
-  w        = weighting_grid(file, geom = AOI, "geoid")
+  w        = weighting_grid(file, geom = AOI, ID = "geoid")
   # Intersect
   pr_zone = execute_zonal(file, w = w)
 })
@@ -82,6 +82,8 @@ ggplot() +
 ```{r}
 # Plot Day with the maximum county wide rainfall
 n2 = names(which.max(colSums(dplyr::select(pr_zone, -geoid))))
+
+terra::plot(terra::rast(file)[[103]])
 
 ggplot() + 
   geom_sf(data = x, aes(fill = get(n2)), color = NA) + 
@@ -115,8 +117,8 @@ One of the largest limitations of existing utilities is the ability to handle ca
 
 ```{r}
 file = 'to_build/2019-01-01.tif'
-rcl = read.csv("to_build//modis_lc.csv") %>% 
-  select(from = Class, to = short)
+rcl  = read.csv("to_build/modis_lc.csv") %>% 
+  dplyr::select(from = Class, to = short)
 
 system.time({
   lc = execute_zonal_cat(file, AOI, "geoid", rcl = rcl)
@@ -124,7 +126,9 @@ system.time({
 ```
 
 ```{r, echo = FALSE}
-to_plot = merge(AOI, lc)
+to_plot = merge(AOI, lc, by = "geoid")
+
+plot(filter(to_plot, value == "water")["percentage"])
 
 ggplot(to_plot) + 
   geom_sf(aes(fill = percentage), color = "transparent") + 
@@ -154,12 +158,6 @@ ggplot(to_plot) +
 ----
 
 ## Credits and references
-
-A list of direct and indirect dependencies can be seen here:
-
-```{r}
-rcompendium::get_all_dependencies()
-```
 
 Similar R packages:
 
