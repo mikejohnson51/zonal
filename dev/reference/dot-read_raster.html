@@ -146,7 +146,7 @@
     <p>Data Extraction from tif(s) &amp; Raster/spatRaster</p>
     </div>
 
-    <pre class="usage"><span class='fu'>.read_raster</span><span class='op'>(</span><span class='va'>file</span>, <span class='va'>w</span>, layer <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>.read_raster</span><span class='op'>(</span><span class='va'>file</span>, <span class='va'>dims</span>, layer <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -156,8 +156,8 @@
       <td><p>a in-memory Raster(layer, stack, brick), SpatRaster, or file path(s)</p></td>
     </tr>
     <tr>
-      <th>w</th>
-      <td><p>a weight grid</p></td>
+      <th>dims</th>
+      <td><p>the row and column IDs to extract data between (xmin xmax ymin ymax)</p></td>
     </tr>
     <tr>
       <th>layer</th>

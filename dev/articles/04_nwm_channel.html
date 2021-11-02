@@ -136,7 +136,7 @@
 ## dimensions  : 3840, 4608, 45  (nrow, ncol, nlyr)
 ## resolution  : 1, 1  (x, y)
 ## extent      : 0.5, 4608, 0.5, 3840  (xmin, xmax, ymin, ymax)
-## coord. ref. : +proj=longlat +datum=WGS84 +no_defs 
+## coord. ref. : lon/lat WGS 84 
 ## sources     : soilproperties_CONUS_FullRouting.nc:bexp  (4 layers) 
 ##               soilproperties_CONUS_FullRouting.nc:cwpvt  
 ##               soilproperties_CONUS_FullRouting.nc:dksat  (4 layers) 
@@ -147,123 +147,6 @@
 ##               ...
 ## names       : bexp_~ime=1, bexp_~ime=1, bexp_~ime=1, bexp_~ime=1, cwpvt_Time=1, dksat~ime=1, ...</code></pre>
 <p>Note that when the layered attributes are separated, there are 45 raster layers. Also note that the spatial metadata for the NWM file is out of wack (see the resolution, extent, and CRS). We will fix this using some functionality from <code>wrfhydroSubsetter</code> to identify the layer structure.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">wrfhydroSubsetter</span><span class="op">)</span>
-<span class="va">e</span> <span class="op">=</span> <span class="fu">make_empty_geogrid_raster</span><span class="op">(</span><span class="st">'/Volumes/Transcend/nwmCONUS-v216/geo_em_CONUS.nc'</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html">ext</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html">ext</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/terra/man/crs.html">crs</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/crs.html">crs</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span>
-<span class="va">f</span></code></pre></div>
-<pre><code>## class       : SpatRaster 
-## dimensions  : 3840, 4608, 45  (nrow, ncol, nlyr)
-## resolution  : 1000, 1000  (x, y)
-## extent      : -2304000, 2304000, -1920001, 1919999  (xmin, xmax, ymin, ymax)
-## coord. ref. : +proj=lcc +lat_0=40.0000076293945 +lon_0=-97 +lat_1=30 +lat_2=60 +x_0=0 +y_0=0 +R=6370000 +units=m +no_defs 
-## sources     : soilproperties_CONUS_FullRouting.nc:bexp  (4 layers) 
-##               soilproperties_CONUS_FullRouting.nc:cwpvt  
-##               soilproperties_CONUS_FullRouting.nc:dksat  (4 layers) 
-##               ... and 15 more source(s)
-## varnames    : bexp 
-##               cwpvt 
-##               dksat 
-##               ...
-## names       : bexp_~ime=1, bexp_~ime=1, bexp_~ime=1, bexp_~ime=1, cwpvt_Time=1, dksat~ime=1, ...</code></pre>
-</div>
-<div id="build-weight-grid" class="section level3">
-<h3 class="hasAnchor">
-<a href="#build-weight-grid" class="anchor"></a>Build Weight Grid</h3>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">w_time</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
-  <span class="va">zonal_w</span> <span class="op">=</span> <span class="fu"><a href="../reference/weighting_grid.html">weighting_grid</a></span><span class="op">(</span>file <span class="op">=</span> <span class="va">f</span>, geom <span class="op">=</span> <span class="va">geom</span>, ID <span class="op">=</span> <span class="st">"ID"</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-
-<span class="fu">paint</span><span class="op">(</span><span class="va">zonal_w</span><span class="op">)</span></code></pre></div>
-<pre><code>## data.table [330755, 5] 
-## keys: grid_id 
-## ID      chr cat-72 cat-72 cat-72 cat-72 cat-72 cat-72
-## Y       dbl 689 689 689 689 689 689
-## X       dbl 4310 4311 4312 4313 4314 4315
-## grid_id dbl 175 176 177 178 179 180
-## w       dbl 0.407517 0.360609 0.203826 0.096122 0.22353 0.0~</code></pre>
-</div>
-<div id="execute-intersection" class="section level3">
-<h3 class="hasAnchor">
-<a href="#execute-intersection" class="anchor"></a>Execute Intersection</h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">z_time</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
-  <span class="va">out</span> <span class="op">=</span> <span class="fu">zonal</span><span class="fu">::</span><span class="fu"><a href="../reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span><span class="va">f</span>, w <span class="op">=</span> <span class="va">zonal_w</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/pkg/terra/man/names.html">names</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/c.html">c</a></span><span class="op">(</span><span class="st">'ID'</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/names.html">names</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">)</span>
-
-<span class="fu">paint</span><span class="op">(</span><span class="va">out</span><span class="op">)</span></code></pre></div>
-<pre><code>## data.table [18041, 46] 
-## keys: ID 
-## ID                               chr cat-1 cat-10 cat-100 c~
-## bexp_soil_layers_stag=1_Time=1   dbl 8.282019 8.3008 4.4022~
-## bexp_soil_layers_stag=2_Time=1   dbl 8.282019 8.3008 4.4022~
-## bexp_soil_layers_stag=3_Time=1   dbl 8.282019 8.3008 4.4022~
-## bexp_soil_layers_stag=4_Time=1   dbl 8.282019 8.3008 4.4022~
-## cwpvt_Time=1                     dbl 0.358165 0.358331 0.35~
-## dksat_soil_layers_stag=1_Time=1  dbl 0.000004 0.000004 0.00~
-## dksat_soil_layers_stag=2_Time=1  dbl 0.000004 0.000004 0.00~
-## dksat_soil_layers_stag=3_Time=1  dbl 0.000004 0.000004 0.00~
-## dksat_soil_layers_stag=4_Time=1  dbl 0.000004 0.000004 0.00~
-## dwsat_soil_layers_stag=1_Time=1  dbl 0.000023 0.000024 0.00~
-## dwsat_soil_layers_stag=2_Time=1  dbl 0.000023 0.000024 0.00~
-## dwsat_soil_layers_stag=3_Time=1  dbl 0.000023 0.000024 0.00~
-## dwsat_soil_layers_stag=4_Time=1  dbl 0.000023 0.000024 0.00~
-## hvt_Time=1                       dbl 16 19.315861 9.692179 ~
-## mfsno_Time=1                     dbl 3.642424 3.735388 1.16~
-## mp_Time=1                        dbl 12.393361 8.971084 9.9~
-## psisat_soil_layers_stag=1_Time=1 dbl 0.716336 0.759 0.18949~
-## psisat_soil_layers_stag=2_Time=1 dbl 0.716336 0.759 0.18949~
-## psisat_soil_layers_stag=3_Time=1 dbl 0.716336 0.759 0.18949~
-## psisat_soil_layers_stag=4_Time=1 dbl 0.716336 0.759 0.18949~
-## quartz_soil_layers_stag=1_Time=1 dbl 0.265841 0.25 0.539492~
-## quartz_soil_layers_stag=2_Time=1 dbl 0.265841 0.25 0.539492~
-## quartz_soil_layers_stag=3_Time=1 dbl 0.265841 0.25 0.539492~
-## quartz_soil_layers_stag=4_Time=1 dbl 0.265841 0.25 0.539492~
-## refdk_Time=1                     dbl 0.000002 0.000002 0.00~
-## refkdt_Time=1                    dbl 3.81326 3.861417 2.528~
-## rsurfexp_Time=1                  dbl 1.191117 1.145731 2.40~
-## slope_Time=1                     dbl 0.258123 0.267325 0.01~
-## smcdry_soil_layers_stag=1_Time=1 dbl 0.082099 0.084 0.03394~
-## smcdry_soil_layers_stag=2_Time=1 dbl 0.082099 0.084 0.03394~
-## smcdry_soil_layers_stag=3_Time=1 dbl 0.082099 0.084 0.03394~
-## smcdry_soil_layers_stag=4_Time=1 dbl 0.082099 0.084 0.03394~
-## smcmax_soil_layers_stag=1_Time=1 dbl 0.454912 0.456694 0.69~
-## smcmax_soil_layers_stag=2_Time=1 dbl 0.454912 0.456694 0.69~
-## smcmax_soil_layers_stag=3_Time=1 dbl 0.454912 0.456694 0.69~
-## smcmax_soil_layers_stag=4_Time=1 dbl 0.454912 0.456694 0.69~
-## smcref_soil_layers_stag=1_Time=1 dbl 0.356726 0.36 0.191197~
-## smcref_soil_layers_stag=2_Time=1 dbl 0.356726 0.36 0.191197~
-## smcref_soil_layers_stag=3_Time=1 dbl 0.356726 0.36 0.191197~
-## smcref_soil_layers_stag=4_Time=1 dbl 0.356726 0.36 0.191197~
-## smcwlt_soil_layers_stag=1_Time=1 dbl 0.082099 0.084 0.03394~
-## smcwlt_soil_layers_stag=2_Time=1 dbl 0.082099 0.084 0.03394~
-## smcwlt_soil_layers_stag=3_Time=1 dbl 0.082099 0.084 0.03394~
-## smcwlt_soil_layers_stag=4_Time=1 dbl 0.082099 0.084 0.03394~
-## vcmx25_Time=1                    dbl 60.770485 51.91229 43.~</code></pre>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/terra/man/hist.html">hist</a></span><span class="op">(</span><span class="va">out</span><span class="op">$</span><span class="va">`bexp_soil_layers_stag=1_Time=1`</span><span class="op">)</span></code></pre></div>
-<p><img src="nwm-nwm-hist-1.png" title="plot of chunk nwm-hist" alt="plot of chunk nwm-hist" width="100%"></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">spat</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/merge.html">merge</a></span><span class="op">(</span><span class="va">geom</span>, <span class="va">out</span>, by <span class="op">=</span> <span class="st">"ID"</span><span class="op">)</span>
-
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">ggplot2</span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html">plot</a></span><span class="op">(</span><span class="va">f</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
-<p><img src="nwm-nwm-map-1.png" title="plot of chunk nwm-map" alt="plot of chunk nwm-map" width="100%"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spat</span>, <span class="fu">aes</span><span class="op">(</span>fill <span class="op">=</span> <span class="va">`bexp_soil_layers_stag=1_Time=1`</span><span class="op">)</span>, color <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu">scale_fill_viridis_c</span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p><img src="nwm-nwm-map-2.png" title="plot of chunk nwm-map" alt="plot of chunk nwm-map" width="100%"></p>
-</div>
-<div id="summary" class="section level3">
-<h3 class="hasAnchor">
-<a href="#summary" class="anchor"></a>Summary</h3>
-<p><img src="nwm-nwm-summary-1.png" title="plot of chunk nwm-summary" alt="plot of chunk nwm-summary" width="100%"></p>
 </div>
   </div>
 
