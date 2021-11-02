@@ -1,58 +1,57 @@
-.find_w = function(file, geom, ID, w){
-  
-  if(!is.null(w) & !is.null(geom)){
-    stop("Provide either a geom and ID, OR, a precomputed weight grid (w)")
-  }
-  
-  if(!is.null(geom) & is.null(ID)){
-    stop("ID is needed for geom")
-  }
-  
-  if(is.null(w)){ w = weighting_grid(file, geom, ID) }
-  
-  setkey(w, "grid_id")
-}
-
 #' Build Weighting Grid
-#' @description  Returns a data.table with columns for ID, grid_id, X, Y and weight. By default this object is 
+#' @description  Returns a data.table with columns for ID, grid_id, X, Y and weight. By default this object is
 #' sorted on the grid_id
 #' @param file path to a gridded file (either .tif or .nc)
-#' @param geom sf object of aggregation units 
+#' @param geom sf object of aggregation units
 #' @param ID the name of the column providing the unique identified of each geom
 #' @return a data.table
 #' @export
-#' @importFrom raster stack
-#' @importFrom terra rast ext project vect crs crop cells `values<-` colFromCell rowFromCell
+#' @importFrom raster raster
+#' @importFrom sf st_bbox st_as_sfc st_transform st_crs
+#' @importFrom terra rast crs vect ext origin res colFromX rowFromY setValues ncell xmin xmax ymin ymax window align
 #' @importFrom exactextractr exact_extract
 #' @importFrom data.table setDT rbindlist setnames
 
-weighting_grid = function(file, geom, ID){
-
-  r = if(grepl("raster", class(file), ignore.case = TRUE)){
+weighting_grid = function(file, geom, ID) {
+  
+  r = if (grepl("raster", class(file), ignore.case = TRUE)) {
     file[[1]]
   } else {
-    suppressWarnings({ rast(file)[[1]] })
+    suppressWarnings({
+      rast(file)[[1]]
+    })
   }
-  
-  ext = ext(project(vect(geom), terra::crs(r)))
-  
-  Y <- X <- grid_cells <- crop(r, ext, snap = "out")
 
-  cells = cells(r, ext(Y))
-  values(Y) = colFromCell(r, cells)
-  values(X) = rowFromCell(r, cells)
-  values(grid_cells) = 1:length(cells)
+  ext1 = ext(vect(st_transform(st_as_sfc(sf::st_bbox(geom)), st_crs(terra::crs(r)))))
   
-  s = c(X, Y, grid_cells)
-  names(s) = c("X", "Y", "grid_id")
+  ext2 = ext(c(max(xmin(ext1),  xmin(r)),
+               min(xmax(ext1),  xmax(r)),
+               max(ymin(ext1),  ymin(r)),
+               min(ymax(ext1),  ymax(r)))
+  )
+  
+  dims = c(
+    xmin = colFromX(r,  xmin(ext2)),
+    xmax = colFromX(r,  xmax(ext2)),
+    ymin = rowFromY(r,  ymin(ext2)),
+    ymax = rowFromY(r,  ymax(ext2))
+  )
+  
+  terra::window(r) <- align(ext2, r, snap = "out")
 
-  out1 = suppressWarnings({ exactextractr::exact_extract(raster::stack(s),
-                                                         geom,
-                                                         progress = FALSE,
-                                                         include_cols = ID) })
+  r = terra::setValues(r, 1:terra::ncell(r))
+  
+  out1 = suppressWarnings({
+      exact_extract(raster::raster(r),
+                    geom,
+                    progress = FALSE,
+                    include_cols = ID)
+    })
 
   out2 = rbindlist(out1)
-  setnames(out2, "coverage_fraction", "w")
-  setDT(out2, key = "grid_id")
-}
 
+  setnames(out2, old = c("coverage_fraction", "value"), new = c("w", "grid_id"))
+  setDT(out2, key = "grid_id")
+  
+  return(list(weight_map = out2, dims = dims))
+}

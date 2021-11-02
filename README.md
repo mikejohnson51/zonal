@@ -12,7 +12,7 @@ output: github_document
 [![R CMD Check](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml)
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![LifeCycle](man/figures/lifecycle/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![Dependencies](https://img.shields.io/badge/dependencies-7/30-orange?style=flat)](#)
+[![Dependencies](https://img.shields.io/badge/dependencies-8/29-orange?style=flat)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
 [![Website deployment](https://github.com/mikejohnson51/zonal/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/mikejohnson51/zonal/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
@@ -45,12 +45,13 @@ AOI  <- AOI::aoi_get(state = "south", county = "all")
 
 system.time({
   # Build Weight Grid
-  w        = weighting_grid(file, geom = AOI, "geoid")
+  w        = weighting_grid(file, geom = AOI, ID = "geoid")
   # Intersect
   pr_zone = execute_zonal(file, w = w)
 })
 #>    user  system elapsed 
-#>  40.713   8.789  50.275
+#>   7.490   1.490   9.719
+
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
 #> [1] 1421  367
@@ -81,6 +82,13 @@ ggplot() +
 # Plot Day with the maximum county wide rainfall
 n2 = names(which.max(colSums(dplyr::select(pr_zone, -geoid))))
 
+terra::plot(terra::rast(file)[[103]])
+```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" width="100%" />
+
+```r
+
 ggplot() + 
   geom_sf(data = x, aes(fill = get(n2)), color = NA) + 
   scale_fill_viridis_c() + 
@@ -88,7 +96,7 @@ ggplot() +
   labs(fill = "PR (mm)")
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-2.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" width="100%" />
 
 ### Timeseries of conuty with maximum annual rainfall
 
@@ -120,17 +128,16 @@ One of the largest limitations of existing utilities is the ability to handle ca
 
 ```r
 file = 'to_build/2019-01-01.tif'
-rcl = read.csv("to_build//modis_lc.csv") %>% 
-  select(from = Class, to = short)
+rcl  = read.csv("to_build/modis_lc.csv") %>% 
+  dplyr::select(from = Class, to = short)
 
 system.time({
   lc = execute_zonal_cat(file, AOI, "geoid", rcl = rcl)
 })
-#>    user  system elapsed 
-#>   7.494   1.556   9.184
+#> Error in UseMethod("window<-"): no applicable method for 'window<-' applied to an object of class "SpatRaster"
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="100%" /><img src="man/figures/README-unnamed-chunk-7-2.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="100%" />
 
 ----
 
@@ -151,24 +158,6 @@ system.time({
 ----
 
 ## Credits and references
-
-A list of direct and indirect dependencies can be seen here:
-
-
-```r
-rcompendium::get_all_dependencies()
-#> $base_deps
-#> character(0)
-#> 
-#> $direct_deps
-#> [1] "data.table"    "exactextractr" "ncmeta"        "R"             "raster"        "RNetCDF"       "terra"        
-#> 
-#> $all_deps
-#>  [1] "classInt"   "cli"        "cpp11"      "crayon"     "DBI"        "dplyr"      "e1071"      "ellipsis"   "fansi"     
-#> [10] "generics"   "glue"       "lifecycle"  "magrittr"   "pillar"     "pkgconfig"  "proxy"      "purrr"      "R6"        
-#> [19] "Rcpp"       "rlang"      "s2"         "sf"         "sp"         "tibble"     "tidyr"      "tidyselect" "units"     
-#> [28] "utf8"       "vctrs"      "wk"
-```
 
 Similar R packages:
 
