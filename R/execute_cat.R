@@ -9,19 +9,22 @@
 #' If left NULL (default) the headings will not be altered.
 #' @return a data.table
 #' @export
-#' @importFrom data.table data.table setnames setkey `:=`
+#' @importFrom data.table setnames setkey `:=`
 
-execute_zonal_cat    = function(file = NULL, geom = NULL, ID = NULL, w = NULL, rcl = NULL){
+execute_zonal_cat    = function(file = NULL, 
+                                geom = NULL, 
+                                ID   = NULL, 
+                                w    = NULL, 
+                                rcl  = NULL){
   
   . <- frac_total <- NULL
 
   w       = .find_w(file, geom, ID, w)
-  w_names = c("grid_id", "w", "X", "Y")
-  ID = names(w)[!names(w) %in% w_names]
+  w_names = c("grid_id", "w")
+  ID      = names(w$weight_map)[!names(w$weight_map) %in% w_names]
 
   cat_dt = .zonal_io(file, w)
 
-  #TODO: leave this so the date 
   cols = names(cat_dt)[!names(cat_dt) %in% c(ID, w_names)]
   
   cat_dt[, frac_total := (w / sum(w, na.rm = TRUE)), by = c(ID)]

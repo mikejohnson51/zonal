@@ -4,15 +4,13 @@
 \alias{.zonal_io}
 \title{Data Extraction}
 \usage{
-.zonal_io(file, w, layer)
+.zonal_io(file, w)
 }
 \arguments{
 \item{file}{a netcdf file path, set if tif file paths, or
 in-memory Raster(layer, stack, brick), SpatRaster, or file path(s)}
 
-\item{w}{a weight grid}
-
-\item{layer}{the layer to extract from. If -1 (default), get all layers}
+\item{w}{a weight grid object}
 }
 \value{
 data.table

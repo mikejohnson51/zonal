@@ -4,12 +4,12 @@
 \alias{.read_raster}
 \title{Data Extraction from tif(s) & Raster/spatRaster}
 \usage{
-.read_raster(file, w, layer = -1)
+.read_raster(file, dims, layer = -1)
 }
 \arguments{
 \item{file}{a in-memory Raster(layer, stack, brick), SpatRaster, or file path(s)}
 
-\item{w}{a weight grid}
+\item{dims}{the row and column IDs to extract data between (xmin xmax ymin ymax)}
 
 \item{layer}{the layer to extract from. If -1 (default), get all layers}
 }
