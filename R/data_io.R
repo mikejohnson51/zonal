@@ -35,7 +35,7 @@
   
   
   if(terra::window(z)){
-    window(z) <- NULL
+    terra::window(z) <- NULL
   }
   
   return(df)
