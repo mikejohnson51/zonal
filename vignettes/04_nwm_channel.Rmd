@@ -9,7 +9,7 @@ vignette: >
 
 
 
-The purpose here is to demonstrate a real world application of `zonal` to summarize the NWM channel routing parmaters to a 
+The purpose here is to demonstrate a real world application of `zonal` to summarize the NWM channel routing parameters to a 
 in-development hydrofabric.
 
 
