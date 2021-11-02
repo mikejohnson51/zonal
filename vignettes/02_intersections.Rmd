@@ -169,7 +169,7 @@ huc01_bnch <- bench::mark(
 
 <img src="i-huc01-tests-1.png" title="plot of chunk huc01-tests" alt="plot of chunk huc01-tests" width="100%" />
 
-Overall when the polygon count is very high (~20,000), the zonal aproach with precomputed weights and non precomputed weights performs the best. Precomputing the weights save a significant amount of memory in the process and ~4 seconds in total run time. These timings suggest that 20 years of daily GridMet data could be computed for the ~20,000 catchments in about 11 minutes (~30 seconds * 20 year + ~15 seconds). The `intersectr` approach requires way more memory despite the precomputation of weights and takes about 3 times as long as zonal. Lastly the `exactextract` methods timed out at the upper limit of 180 seconds we prescribed. 
+Overall when the polygon count is very high (~20,000), the zonal approach with precomputed weights and non precomputed weights performs the best. Precomputing the weights save a significant amount of memory in the process and ~4 seconds in total run time. These timings suggest that 20 years of daily GridMet data could be computed for the ~20,000 catchments in about 11 minutes (~30 seconds * 20 year + ~15 seconds). The `intersectr` approach requires way more memory despite the precomputation of weights and takes about 3 times as long as zonal. Lastly the `exactextract` methods timed out at the upper limit of 180 seconds we prescribed. 
 
 ## Example 02: Florida Counties
 
