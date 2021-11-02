@@ -8,6 +8,8 @@ gm_mean(x, na.rm = TRUE)
 }
 \arguments{
 \item{x}{vector of values}
+
+\item{na.rm}{Should NA values be removed?}
 }
 \value{
 mode value

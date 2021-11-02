@@ -33,6 +33,7 @@ getmode <- function(x) {
 #' Get geometric mean
 #' @description Vectorized and suited to handle NAs and negative values
 #' @param x vector of values
+#' @param na.rm Should NA values be removed?
 #' @return mode value
 #' @export
 #' 
