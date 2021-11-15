@@ -128,8 +128,6 @@ system.time({
 ```{r, echo = FALSE}
 to_plot = merge(AOI, lc, by = "geoid")
 
-plot(filter(to_plot, value == "water")["percentage"])
-
 ggplot(to_plot) + 
   geom_sf(aes(fill = percentage), color = "transparent") + 
   scale_fill_gradient2() +
