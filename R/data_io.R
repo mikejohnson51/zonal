@@ -6,7 +6,7 @@
 #' @param dims the row and column IDs to extract data between (xmin xmax ymin ymax)
 #' @param layer the layer to extract from. If -1 (default), get all layers
 #' @return data.table
-#' @importFrom terra rast nlyr xFromCol yFromRow align window as.data.frame 
+#' @importFrom terra rast nlyr xFromCol yFromRow align window as.matrix
 #' @importFrom data.table setDT
 
 .read_raster = function(file, dims, layer = -1){
@@ -26,11 +26,11 @@
   
   terra::window(z) <- terra::align(tmp, z, snap = "out")
 
-  df = terra::as.data.frame(z, na.rm = FALSE) 
-  
-  df[] <- lapply(df, function(x) {
-    if(is.factor(x)) as.numeric(as.character(x)) else x
-  })
+  df = as.data.frame(terra::as.matrix(z))
+
+  # df[] <- lapply(df, function(x) {
+  #   if(is.factor(x)) as.numeric(as.character(x)) else x
+  # })
 
   names(df) <- paste0('V', 1:ncol(df))
   
