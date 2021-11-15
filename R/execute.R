@@ -39,11 +39,11 @@ getmode <- function(x) {
 #' 
 gm_mean = function(x, na.rm=TRUE){
   if(any(x  < 0)){
-    y = x[x >= 0]
+    x = x[x >= 0]
     warning('Applying geometic mean to data with negatives. Removing negatives')
   }
   
-  exp(sum(log(y), na.rm=na.rm) / length(x))
+  exp(sum(log(x), na.rm=na.rm) / length(x))
 }
 
 #' Execute Spatial Intersection
@@ -68,9 +68,8 @@ execute_zonal    = function(file = NULL,
   ID      = names(w$weight_map)[!names(w$weight_map) %in% w_names]
 
   dt = .zonal_io(file, w)
-
   cols = names(dt)[!names(dt) %in% c(ID, w_names)]
-
+  
   if(FUN == 'mean'){
     FUN = function(x, w) { sum((x * w), na.rm = TRUE)  / sum(w, na.rm = TRUE)}
   } else if(FUN == "max"){

@@ -26,13 +26,17 @@
   
   terra::window(z) <- terra::align(tmp, z, snap = "out")
 
-  df = terra::as.data.frame(z, na.rm = FALSE)
+  df = terra::as.data.frame(z, na.rm = FALSE) 
+  
+  df[] <- lapply(df, function(x) {
+    if(is.factor(x)) as.numeric(as.character(x)) else x
+  })
 
   names(df) <- paste0('V', 1:ncol(df))
+  
   df$grid_id = 1:nrow(df)
   
   setDT(df, key = "grid_id")
-  
   
   if(terra::window(z)){
     terra::window(z) <- NULL
