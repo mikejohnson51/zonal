@@ -27,6 +27,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -45,12 +47,6 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -78,7 +74,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/mikejohnson51/zonal/">
+  <a href="https://github.com/mikejohnson51/zonal/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -99,43 +95,43 @@
       <h1 data-toc-skip>Weight Maps</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/mikejohnson51/zonal/blob/master/vignettes/01_weight_creation.Rmd"><code>vignettes/01_weight_creation.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/mikejohnson51/zonal/blob/HEAD/vignettes/01_weight_creation.Rmd" class="external-link"><code>vignettes/01_weight_creation.Rmd</code></a></small>
       <div class="hidden name"><code>01_weight_creation.Rmd</code></div>
 
     </div>
 
     
     
-<div id="methods" class="section level2">
-<h2 class="hasAnchor">
-<a href="#methods" class="anchor"></a>Methods</h2>
+<div class="section level2">
+<h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a>
+</h2>
 <p>The first step in computing zonal statistics are the need to compute a weight map that can be used to reallocate the gridded data with respect to the percent overlapping each cell. There are two primary packages that tackle this which include <code>intersectr</code> (which uses <code>areal</code> as a back-end) and <code>zonal</code> which uses <code>exactextractr</code>.</p>
 <p>From the <code>exactextractr</code> documentation: "_Results from <code>exactextractr</code> are more accurate than other methods because raster pixels that are partially covered by polygons are considered. The significance of partial coverage increases for polygons that are small or irregularly shaped."</p>
 <p>The same premise applies to <code>intersectr</code>/<code>areal</code>.</p>
 </div>
-<div id="so-what-is-a-weight-grid" class="section level2">
-<h2 class="hasAnchor">
-<a href="#so-what-is-a-weight-grid" class="anchor"></a>So, what is a weight grid?</h2>
+<div class="section level2">
+<h2 id="so-what-is-a-weight-grid">So, what is a weight grid?<a class="anchor" aria-label="anchor" href="#so-what-is-a-weight-grid"></a>
+</h2>
 <p>A weight grid is unique to the aggregate units and grid its build from. It contains columns documenting the X and Y indexes of each grid cell along with the grid id. The X,Y are relative to the entire grid, while the grid ID is relative to subset within the bounding domain of the aggregations unit(s). Additionally the <code>w</code> stores the percent overlap between the grid cell and the aggregation unit identified by the ID column which is specified in the <code>build</code>weighting_grid` function. An example is shown below:</p>
-<div id="option-1-intersectr" class="section level3">
-<h3 class="hasAnchor">
-<a href="#option-1-intersectr" class="anchor"></a>Option 1: Intersectr:</h3>
+<div class="section level3">
+<h3 id="option-1-intersectr">Option 1: Intersectr:<a class="anchor" aria-label="anchor" href="#option-1-intersectr"></a>
+</h3>
 <p>Setting up the data for a <code>intersectr</code> weights map requires (1) computing a vector representation of the grid and (2) intersecting this grid with the aggregation units to determine the percent overlap or “coverage fraction”. Below the workflow from the <code>intersectr</code> docs is wrapped in a function that requires a NetCDF file path, a <code>sf</code> geometry set, an ID variable from the geometries, and the variable to extract from the grid.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">intersectr</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hypertidy/ncmeta">ncmeta</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mjwoods/RNetCDF">RNetCDF</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">intersectr</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hypertidy/ncmeta" class="external-link">ncmeta</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mjwoods/RNetCDF" class="external-link">RNetCDF</a></span><span class="op">)</span>
 
 <span class="va">intersectr_weights</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">file</span>, <span class="va">geom</span>, <span class="va">ID</span>, <span class="va">var</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">nc_coord_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ncmeta/man/nc_coord_var.html">nc_coord_var</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span>
+  <span class="va">nc_coord_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ncmeta/man/nc_coord_var.html" class="external-link">nc_coord_var</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span>
   <span class="va">variable_name</span> <span class="op">&lt;-</span> <span class="va">var</span>
-  <span class="va">nc_coord_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">nc_coord_vars</span>, <span class="va">variable</span> <span class="op">==</span> <span class="va">variable_name</span><span class="op">)</span>
+  <span class="va">nc_coord_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">nc_coord_vars</span>, <span class="va">variable</span> <span class="op">==</span> <span class="va">variable_name</span><span class="op">)</span>
   
-  <span class="va">nc</span>       <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/RNetCDF/man/open.nc.html">open.nc</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span>
-  <span class="va">X_coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/RNetCDF/man/var.get.nc.html">var.get.nc</a></span><span class="op">(</span><span class="va">nc</span>, <span class="va">nc_coord_vars</span><span class="op">$</span><span class="va">X</span>, unpack <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-  <span class="va">Y_coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/RNetCDF/man/var.get.nc.html">var.get.nc</a></span><span class="op">(</span><span class="va">nc</span>, <span class="va">nc_coord_vars</span><span class="op">$</span><span class="va">Y</span>, unpack <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+  <span class="va">nc</span>       <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/RNetCDF/man/open.nc.html" class="external-link">open.nc</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span>
+  <span class="va">X_coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/RNetCDF/man/var.get.nc.html" class="external-link">var.get.nc</a></span><span class="op">(</span><span class="va">nc</span>, <span class="va">nc_coord_vars</span><span class="op">$</span><span class="va">X</span>, unpack <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+  <span class="va">Y_coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/RNetCDF/man/var.get.nc.html" class="external-link">var.get.nc</a></span><span class="op">(</span><span class="va">nc</span>, <span class="va">nc_coord_vars</span><span class="op">$</span><span class="va">Y</span>, unpack <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
   
-  <span class="va">nc_prj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ncmeta/man/nc_gm_to_prj.html">nc_gm_to_prj</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/ncmeta/man/nc_grid_mapping_atts.html">nc_grid_mapping_atts</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">nc_prj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ncmeta/man/nc_gm_to_prj.html" class="external-link">nc_gm_to_prj</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/ncmeta/man/nc_grid_mapping_atts.html" class="external-link">nc_grid_mapping_atts</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span><span class="op">)</span>
     
   <span class="va">cell_geometry</span> <span class="op">=</span> <span class="fu">create_cell_geometry</span><span class="op">(</span>X_coords <span class="op">=</span> <span class="va">X_coords</span>,
                          Y_coords <span class="op">=</span> <span class="va">Y_coords</span>,
@@ -144,8 +140,8 @@
                          buffer_dist <span class="op">=</span> <span class="fl">0.1</span>, <span class="co"># Degrees</span>
                          regularize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
     
-  <span class="va">data_source_cells</span> <span class="op">&lt;-</span> <span class="fu">st_sf</span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">cell_geometry</span>, <span class="va">grid_ids</span><span class="op">)</span><span class="op">)</span>
-  <span class="va">target_polygons</span>   <span class="op">&lt;-</span> <span class="fu">st_sf</span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">geom</span>, <span class="op">!</span><span class="op">!</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">data_source_cells</span> <span class="op">&lt;-</span> <span class="fu">st_sf</span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">cell_geometry</span>, <span class="va">grid_ids</span><span class="op">)</span><span class="op">)</span>
+  <span class="va">target_polygons</span>   <span class="op">&lt;-</span> <span class="fu">st_sf</span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">geom</span>, <span class="op">!</span><span class="op">!</span><span class="va">ID</span><span class="op">)</span><span class="op">)</span>
   <span class="fu">st_agr</span><span class="op">(</span><span class="va">data_source_cells</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"constant"</span>
   <span class="fu">st_agr</span><span class="op">(</span><span class="va">target_polygons</span><span class="op">)</span>   <span class="op">&lt;-</span> <span class="st">"constant"</span>
     
@@ -154,53 +150,53 @@
       <span class="va">target_polygons</span>, allow_lonlat <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="op">}</span></code></pre></div>
 </div>
-<div id="option-2-zonal" class="section level3">
-<h3 class="hasAnchor">
-<a href="#option-2-zonal" class="anchor"></a>Option 2: Zonal</h3>
+<div class="section level3">
+<h3 id="option-2-zonal">Option 2: Zonal<a class="anchor" aria-label="anchor" href="#option-2-zonal"></a>
+</h3>
 <p>In <code>zonal</code> grid weights are calculated using <code>exactextractr</code> as the back-end. The key function is <code>weighting_grid</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">zonal</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">zonal</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
-<div id="use-cases" class="section level2">
-<h2 class="hasAnchor">
-<a href="#use-cases" class="anchor"></a>Use Cases</h2>
+<div class="section level2">
+<h2 id="use-cases">Use Cases<a class="anchor" aria-label="anchor" href="#use-cases"></a>
+</h2>
 <p>Here two motivating use cases are shown to compare the efficiency of these approaches. The first covers a large area but has many small aggregation units. The second covers a large area but has a few large polygon aggregation units. Each of these pose a unique set of demands with respect to how the calculation is performed.</p>
 </div>
-<div id="grid" class="section level2">
-<h2 class="hasAnchor">
-<a href="#grid" class="anchor"></a>Grid</h2>
-<p>The gridded data and aggregate units we are working with can be seen below and downloaded from <a href="https://www.northwestknowledge.net/metdata/data/pet_2020.nc">here</a>:</p>
+<div class="section level2">
+<h2 id="grid">Grid<a class="anchor" aria-label="anchor" href="#grid"></a>
+</h2>
+<p>The gridded data and aggregate units we are working with can be seen below and downloaded from <a href="https://www.northwestknowledge.net/metdata/data/pet_2020.nc" class="external-link">here</a>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">file</span> <span class="op">=</span> <span class="st">'pet_2020.nc'</span>
-<span class="op">(</span><span class="va">s</span> <span class="op">=</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html">rast</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## class       : SpatRaster 
-## dimensions  : 585, 1386, 366  (nrow, ncol, nlyr)
-## resolution  : 0.04167, 0.04167  (x, y)
-## extent      : -124.8, -67.04, 25.05, 49.42  (xmin, xmax, ymin, ymax)
-## coord. ref. : lon/lat WGS 84 (EPSG:4326) 
-## source      : pet_2020.nc 
-## varname     : potential_evapotranspiration (pet) 
-## names       : poten~43829, poten~43830, poten~43831, poten~43832, poten~43833, poten~43834, ... 
-## unit        :          mm,          mm,          mm,          mm,          mm,          mm, ...</code></pre>
+<span class="op">(</span><span class="va">s</span> <span class="op">=</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## class       : SpatRaster </span>
+<span class="co">## dimensions  : 585, 1386, 366  (nrow, ncol, nlyr)</span>
+<span class="co">## resolution  : 0.04167, 0.04167  (x, y)</span>
+<span class="co">## extent      : -124.8, -67.04, 25.05, 49.42  (xmin, xmax, ymin, ymax)</span>
+<span class="co">## coord. ref. : lon/lat WGS 84 (EPSG:4326) </span>
+<span class="co">## source      : pet_2020.nc </span>
+<span class="co">## varname     : potential_evapotranspiration (pet) </span>
+<span class="co">## names       : poten~43829, poten~43830, poten~43831, poten~43832, poten~43833, poten~43834, ... </span>
+<span class="co">## unit        :          mm,          mm,          mm,          mm,          mm,          mm, ...</span></code></pre>
 <p>Looking at the grid we can see in consists of 810810 grid cells each with a 0.0417 meter by 0.0417 meter resolution. Additionally, there are 366 unique time slices in the NetCDF file.</p>
 </div>
-<div id="example-01-many-small-aggregation-units" class="section level2">
-<h2 class="hasAnchor">
-<a href="#example-01-many-small-aggregation-units" class="anchor"></a>Example 01: Many small aggregation units</h2>
+<div class="section level2">
+<h2 id="example-01-many-small-aggregation-units">Example 01: Many small aggregation units<a class="anchor" aria-label="anchor" href="#example-01-many-small-aggregation-units"></a>
+</h2>
 <p>Here, we look at an example with ~20,000 watersheds along the east coast.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">geom</span> <span class="op">&lt;-</span> <span class="fu">st_make_valid</span><span class="op">(</span><span class="fu">read_sf</span><span class="op">(</span><span class="st">'hydrofabric.gpkg'</span>, <span class="st">"catchments"</span><span class="op">)</span><span class="op">)</span>
 
 <span class="fu">paint</span><span class="op">(</span><span class="va">geom</span><span class="op">)</span></code></pre></div>
-<pre><code>## sf [18041, 4] 
-## active geometry column: geom (POLYGON)
-## crs: 5070 (NAD83 / Conus Albers)
-## crs unit: metre 
-## ID        chr cat-1 cat-2 cat-4 cat-5 cat-6 cat-7
-## area_sqkm dbl 12.457576 267.083595 8.319214 9.278138 60.577~
-## toID      chr nex-2 nex-3 nex-5 nex-6 nex-7 nex-8
-## geom      sfc POLY 2,024B POLY 9,064B POLY 1,656B POLY 1,81~</code></pre>
+<pre><code><span class="co">## sf [18041, 4] </span>
+<span class="co">## active geometry column: geom (POLYGON)</span>
+<span class="co">## crs: 5070 (NAD83 / Conus Albers)</span>
+<span class="co">## crs unit: metre </span>
+<span class="co">## ID        chr cat-1 cat-2 cat-4 cat-5 cat-6 cat-7</span>
+<span class="co">## area_sqkm dbl 12.457576 267.083595 8.319214 9.278138 60.577~</span>
+<span class="co">## toID      chr nex-2 nex-3 nex-5 nex-6 nex-7 nex-8</span>
+<span class="co">## geom      sfc POLY 2,024B POLY 9,064B POLY 1,656B POLY 1,81~</span></code></pre>
 <p>In total we have 18,041 aggregation units to summarize over the 366 time steps.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">bnch</span> <span class="op">&lt;-</span> <span class="fu">bench</span><span class="fu">::</span><span class="fu">mark</span><span class="op">(</span>
@@ -210,30 +206,30 @@
 <span class="op">)</span></code></pre></div>
 <p><img src="w-huc01-test-1.png" title="plot of chunk huc01-test" alt="plot of chunk huc01-test" width="100%"></p>
 </div>
-<div id="example-02-few-large-aggregation-units" class="section level2">
-<h2 class="hasAnchor">
-<a href="#example-02-few-large-aggregation-units" class="anchor"></a>Example 02: Few, large aggregation units</h2>
+<div class="section level2">
+<h2 id="example-02-few-large-aggregation-units">Example 02: Few, large aggregation units<a class="anchor" aria-label="anchor" href="#example-02-few-large-aggregation-units"></a>
+</h2>
 <p>Here, we test aggregation the 4km gridded data to 64 counties in Colorado.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">colorado</span>  <span class="op">=</span> <span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"CO"</span>, county <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span>
 <span class="fu">paint</span><span class="op">(</span><span class="va">colorado</span><span class="op">)</span></code></pre></div>
-<pre><code>## sf [64, 13] 
-## active geometry column: geometry (MULTIPOLYGON)
-## crs: 4269 (NAD83)
-## crs unit: degree 
-## statefp           chr 08 08 08 08 08 08
-## countyfp          chr 035 095 039 014 037 053
-## countyns          chr 00198133 00198163 00198136 01945881 0~
-## affgeoid          chr 0500000US08035 0500000US08095 0500000~
-## geoid             chr 08035 08095 08039 08014 08037 08053
-## name              chr Douglas Phillips Elbert Broomfield Ea~
-## lsad              chr 06 06 06 06 06 06
-## aland             dbl 2176272717 1781724973 4793658887 8547~
-## awater            dbl 6752511 301808 442148 1411781 1884999~
-## state_name        chr Colorado Colorado Colorado Colorado C~
-## state_abbr        chr CO CO CO CO CO CO
-## jurisdiction_type chr state state state state state state
-## geometry          sfc MPOLY 872B MPOLY 824B MPOLY 824B MPOL~</code></pre>
+<pre><code><span class="co">## sf [64, 13] </span>
+<span class="co">## active geometry column: geometry (MULTIPOLYGON)</span>
+<span class="co">## crs: 4269 (NAD83)</span>
+<span class="co">## crs unit: degree </span>
+<span class="co">## statefp           chr 08 08 08 08 08 08</span>
+<span class="co">## countyfp          chr 035 095 039 014 037 053</span>
+<span class="co">## countyns          chr 00198133 00198163 00198136 01945881 0~</span>
+<span class="co">## affgeoid          chr 0500000US08035 0500000US08095 0500000~</span>
+<span class="co">## geoid             chr 08035 08095 08039 08014 08037 08053</span>
+<span class="co">## name              chr Douglas Phillips Elbert Broomfield Ea~</span>
+<span class="co">## lsad              chr 06 06 06 06 06 06</span>
+<span class="co">## aland             dbl 2176272717 1781724973 4793658887 8547~</span>
+<span class="co">## awater            dbl 6752511 301808 442148 1411781 1884999~</span>
+<span class="co">## state_name        chr Colorado Colorado Colorado Colorado C~</span>
+<span class="co">## state_abbr        chr CO CO CO CO CO CO</span>
+<span class="co">## jurisdiction_type chr state state state state state state</span>
+<span class="co">## geometry          sfc MPOLY 872B MPOLY 824B MPOLY 824B MPOL~</span></code></pre>
 <p>In total we have 64 aggregation units to summarize over the 366 time steps.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">bnch2</span> <span class="op">&lt;-</span> <span class="fu">bench</span><span class="fu">::</span><span class="fu">mark</span><span class="op">(</span>
@@ -256,11 +252,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Mike Johnson.</p>
+  <p></p>
+<p>Developed by Mike Johnson.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>
@@ -268,6 +266,8 @@
 
   
 
+
+  
 
   </body>
 </html>
