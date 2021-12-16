@@ -4,7 +4,14 @@
 \alias{execute_zonal_cat}
 \title{Execute Spatial Intersection on Categorical Data}
 \usage{
-execute_zonal_cat(file = NULL, geom = NULL, ID = NULL, w = NULL, rcl = NULL)
+execute_zonal_cat(
+  file = NULL,
+  geom = NULL,
+  ID = NULL,
+  w = NULL,
+  rcl = NULL,
+  join = TRUE
+)
 }
 \arguments{
 \item{file}{path to a gridded file (either .tif or .nc)}

@@ -6,7 +6,6 @@
 #' @param ID the name of the column providing the unique identified of each geom
 #' @return a data.table
 #' @export
-#' @importFrom raster raster
 #' @importFrom sf st_bbox st_as_sfc st_transform st_crs
 #' @importFrom terra rast crs vect ext origin res colFromX rowFromY setValues ncell xmin xmax ymin ymax window align
 #' @importFrom exactextractr exact_extract
@@ -44,7 +43,7 @@ weighting_grid = function(file, geom, ID) {
   r = terra::setValues(r, 1:terra::ncell(r))
   
   out1 = suppressWarnings({
-      exact_extract(raster::raster(r),
+      exact_extract(r,
                     geom,
                     progress = FALSE,
                     include_cols = ID)

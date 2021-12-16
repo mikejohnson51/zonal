@@ -10,7 +10,7 @@ Check](https://github.com/mikejohnson51/zonal/actions/workflows/R-CMD-check.yaml
 [![Project Status:
 Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![LifeCycle](man/figures/lifecycle/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![Dependencies](https://img.shields.io/badge/dependencies-8/29-orange?style=flat)](#)
+[![Dependencies](https://img.shields.io/badge/dependencies-7/30-orange?style=flat)](#)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
 [![Website
@@ -56,13 +56,10 @@ file <- 'to_build/pr_2020.nc'
 AOI  <- AOI::aoi_get(state = "south", county = "all") 
 
 system.time({
-  # Build Weight Grid
-  w        = weighting_grid(file, geom = AOI, ID = "geoid")
-  # Intersect
-  pr_zone = execute_zonal(file, w = w)
+  pr_zone     = execute_zonal(file, geom = AOI, ID = "geoid", join = FALSE)
 })
 #>    user  system elapsed 
-#>   6.463   1.044   7.593
+#>   7.841   2.127  10.136
 
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
@@ -72,13 +69,13 @@ dim(pr_zone)
 ### Daily maximum mean rainfall in a county?
 
 ``` r
-x = merge(AOI, pr_zone)
-
+x = merge(AOI, pr_zone, by  ="geoid")
 # Plot Day with the maximum single county max rainfall.
 n = colnames(pr_zone)[which(pr_zone[,-1] == max(pr_zone[,-1]), arr.ind = TRUE)[2] + 1]
 
-ggplot() + 
-  geom_sf(data = x, aes(fill = get(n)), color = NA) + 
+
+ggplot(data = x) + 
+  geom_sf(aes(fill = get(n)), color = NA) + 
   scale_fill_viridis_c() + 
   theme_void() + 
   labs(fill = "PR (mm)")
@@ -145,10 +142,39 @@ system.time({
   lc = execute_zonal_cat(file, AOI, "geoid", rcl = rcl)
 })
 #>    user  system elapsed 
-#>   4.721   0.464   5.266
+#>   5.520   0.607   6.217
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+
+## Zonal and climateR
+
+Here lets so a quick intergation of the AOI/climateR/zonal family. The
+goal is to find monthly mean normal (1981-2010) rainfall for all USA
+counies in the south.
+
+We can do this by (1) defining the southern `AOI`, (2) quering normal
+rainfall data from `climateR` (3) passing the returned data through
+`zonal`:
+
+``` r
+system.time({
+  AOI = AOI::aoi_get(state = "south", county = 'all')
+  tt  = climateR::getTerraClimNormals(AOI, "prcp")
+  out = zonal::execute_zonal(file = tt[[1]], 
+                             geom = AOI, 
+                             ID = "geoid", 
+                             join = TRUE)
+})
+#> Spherical geometry (s2) switched off
+#> Spherical geometry (s2) switched on
+#>    user  system elapsed 
+#>   5.318   0.581   8.331
+
+plot(out[paste0("V", 1:12)], border = NA)
+```
+
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ------------------------------------------------------------------------
 

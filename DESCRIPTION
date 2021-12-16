@@ -15,7 +15,6 @@ Imports:
     data.table,
     exactextractr,
     ncmeta,
-    raster,
     RNetCDF,
     sf,
     terra

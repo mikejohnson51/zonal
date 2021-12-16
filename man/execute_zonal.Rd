@@ -4,7 +4,14 @@
 \alias{execute_zonal}
 \title{Execute Spatial Intersection}
 \usage{
-execute_zonal(file = NULL, geom = NULL, ID = NULL, FUN = "mean", w = NULL)
+execute_zonal(
+  file = NULL,
+  geom = NULL,
+  ID = NULL,
+  FUN = "mean",
+  w = NULL,
+  join = FALSE
+)
 }
 \arguments{
 \item{file}{path to a gridded file (either .tif or .nc)}
