@@ -38,7 +38,7 @@
   
   setDT(df, key = "grid_id")
   
-  if(terra::window(z)){
+  if(any(terra::window(z))){
     terra::window(z) <- NULL
   }
   
