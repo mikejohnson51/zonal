@@ -60,8 +60,14 @@ execute_zonal    = function(file = NULL,
                             geom = NULL, 
                             ID = NULL,
                             FUN = "mean",
-                            w = NULL) {
+                            w = NULL,
+                            join = FALSE) {
   .SD <-  NULL
+  
+  if(join & is.null(geom)){
+    warning("Can't `join` to NULL geom")
+    join = FALSE
+  }
   
   w       = .find_w(file, geom, ID, w)
   w_names = c("grid_id", "w")
@@ -89,7 +95,11 @@ execute_zonal    = function(file = NULL,
     exe = dt[, lapply(.SD, FUN = FUN, w = w), keyby = eval(ID), .SDcols = cols]
   setDTthreads(threds)
 
-  return(exe)
+  if(join){
+    merge(geom, exe, by = ID)
+  } else {
+    exe
+  }
 }
 
 
