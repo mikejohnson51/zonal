@@ -67,7 +67,7 @@ execute_zonal    = function(file = NULL,
   w_names = c("grid_id", "w")
   ID      = names(w$weight_map)[!names(w$weight_map) %in% w_names]
 
-  dt = .zonal_io(file, w)
+  dt   = .zonal_io(file, w)
   cols = names(dt)[!names(dt) %in% c(ID, w_names)]
   
   if(FUN == 'mean'){

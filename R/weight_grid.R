@@ -14,13 +14,15 @@
 
 weighting_grid = function(file, geom, ID) {
   
-  r = if (grepl("raster", class(file), ignore.case = TRUE)) {
-    file[[1]]
-  } else {
-    suppressWarnings({
-      rast(file)[[1]]
-    })
-  }
+  # r = if (grepl("raster", class(file), ignore.case = TRUE)) {
+  #   rast(file[[1]])
+  # } else {
+  #   suppressWarnings({
+  #     rast(file)[[1]]
+  #   })
+  # }
+  
+  r = rast(file[[1]])
 
   ext1 = ext(vect(st_transform(st_as_sfc(sf::st_bbox(geom)), st_crs(terra::crs(r)))))
   
