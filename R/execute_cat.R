@@ -15,7 +15,8 @@ execute_zonal_cat    = function(file = NULL,
                                 geom = NULL, 
                                 ID   = NULL, 
                                 w    = NULL, 
-                                rcl  = NULL){
+                                rcl  = NULL,
+                                join = TRUE){
   
   . <- frac_total <- NULL
 
@@ -32,7 +33,14 @@ execute_zonal_cat    = function(file = NULL,
 
   if(!is.null(rcl)){ cat_dt[[cols]] = rcl$to[match(cat_dt[[cols]], rcl$from)] }
   
-  setnames(cat_dt, c(ID, "value", "percentage"))
+  exe = setnames(cat_dt, c(ID, "value", "percentage"))
+  
+  
+  if(join){
+    merge(geom, exe, by = ID)
+  } else {
+    exe
+  }
 }
 
 
