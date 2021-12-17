@@ -6,8 +6,7 @@
 #' @param ID the name of the column providing the unique identified of each geom
 #' @return a data.table
 #' @export
-#' @importFrom sf st_bbox st_as_sfc st_transform st_crs
-#' @importFrom terra rast crs vect ext origin res colFromX rowFromY setValues ncell xmin xmax ymin ymax window align
+#' @importFrom terra rast ext project vect xmin xmax ymin ymax colFromX rowFromY window align setValues
 #' @importFrom exactextractr exact_extract
 #' @importFrom data.table setDT rbindlist setnames
 
@@ -23,7 +22,7 @@ weighting_grid = function(file, geom, ID) {
   
   r = rast(file[[1]])
 
-  ext1 = ext(vect(st_transform(st_as_sfc(sf::st_bbox(geom)), st_crs(terra::crs(r)))))
+  ext1 = ext(project(vect(geom), r))
   
   ext2 = ext(c(max(xmin(ext1),  xmin(r)),
                min(xmax(ext1),  xmax(r)),
