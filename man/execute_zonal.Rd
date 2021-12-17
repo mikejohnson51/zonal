@@ -10,6 +10,7 @@ execute_zonal(
   ID = NULL,
   FUN = "mean",
   w = NULL,
+  rcl = NULL,
   join = TRUE
 )
 }
@@ -20,15 +21,31 @@ execute_zonal(
 
 \item{ID}{the name of the column providing the unique identified of each geom}
 
-\item{FUN}{an optional function or character vector, as described below}
+\item{FUN}{an optional function or character vector, as described in details}
 
 \item{w}{a precomputed weighting grid produced with \code{weighting_grid},}
+
+\item{rcl}{a data.frame with columns names \code{from} and \code{to}.
+\code{From} should be the categorical values used in the raster,
+while \code{to} should be the categorical names to use in the output table headings.
+If left NULL (default) the headings will not be altered.}
 
 \item{join}{should output be joined to input geom by the supplied ID (geom cannot be NULL)}
 }
 \value{
-data.table
+data.table or sf object
 }
 \description{
 Execute Spatial Intersection
+}
+\details{
+The are current 6 built in summary functions:
+\itemize{
+\item{"mean"}{The mean value of the coverage data}
+\item{"mode"}{The most frequent of the coverage values}
+\item{"max"}{The maximum of the coverage values}
+\item{"min"}{The minimum of the coverage values}
+\item{"gm_mean"}{The geometric mean of the coverage values}
+\item{"percent"}{The percentage of each covered value (categorical data)}
+}
 }
