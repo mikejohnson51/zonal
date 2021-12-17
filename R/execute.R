@@ -52,6 +52,7 @@ gm_mean = function(x, na.rm=TRUE){
 #' @param ID the name of the column providing the unique identified of each geom
 #' @param w a precomputed weighting grid produced with `weighting_grid`,
 #' @param FUN an optional function or character vector, as described below
+#' @param join should output be joined to input geom by the supplied ID (geom cannot be NULL)
 #' @return data.table
 #' @export
 #' @importFrom data.table getDTthreads setDTthreads
@@ -61,7 +62,7 @@ execute_zonal    = function(file = NULL,
                             ID = NULL,
                             FUN = "mean",
                             w = NULL,
-                            join = FALSE) {
+                            join = TRUE) {
   .SD <-  NULL
   
   if(join & is.null(geom)){

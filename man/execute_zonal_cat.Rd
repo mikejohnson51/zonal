@@ -26,6 +26,8 @@ execute_zonal_cat(
 \code{From} should be the categorical values used in the raster,
 while \code{to} should be the categorical names to use in the output table headings.
 If left NULL (default) the headings will not be altered.}
+
+\item{join}{should output be joined to input geom by the supplied ID (geom cannot be NULL)}
 }
 \value{
 a data.table

@@ -7,6 +7,7 @@
 #' `From` should be the categorical values used in the raster, 
 #' while `to` should be the categorical names to use in the output table headings.
 #' If left NULL (default) the headings will not be altered.
+#' @param join should output be joined to input geom by the supplied ID (geom cannot be NULL)
 #' @return a data.table
 #' @export
 #' @importFrom data.table setnames setkey `:=`
