@@ -143,7 +143,7 @@
 </h4>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span>
-  <span class="va">lc</span> <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal_cat.html">execute_zonal_cat</a></span><span class="op">(</span><span class="va">file</span>, geom <span class="op">=</span> <span class="va">AOI</span>, ID <span class="op">=</span> <span class="st">"geoid"</span><span class="op">)</span>
+  <span class="va">lc</span> <span class="op">=</span> <span class="fu">execute_zonal_cat</span><span class="op">(</span><span class="va">file</span>, geom <span class="op">=</span> <span class="va">AOI</span>, ID <span class="op">=</span> <span class="st">"geoid"</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##    user  system elapsed </span>
 <span class="co">##   0.966   0.314   1.296</span></code></pre>
@@ -234,7 +234,7 @@
 </h4>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span>
-  <span class="va">lc</span> <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal_cat.html">execute_zonal_cat</a></span><span class="op">(</span><span class="va">file</span>, geom <span class="op">=</span> <span class="va">AOI</span>, ID <span class="op">=</span> <span class="st">"geoid"</span>, rcl <span class="op">=</span> <span class="va">rcl</span><span class="op">)</span>
+  <span class="va">lc</span> <span class="op">=</span> <span class="fu">execute_zonal_cat</span><span class="op">(</span><span class="va">file</span>, geom <span class="op">=</span> <span class="va">AOI</span>, ID <span class="op">=</span> <span class="st">"geoid"</span>, rcl <span class="op">=</span> <span class="va">rcl</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##    user  system elapsed </span>
 <span class="co">##   3.087   0.752   3.849</span></code></pre>
@@ -306,8 +306,8 @@
   iterations <span class="op">=</span> <span class="fl">1</span>, check <span class="op">=</span> <span class="cn">FALSE</span>, time_unit <span class="op">=</span> <span class="st">"s"</span>,
   exactextract_dplyr_out  <span class="op">=</span> <span class="fu">exactextract_dplyr</span><span class="op">(</span><span class="va">file</span>, <span class="va">AOI</span><span class="op">)</span>,
   exactextract_dt_out     <span class="op">=</span> <span class="fu">exactextract_dt</span><span class="op">(</span><span class="va">file</span>, <span class="va">AOI</span><span class="op">)</span>,
-  zonal_full              <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal_cat.html">execute_zonal_cat</a></span><span class="op">(</span><span class="va">file</span>, <span class="va">AOI</span>, <span class="st">"geoid"</span><span class="op">)</span>,
-  zonal_stage_weights     <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal_cat.html">execute_zonal_cat</a></span><span class="op">(</span><span class="va">file</span>, w <span class="op">=</span> <span class="va">w</span><span class="op">)</span>
+  zonal_full              <span class="op">=</span> <span class="fu">execute_zonal_cat</span><span class="op">(</span><span class="va">file</span>, <span class="va">AOI</span>, <span class="st">"geoid"</span><span class="op">)</span>,
+  zonal_stage_weights     <span class="op">=</span> <span class="fu">execute_zonal_cat</span><span class="op">(</span><span class="va">file</span>, w <span class="op">=</span> <span class="va">w</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 <p><img src="c-unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" width="100%"></p>
 </div>

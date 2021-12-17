@@ -75,6 +75,7 @@
   ID <span class="op">=</span> <span class="cn">NULL</span>,
   FUN <span class="op">=</span> <span class="st">"mean"</span>,
   w <span class="op">=</span> <span class="cn">NULL</span>,
+  rcl <span class="op">=</span> <span class="cn">NULL</span>,
   join <span class="op">=</span> <span class="cn">TRUE</span>
 <span class="op">)</span></code></pre></div>
     </div>
@@ -88,16 +89,30 @@
 <dt>ID</dt>
 <dd><p>the name of the column providing the unique identified of each geom</p></dd>
 <dt>FUN</dt>
-<dd><p>an optional function or character vector, as described below</p></dd>
+<dd><p>an optional function or character vector, as described in details</p></dd>
 <dt>w</dt>
 <dd><p>a precomputed weighting grid produced with <code>weighting_grid</code>,</p></dd>
+<dt>rcl</dt>
+<dd><p>a data.frame with columns names <code>from</code> and <code>to</code>.
+<code>From</code> should be the categorical values used in the raster,
+while <code>to</code> should be the categorical names to use in the output table headings.
+If left NULL (default) the headings will not be altered.</p></dd>
 <dt>join</dt>
 <dd><p>should output be joined to input geom by the supplied ID (geom cannot be NULL)</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>data.table</p>
+    <p>data.table or sf object</p>
     </div>
+    <div id="details">
+    <h2>Details</h2>
+    <p>The are current 6 built in summary functions:</p><ul><li><p>"mean"The mean value of the coverage data</p></li>
+<li><p>"mode"The most frequent of the coverage values</p></li>
+<li><p>"max"The maximum of the coverage values</p></li>
+<li><p>"min"The minimum of the coverage values</p></li>
+<li><p>"gm_mean"The geometric mean of the coverage values</p></li>
+<li><p>"percent"The percentage of each covered value (categorical data)</p></li>
+</ul></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

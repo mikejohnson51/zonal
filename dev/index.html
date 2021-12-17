@@ -196,7 +196,7 @@
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span>from <span class="op">=</span> <span class="va">Class</span>, to <span class="op">=</span> <span class="va">short</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span>
-  <span class="va">lc</span> <span class="op">=</span> <span class="fu"><a href="reference/execute_zonal_cat.html">execute_zonal_cat</a></span><span class="op">(</span><span class="va">file</span>, <span class="va">AOI</span>, <span class="st">"geoid"</span>, rcl <span class="op">=</span> <span class="va">rcl</span><span class="op">)</span>
+  <span class="va">lc</span> <span class="op">=</span> <span class="fu">execute_zonal_cat</span><span class="op">(</span><span class="va">file</span>, <span class="va">AOI</span>, <span class="st">"geoid"</span>, rcl <span class="op">=</span> <span class="va">rcl</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
 <span class="co">#&gt;   6.529   0.596   7.353</span></code></pre></div>
