@@ -110,7 +110,7 @@ ggplot(data, aes(x = day, y = prcp))  +
 
 # 1km Landcover Grid (Categorical)
 
-One of the largest limitations of existing utilities is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mos acing 19 MODIS tiles covering CONUS.
+One of the largest limitations of existing utilities is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mos acing 19 MODIS tiles covering CONUS. The summary function for this categorical frequency is "freq".
 
 ```{r}
 file = 'to_build/2019-01-01.tif'
@@ -118,7 +118,7 @@ rcl  = read.csv("to_build/modis_lc.csv") %>%
   dplyr::select(from = Class, to = short)
 
 system.time({
-  lc = execute_zonal_cat(file, AOI, "geoid", rcl = rcl)
+  lc = execute_zonal(file, AOI, "geoid", FUN = 'freq', rcl = rcl)
 })
 ```
 
@@ -134,13 +134,12 @@ ggplot(lc) +
 
 ## Zonal and climateR
 
-Here lets so a quick intergation of the AOI/climateR/zonal family. The goal is to find monthly mean normal (1981-2010) rainfall for all USA counies in the south.
+Here lets look at a quick intergation of the `AOI`/`climateR`/`zonal` family. The goal is to find monthly mean, normal (1981-2010), rainfall for all USA counties in the south.
 
-We can do this by (1) defining the southern `AOI`, (2) quering normal rainfall data from `climateR` (3) passing the returned data through `zonal`:
+We can do this by (1) defining the southern `AOI`, (2) queuing normal rainfall data from `climateR` and (3) passing the returned data through `zonal`:
 
 ```{r, message = FALSE, warning = FALSE}
 system.time({
-  AOI = AOI::aoi_get(state = "south", county = 'all')
   tt  = climateR::getTerraClimNormals(AOI, "prcp")
   out = zonal::execute_zonal(file = tt[[1]], 
                              geom = AOI, 
