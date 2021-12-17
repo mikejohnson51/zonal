@@ -59,7 +59,7 @@ system.time({
   pr_zone     = execute_zonal(file, geom = AOI, ID = "geoid", join = FALSE)
 })
 #>    user  system elapsed 
-#>   7.841   2.127  10.136
+#>   7.997   2.155  10.305
 
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
@@ -142,7 +142,7 @@ system.time({
   lc = execute_zonal_cat(file, AOI, "geoid", rcl = rcl)
 })
 #>    user  system elapsed 
-#>   5.520   0.607   6.217
+#>   5.184   0.579   5.820
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
@@ -169,7 +169,7 @@ system.time({
 #> Spherical geometry (s2) switched off
 #> Spherical geometry (s2) switched on
 #>    user  system elapsed 
-#>   5.318   0.581   8.331
+#>   3.185   0.458   4.969
 
 plot(out[paste0("V", 1:12)], border = NA)
 ```

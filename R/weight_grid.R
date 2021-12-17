@@ -43,7 +43,7 @@ weighting_grid = function(file, geom, ID) {
   r = terra::setValues(r, 1:terra::ncell(r))
   
   out1 = suppressWarnings({
-      exact_extract(r,
+      exact_extract(r[[1]],
                     geom,
                     progress = FALSE,
                     include_cols = ID)
