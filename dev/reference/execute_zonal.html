@@ -75,7 +75,7 @@
   ID <span class="op">=</span> <span class="cn">NULL</span>,
   FUN <span class="op">=</span> <span class="st">"mean"</span>,
   w <span class="op">=</span> <span class="cn">NULL</span>,
-  join <span class="op">=</span> <span class="cn">FALSE</span>
+  join <span class="op">=</span> <span class="cn">TRUE</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -91,6 +91,8 @@
 <dd><p>an optional function or character vector, as described below</p></dd>
 <dt>w</dt>
 <dd><p>a precomputed weighting grid produced with <code>weighting_grid</code>,</p></dd>
+<dt>join</dt>
+<dd><p>should output be joined to input geom by the supplied ID (geom cannot be NULL)</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
