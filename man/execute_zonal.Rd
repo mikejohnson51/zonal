@@ -10,7 +10,7 @@ execute_zonal(
   ID = NULL,
   FUN = "mean",
   w = NULL,
-  join = FALSE
+  join = TRUE
 )
 }
 \arguments{
@@ -23,6 +23,8 @@ execute_zonal(
 \item{FUN}{an optional function or character vector, as described below}
 
 \item{w}{a precomputed weighting grid produced with \code{weighting_grid},}
+
+\item{join}{should output be joined to input geom by the supplied ID (geom cannot be NULL)}
 }
 \value{
 data.table
