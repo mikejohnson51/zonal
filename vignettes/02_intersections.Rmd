@@ -169,7 +169,7 @@ huc01_bnch <- bench::mark(
 
 <img src="i-huc01-tests-1.png" title="plot of chunk huc01-tests" alt="plot of chunk huc01-tests" width="100%" />
 
-Overall when the polygon count is very high (~20,000), the zonal approach with precomputed weights and non precomputed weights performs the best. Precomputing the weights save a significant amount of memory in the process and ~4 seconds in total run time. These timings suggest that 20 years of daily GridMet data could be computed for the ~20,000 catchments in about 11 minutes (~30 seconds * 20 year + ~15 seconds). The `intersectr` approach requires way more memory despite the precomputation of weights and takes about 3 times as long as zonal. Lastly the `exactextract` methods timed out at the upper limit of 180 seconds we prescribed. 
+Overall when the polygon count is very high (~20,000), the zonal aproach with precomputed weights and non precomputed weights performs the best. Precomputing the weights save a significant amount of memory in the process and ~4 seconds in total run time. These timings suggest that 20 years of daily GridMet data could be computed for the ~20,000 catchments in about 11 minutes (~30 seconds * 20 year + ~15 seconds). The `intersectr` approach requires way more memory despite the precomputation of weights and takes about 3 times as long as zonal. Lastly the `exactextract` methods timed out at the upper limit of 180 seconds we prescribed. 
 
 ## Example 02: Florida Counties
 
@@ -181,21 +181,34 @@ Our second example looks at the timings for an aggregation over a large area wit
 ```
 
 ```
-## Simple feature collection with 67 features and 12 fields
+## Simple feature collection with 67 features and 15 fields
 ## Geometry type: MULTIPOLYGON
 ## Dimension:     XY
 ## Bounding box:  xmin: -87.63 ymin: 24.5 xmax: -80.03 ymax: 31
 ## Geodetic CRS:  NAD83
 ## First 10 features:
-##     statefp countyfp countyns       affgeoid geoid      name lsad      aland    awater state_name state_abbr jurisdiction_type                       geometry
-## 9        12      027 00294452 0500000US12027 12027    DeSoto   06 1649978040   6247257    Florida         FL             state MULTIPOLYGON (((-82.06 27.2...
-## 97       12      109 00308371 0500000US12109 12109 St. Johns   06 1555793097 571962797    Florida         FL             state MULTIPOLYGON (((-81.68 30.1...
-## 143      12      049 00295746 0500000US12049 12049    Hardee   06 1651867900   1439673    Florida         FL             state MULTIPOLYGON (((-82.05 27.6...
-## 285      12      125 00306913 0500000US12125 12125     Union   06  630807237  16049079    Florida         FL             state MULTIPOLYGON (((-82.58 29.9...
-## 398      12      005 00295738 0500000US12005 12005       Bay   06 1964402055 711451660    Florida         FL             state MULTIPOLYGON (((-85.99 30.3...
-## 403      12      039 00306918 0500000US12039 12039   Gadsden   06 1337193228  31687293    Florida         FL             state MULTIPOLYGON (((-84.93 30.6...
-## 404      12      073 00306916 0500000US12073 12073      Leon   06 1727171525  90453994    Florida         FL             state MULTIPOLYGON (((-84.72 30.3...
-##  [ reached 'max' / getOption("max.print") -- omitted 3 rows ]
+##     statefp countyfp countyns       affgeoid geoid         name            namelsad stusps
+## 65       12      061 00307624 0500000US12061 12061 Indian River Indian River County     FL
+## 97       12      037 00306911 0500000US12037 12037     Franklin     Franklin County     FL
+## 105      12      115 00295741 0500000US12115 12115     Sarasota     Sarasota County     FL
+## 165      12      077 00308549 0500000US12077 12077      Liberty      Liberty County     FL
+## 192      12      003 00306920 0500000US12003 12003        Baker        Baker County     FL
+## 198      12      083 00306922 0500000US12083 12083       Marion       Marion County     FL
+##     state_name lsad      aland     awater state_name.1 state_abbr jurisdiction_type
+## 65     Florida   06 1302272805  295509938      Florida         FL             state
+## 97     Florida   06 1411498965 2270440522      Florida         FL             state
+## 105    Florida   06 1440039085 1086628535      Florida         FL             state
+## 165    Florida   06 2164099094   19582444      Florida         FL             state
+## 192    Florida   06 1515738972    9686120      Florida         FL             state
+## 198    Florida   06 4113993941  192281837      Florida         FL             state
+##                           geometry
+## 65  MULTIPOLYGON (((-80.88 27.8...
+## 97  MULTIPOLYGON (((-85.21 29.7...
+## 105 MULTIPOLYGON (((-82.65 27.3...
+## 165 MULTIPOLYGON (((-85.12 30.2...
+## 192 MULTIPOLYGON (((-82.46 30.5...
+## 198 MULTIPOLYGON (((-82.53 29.2...
+##  [ reached 'max' / getOption("max.print") -- omitted 4 rows ]
 ```
 
 The same functions and timing from example 1 are computed:
