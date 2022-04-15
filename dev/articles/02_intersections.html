@@ -51,7 +51,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -59,6 +59,9 @@
   <ul class="dropdown-menu" role="menu">
 <li>
       <a href="../articles/01_weight_creation.html">Weight Maps</a>
+    </li>
+    <li>
+      <a href="../articles/01_weight_creation_v.html">Weight Maps</a>
     </li>
     <li>
       <a href="../articles/02_intersections.html">Zonal Statistics</a>
@@ -119,7 +122,7 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">intersectr_prep</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">file</span>, <span class="va">geom</span>, <span class="va">ID</span>, <span class="va">variable</span><span class="op">)</span><span class="op">{</span>
   <span class="va">nc_coord_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ncmeta/man/nc_coord_var.html" class="external-link">nc_coord_var</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span>
-  <span class="va">nc_coord_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">nc_coord_vars</span>, <span class="va">variable</span> <span class="op">==</span> <span class="op">!</span><span class="op">!</span><span class="va">variable</span><span class="op">)</span>
+  <span class="va">nc_coord_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">nc_coord_vars</span>, <span class="va">variable</span> <span class="op">==</span> <span class="op">!</span><span class="op">!</span><span class="va">variable</span><span class="op">)</span>
   
   <span class="va">nc</span>       <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/RNetCDF/man/open.nc.html" class="external-link">open.nc</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span>
   <span class="va">X_coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/RNetCDF/man/var.get.nc.html" class="external-link">var.get.nc</a></span><span class="op">(</span><span class="va">nc</span>, <span class="va">nc_coord_vars</span><span class="op">$</span><span class="va">X</span>, unpack <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
@@ -233,7 +236,7 @@
   zonal_staged_weights     <span class="op">=</span> <span class="fu"><a href="../reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span><span class="va">file</span>, w <span class="op">=</span> <span class="va">zonal_w</span><span class="op">)</span>
 <span class="op">)</span></code></pre></div>
 <p><img src="i-huc01-tests-1.png" title="plot of chunk huc01-tests" alt="plot of chunk huc01-tests" width="100%"></p>
-<p>Overall when the polygon count is very high (~20,000), the zonal approach with precomputed weights and non precomputed weights performs the best. Precomputing the weights save a significant amount of memory in the process and ~4 seconds in total run time. These timings suggest that 20 years of daily GridMet data could be computed for the ~20,000 catchments in about 11 minutes (~30 seconds * 20 year + ~15 seconds). The <code>intersectr</code> approach requires way more memory despite the precomputation of weights and takes about 3 times as long as zonal. Lastly the <code>exactextract</code> methods timed out at the upper limit of 180 seconds we prescribed.</p>
+<p>Overall when the polygon count is very high (~20,000), the zonal aproach with precomputed weights and non precomputed weights performs the best. Precomputing the weights save a significant amount of memory in the process and ~4 seconds in total run time. These timings suggest that 20 years of daily GridMet data could be computed for the ~20,000 catchments in about 11 minutes (~30 seconds * 20 year + ~15 seconds). The <code>intersectr</code> approach requires way more memory despite the precomputation of weights and takes about 3 times as long as zonal. Lastly the <code>exactextract</code> methods timed out at the upper limit of 180 seconds we prescribed.</p>
 </div>
 <div class="section level2">
 <h2 id="example-02-florida-counties">Example 02: Florida Counties<a class="anchor" aria-label="anchor" href="#example-02-florida-counties"></a>
@@ -241,21 +244,34 @@
 <p>Our second example looks at the timings for an aggregation over a large area with a few aggregation units. The gridded data is the same as example 1, and the aggregate units can be seen below:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="op">(</span><span class="va">florida</span> <span class="op">&lt;-</span> <span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"FL"</span>, county <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## Simple feature collection with 67 features and 12 fields</span>
+<pre><code><span class="co">## Simple feature collection with 67 features and 15 fields</span>
 <span class="co">## Geometry type: MULTIPOLYGON</span>
 <span class="co">## Dimension:     XY</span>
 <span class="co">## Bounding box:  xmin: -87.63 ymin: 24.5 xmax: -80.03 ymax: 31</span>
 <span class="co">## Geodetic CRS:  NAD83</span>
 <span class="co">## First 10 features:</span>
-<span class="co">##     statefp countyfp countyns       affgeoid geoid      name lsad      aland    awater state_name state_abbr jurisdiction_type                       geometry</span>
-<span class="co">## 9        12      027 00294452 0500000US12027 12027    DeSoto   06 1649978040   6247257    Florida         FL             state MULTIPOLYGON (((-82.06 27.2...</span>
-<span class="co">## 97       12      109 00308371 0500000US12109 12109 St. Johns   06 1555793097 571962797    Florida         FL             state MULTIPOLYGON (((-81.68 30.1...</span>
-<span class="co">## 143      12      049 00295746 0500000US12049 12049    Hardee   06 1651867900   1439673    Florida         FL             state MULTIPOLYGON (((-82.05 27.6...</span>
-<span class="co">## 285      12      125 00306913 0500000US12125 12125     Union   06  630807237  16049079    Florida         FL             state MULTIPOLYGON (((-82.58 29.9...</span>
-<span class="co">## 398      12      005 00295738 0500000US12005 12005       Bay   06 1964402055 711451660    Florida         FL             state MULTIPOLYGON (((-85.99 30.3...</span>
-<span class="co">## 403      12      039 00306918 0500000US12039 12039   Gadsden   06 1337193228  31687293    Florida         FL             state MULTIPOLYGON (((-84.93 30.6...</span>
-<span class="co">## 404      12      073 00306916 0500000US12073 12073      Leon   06 1727171525  90453994    Florida         FL             state MULTIPOLYGON (((-84.72 30.3...</span>
-<span class="co">##  [ reached 'max' / getOption("max.print") -- omitted 3 rows ]</span></code></pre>
+<span class="co">##     statefp countyfp countyns       affgeoid geoid         name            namelsad stusps</span>
+<span class="co">## 65       12      061 00307624 0500000US12061 12061 Indian River Indian River County     FL</span>
+<span class="co">## 97       12      037 00306911 0500000US12037 12037     Franklin     Franklin County     FL</span>
+<span class="co">## 105      12      115 00295741 0500000US12115 12115     Sarasota     Sarasota County     FL</span>
+<span class="co">## 165      12      077 00308549 0500000US12077 12077      Liberty      Liberty County     FL</span>
+<span class="co">## 192      12      003 00306920 0500000US12003 12003        Baker        Baker County     FL</span>
+<span class="co">## 198      12      083 00306922 0500000US12083 12083       Marion       Marion County     FL</span>
+<span class="co">##     state_name lsad      aland     awater state_name.1 state_abbr jurisdiction_type</span>
+<span class="co">## 65     Florida   06 1302272805  295509938      Florida         FL             state</span>
+<span class="co">## 97     Florida   06 1411498965 2270440522      Florida         FL             state</span>
+<span class="co">## 105    Florida   06 1440039085 1086628535      Florida         FL             state</span>
+<span class="co">## 165    Florida   06 2164099094   19582444      Florida         FL             state</span>
+<span class="co">## 192    Florida   06 1515738972    9686120      Florida         FL             state</span>
+<span class="co">## 198    Florida   06 4113993941  192281837      Florida         FL             state</span>
+<span class="co">##                           geometry</span>
+<span class="co">## 65  MULTIPOLYGON (((-80.88 27.8...</span>
+<span class="co">## 97  MULTIPOLYGON (((-85.21 29.7...</span>
+<span class="co">## 105 MULTIPOLYGON (((-82.65 27.3...</span>
+<span class="co">## 165 MULTIPOLYGON (((-85.12 30.2...</span>
+<span class="co">## 192 MULTIPOLYGON (((-82.46 30.5...</span>
+<span class="co">## 198 MULTIPOLYGON (((-82.53 29.2...</span>
+<span class="co">##  [ reached 'max' / getOption("max.print") -- omitted 4 rows ]</span></code></pre>
 <p>The same functions and timing from example 1 are computed:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">int_time_fl</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span>
@@ -302,7 +318,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>

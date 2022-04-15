@@ -1,10 +1,11 @@
 pandoc: 2.7.3
-pkgdown: 2.0.1
+pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
   01_weight_creation: 01_weight_creation.html
+  01_weight_creation_v: 01_weight_creation_v.html
   02_intersections: 02_intersections.html
   03_categorical: 03_categorical.html
   04_nwm_channel: 04_nwm_channel.html
-last_built: 2021-12-17T02:09Z
+last_built: 2022-04-15T20:03Z
 

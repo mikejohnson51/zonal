@@ -28,6 +28,9 @@
     <loc>/articles/01_weight_creation.html</loc>
   </url>
   <url>
+    <loc>/articles/01_weight_creation_v.html</loc>
+  </url>
+  <url>
     <loc>/articles/02_intersections.html</loc>
   </url>
   <url>
@@ -58,13 +61,10 @@
     <loc>/reference/execute_zonal.html</loc>
   </url>
   <url>
-    <loc>/reference/getmode.html</loc>
-  </url>
-  <url>
-    <loc>/reference/gm_mean.html</loc>
-  </url>
-  <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/single_file_execute.html</loc>
   </url>
   <url>
     <loc>/reference/weighting_grid.html</loc>
