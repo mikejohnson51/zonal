@@ -14,7 +14,7 @@ weighting_grid(file, geom, ID)
 \item{ID}{the name of the column providing the unique identified of each geom}
 }
 \value{
-a data.table
+a list(data.table, vector)
 }
 \description{
 Returns a data.table with columns for ID, grid_id, X, Y and weight. By default this object is

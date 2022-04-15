@@ -13,6 +13,11 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE
 )
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(terra)
 ```
 
 # zonal <img src="man/figures/logo.png" align="right" alt="" width="120" />
@@ -28,7 +33,16 @@ knitr::opts_chunk$set(
 
 `zonal` is an active package for intersecting vector aggregation units with large gridded data. While there are many libraries that seek to tackle this problem (see credits) we needed a library that could handle large gridded extents storing categorical and continuous data, with multiple time layers with both many small vector units and few large units.
 
-We also seek to segment the creation of grid weights from the zonal execution so that the same weight map can be applied across different products with the same structure.
+(**Udapte: March 15, 2022**): With the addition of `.eagerLoad` following this [issue](https://github.com/isciences/exactextractr/issues/62) in `exactextractr` by [Dan Baston](https://github.com/dbaston) much of the speed gained by using `zonal` over pure `exactextractr` has been either matched - or - surpassed using `exactextract` on its own.
+
+`zonal` is being updated to reflect this and is moving closer to a thin wrapper of that excellent package. When the time comes that it is not longer a thin wrapper, and just reuse of exactextractr, we will move the utility functions to `opendap.catlog` and kill this package. 
+
+The plan for that would be to add a `summary.function` argument to `dap` that would allow for extracted gridded data to be summarized efficiently.
+
+There are still three main element that, for now, make it worth keeping alive.
+
+  1. Some additional "named" summary types (categorical, and geometric mean). The first may be mostly resolved with [this](https://github.com/isciences/exactextractr/issues/75))
+  2. The ability to export weight maps with 'relative' and 'global' cell IDs for reuse with ongoing hydrologic modeling work at NOAA OWP.
 
 ## Installation
 
@@ -38,21 +52,19 @@ You can install the development version of `zonal` from [GitHub](https://github.
 # install.packages("remotes")
 remotes::install_github("mikejohnson51/zonal")
 ```
+
 ## Example
 
 This is a basic example that takes a NetCDF file containing a 4km grid for the continental USA and daily precipitation for the year 1979 (365 layers). Our goal is to subset this file to the southern USA, and compute daily county level averages. The result is a daily rainfall average for each county.
 
 ```{r example}
 library(zonal)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
 
-file <- 'to_build/pr_2020.nc'
-AOI  <- AOI::aoi_get(state = "south", county = "all") 
+file <- "to_build/pr_2020.nc"
+AOI <- AOI::aoi_get(state = "south", county = "all")
 
 system.time({
-  pr_zone     = execute_zonal(file, geom = AOI, ID = "geoid", join = FALSE)
+  pr_zone <- execute_zonal(file, geom = AOI, ID = "fip_code", join = FALSE)
 })
 
 # PET zone: Counties, time slices/ID
@@ -62,15 +74,14 @@ dim(pr_zone)
 ### Daily maximum mean rainfall in a county?
 
 ```{r}
-x = merge(AOI, pr_zone, by  ="geoid")
+x <- merge(AOI, pr_zone, by = "fip_code")
 # Plot Day with the maximum single county max rainfall.
-n = colnames(pr_zone)[which(pr_zone[,-1] == max(pr_zone[,-1]), arr.ind = TRUE)[2] + 1]
+n <- colnames(pr_zone)[which(pr_zone[, -1] == max(pr_zone[, -1]), arr.ind = TRUE)[2] + 1]
 
-
-ggplot(data = x) + 
-  geom_sf(aes(fill = get(n)), color = NA) + 
-  scale_fill_viridis_c() + 
-  theme_void() + 
+ggplot(data = x) +
+  geom_sf(aes(fill = get(n)), color = NA) +
+  scale_fill_viridis_c() +
+  theme_void() +
   labs(fill = "PR (mm)")
 ```
 
@@ -78,33 +89,33 @@ ggplot(data = x) +
 
 ```{r}
 # Plot Day with the maximum county wide rainfall
-n2 = names(which.max(colSums(dplyr::select(pr_zone, -geoid))))
+n2 <- names(which.max(colSums(select(pr_zone, -fip_code))))
 
-terra::plot(terra::rast(file)[[103]])
-
-ggplot() + 
-  geom_sf(data = x, aes(fill = get(n2)), color = NA) + 
-  scale_fill_viridis_c() + 
-  theme_void() + 
+ggplot() +
+  geom_sf(data = x, aes(fill = get(n2)), color = NA) +
+  scale_fill_viridis_c() +
+  theme_void() +
   labs(fill = "PR (mm)")
 ```
 
 ### Timeseries of county with maximum annual rainfall
 
 ```{r}
-data = pr_zone %>% 
-  slice_max(rowSums(select(., -geoid))) %>% 
-  pivot_longer(-geoid, names_to = "day", values_to = "prcp") %>% 
-  mutate(day = as.numeric(gsub("V","", day)))
+data <- pr_zone %>%
+  slice_max(rowSums(select(., -fip_code))) %>%
+  pivot_longer(-fip_code, names_to = "day", values_to = "prcp") %>%
+  mutate(day = as.numeric(gsub("V", "", day)))
 
 head(data)
 ```
 
 ```{r, echo = FALSE}
-ggplot(data, aes(x = day, y = prcp))  + 
-  geom_line() + 
-  labs(x = "Date", y = "Mean Rainfall",
-       title = paste("GEOID: ", data$geoid[1])) +
+ggplot(data, aes(x = day, y = prcp)) +
+  geom_line() +
+  labs(
+    x = "Date", y = "Mean Rainfall",
+    title = paste("GEOID: ", data$fip_code[1])
+  ) +
   theme_bw()
 ```
 
@@ -113,42 +124,110 @@ ggplot(data, aes(x = day, y = prcp))  +
 One of the largest limitations of existing utilities is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mos acing 19 MODIS tiles covering CONUS. The summary function for this categorical frequency is "freq".
 
 ```{r}
-file = 'to_build/2019-01-01.tif'
-rcl  = read.csv("to_build/modis_lc.csv") %>% 
+file <- "to_build/2019-01-01.tif"
+
+rcl <- read.csv("to_build/modis_lc.csv") %>%
   dplyr::select(from = Class, to = short)
 
 system.time({
-  lc = execute_zonal(file, AOI, "geoid", FUN = 'freq', rcl = rcl)
+  lc <- execute_zonal(file, geom = AOI, ID = "fip_code", FUN = "freq", rcl = rcl)
 })
 ```
 
 ```{r, echo = FALSE}
-ggplot(lc) + 
-  geom_sf(aes(fill = percentage), color = "transparent") + 
+ggplot(lc) +
+  geom_sf(aes(fill = percentage), color = "transparent") +
   scale_fill_gradient2() +
-  geom_sf(data = sf::st_union(AOI), fill = "transparent") + 
-  facet_wrap(~value) + 
-  theme_void() + 
+  geom_sf(data = sf::st_union(AOI), fill = "transparent") +
+  facet_wrap(~value) +
+  theme_void() +
   theme(legend.position = "bottom")
 ```
 
-## Zonal and climateR
+## Zonal and opendap.catalog
 
-Here lets look at a quick intergation of the `AOI`/`climateR`/`zonal` family. The goal is to find monthly mean, normal (1981-2010), rainfall for all USA counties in the south.
+Here lets look at a quick intergation of the `AOI`/`opendap.catalog`/`zonal` family. The goal is to find monthly mean, normal (1981-2010), rainfall for all USA counties in the south.
 
-We can do this by (1) defining the southern `AOI`, (2) queuing normal rainfall data from `climateR` and (3) passing the returned data through `zonal`:
 
 ```{r, message = FALSE, warning = FALSE}
+
+AOI <- AOI::aoi_get(state = "FL", county = "all")
+
 system.time({
-  tt  = climateR::getTerraClimNormals(AOI, "prcp")
-  out = zonal::execute_zonal(file = tt[[1]], 
-                             geom = AOI, 
-                             ID = "geoid", 
-                             join = TRUE)
+  file <- opendap.catalog::dap(
+    URL = "https://cida.usgs.gov/thredds/dodsC/bcsd_obs",
+    AOI = AOI,
+    startDate = "1995-01-01",
+    verbose = FALSE,
+    varname  = "pr"
+  ) |>
+    execute_zonal(geom = AOI, ID = "fip_code")
 })
 
-plot(out[paste0("V", 1:12)], border = NA)
+plot(file[grep("pr", names(file), value = TRUE)], border = NA)
+```
 
+```{r, message = FALSE, warning = FALSE}
+
+library(opendap.catalog)
+
+(cat <- search("PET_500m")[1, ])
+
+AOI <- AOI::aoi_get(state = "FL", county = "all")
+
+system.time({
+  dap <- opendap.catalog::dap(
+    catolog = cat,
+    AOI = AOI,
+    startDate = "2020-01-01",
+    endDate   = "2020-01-31",
+    verbose = FALSE
+  ) |>
+    execute_zonal(geom = AOI, FUN = "max", ID = "fip_code")
+})
+
+
+plot(dap[grep("V", names(dap), value = TRUE)])
+```
+
+
+```{r}
+library(opendap.catalog)
+
+dap2 <- function(URL = NULL, catolog = NULL, AOI = NULL, startDate = NULL,
+                 endDate = NULL, varname = NULL, verbose = TRUE, summarize.function = NULL) {
+  dap <- dap_crop(
+    URL = URL, catolog = catolog, AOI = AOI,
+    startDate = startDate, endDate = endDate, varname = varname,
+    verbose = verbose
+  )
+
+  dap <- dap_get(dap)
+
+  if (!is.null(summarize.function)) {
+    dap <- execute_zonal(dap, AOI, FUN = summarize.function)
+  }
+}
+
+
+(cat <- search("PET_500m")[1, ])
+
+AOI <- AOI::aoi_get(state = "FL", county = "all")
+
+
+system.time({
+  dap <- opendap.catalog::dap(
+    catolog = cat,
+    AOI = AOI,
+    startDate = "2020-01-01",
+    endDate = "2020-01-31",
+    verbose = FALSE
+  ) |>
+    execute_zonal(geom = AOI, FUN = "max", ID = "fip_code")
+})
+
+
+plot(dap[grep("V", names(dap), value = TRUE)])
 ```
 
 
@@ -175,9 +254,7 @@ plot(out[paste0("V", 1:12)], border = NA)
 Similar R packages:
 
 1. [exactexactr](https://github.com/isciences/exactextractr)
-2. [intersectr](https://github.com/USGS-R/intersectr)
-3. [areal](https://github.com/slu-openGIS/areal)
 4. [sf](https://github.com/r-spatial/sf)
-5. [raster](https://github.com/rspatial/raster)
+5. [terra](https://github.com/rspatial/raster)
 
 **Logo Artwork:** [Justin Singh-Mohudpur](https://www.justinsingh.me/about/)

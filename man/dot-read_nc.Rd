@@ -4,7 +4,7 @@
 \alias{.read_nc}
 \title{Data Extraction from NetCDF}
 \usage{
-.read_nc(file, dims)
+.read_nc(file, dims, cell)
 }
 \arguments{
 \item{file}{a netcdf file path}
