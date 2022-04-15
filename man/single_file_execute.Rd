@@ -4,14 +4,12 @@
 \alias{single_file_execute}
 \title{Internal Exectute Single Summary}
 \usage{
-single_file_execute(file, w, w_names, name, FUN, rcl, ID)
+single_file_execute(file, w, FUN, rcl, ID = NULL)
 }
 \arguments{
 \item{file}{SpatRast object}
 
 \item{w}{weight file}
-
-\item{name}{variable name}
 
 \item{FUN}{summary function}
 
@@ -20,6 +18,8 @@ single_file_execute(file, w, w_names, name, FUN, rcl, ID)
 \item{ID}{geometry ID}
 
 \item{w_name}{weight names}
+
+\item{name}{variable name}
 }
 \value{
 data.table
