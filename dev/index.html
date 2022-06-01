@@ -99,7 +99,6 @@
 <div class="page-header"><h1 id="zonal-">zonal <img src="reference/figures/logo.png" align="right" alt="" width="120"><a class="anchor" aria-label="anchor" href="#zonal-"></a>
 </h1></div>
 <!-- badges: start -->
-
 <p><code>zonal</code> is an active package for intersecting vector aggregation units with large gridded data. While there are many libraries that seek to tackle this problem (see credits) we needed a library that could handle large gridded extents storing categorical and continuous data, with multiple time layers with both many small vector units and few large units.</p>
 <p>(<strong>Udapte: March 15, 2022</strong>): With the addition of <code>.eagerLoad</code> following this <a href="https://github.com/isciences/exactextractr/issues/62" class="external-link">issue</a> in <code>exactextractr</code> by <a href="https://github.com/dbaston" class="external-link">Dan Baston</a> much of the speed gained by using <code>zonal</code> over pure <code>exactextractr</code> has been either matched - or - surpassed using <code>exactextract</code> on its own.</p>
 <p><code>zonal</code> is being updated to reflect this and is moving closer to a thin wrapper of that excellent package. When the time comes that it is not longer a thin wrapper, and just reuse of exactextractr, we will move the utility functions to <code>opendap.catlog</code> and kill this package.</p>
@@ -131,7 +130,7 @@
   <span class="va">pr_zone</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span><span class="va">file</span>, geom <span class="op">=</span> <span class="va">AOI</span>, ID <span class="op">=</span> <span class="st">"fip_code"</span>, join <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   9.900   1.337  11.502</span>
+<span class="co">#&gt;   4.649   0.803   5.596</span>
 
 <span class="co"># PET zone: Counties, time slices/ID</span>
 <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">pr_zone</span><span class="op">)</span>
@@ -172,18 +171,18 @@
 <code class="sourceCode R"><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">pr_zone</span> <span class="op">%&gt;%</span>
   <span class="fu">slice_max</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fu">select</span><span class="op">(</span><span class="va">.</span>, <span class="op">-</span><span class="va">fip_code</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu">pivot_longer</span><span class="op">(</span><span class="op">-</span><span class="va">fip_code</span>, names_to <span class="op">=</span> <span class="st">"day"</span>, values_to <span class="op">=</span> <span class="st">"prcp"</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">mutate</span><span class="op">(</span>day <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"V"</span>, <span class="st">""</span>, <span class="va">day</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+  <span class="fu">mutate</span><span class="op">(</span>day <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"mean.precipitation_amount_day="</span>, <span class="st">""</span>, <span class="va">day</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>
 <span class="co">#&gt; # A tibble: 6 × 3</span>
 <span class="co">#&gt;   fip_code   day   prcp</span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 37175        1  0    </span>
-<span class="co">#&gt; 2 37175        2 26.8  </span>
-<span class="co">#&gt; 3 37175        3 13.7  </span>
-<span class="co">#&gt; 4 37175        4  0.244</span>
-<span class="co">#&gt; 5 37175        5  0.144</span>
-<span class="co">#&gt; 6 37175        6  2.55</span></code></pre></div>
+<span class="co">#&gt; 1 37175    43829  0    </span>
+<span class="co">#&gt; 2 37175    43830 26.8  </span>
+<span class="co">#&gt; 3 37175    43831 13.7  </span>
+<span class="co">#&gt; 4 37175    43832  0.244</span>
+<span class="co">#&gt; 5 37175    43833  0.144</span>
+<span class="co">#&gt; 6 37175    43834  2.55</span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="100%"></p>
 </div>
 </div>
@@ -202,14 +201,16 @@
   <span class="va">lc</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span><span class="va">file</span>, geom <span class="op">=</span> <span class="va">AOI</span>, ID <span class="op">=</span> <span class="st">"fip_code"</span>, FUN <span class="op">=</span> <span class="st">"freq"</span>, rcl <span class="op">=</span> <span class="va">rcl</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   7.812   0.668   8.657</span></code></pre></div>
+<span class="co">#&gt;   8.716   0.821   9.661</span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-7-1.png" width="100%"></p>
 <div class="section level2">
 <h2 id="zonal-and-opendapcatalog">Zonal and opendap.catalog<a class="anchor" aria-label="anchor" href="#zonal-and-opendapcatalog"></a>
 </h2>
 <p>Here lets look at a quick intergation of the <code>AOI</code>/<code>opendap.catalog</code>/<code>zonal</code> family. The goal is to find monthly mean, normal (1981-2010), rainfall for all USA counties in the south.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">AOI</span> <span class="op">&lt;-</span> <span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"FL"</span>, county <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">opendap.catalog</span><span class="op">)</span>
+
+<span class="va">AOI</span> <span class="op">&lt;-</span> <span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"FL"</span>, county <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">file</span> <span class="op">&lt;-</span> <span class="fu">opendap.catalog</span><span class="fu">::</span><span class="fu">dap</span><span class="op">(</span>
@@ -222,22 +223,19 @@
     <span class="fu"><a href="reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span>geom <span class="op">=</span> <span class="va">AOI</span>, ID <span class="op">=</span> <span class="st">"fip_code"</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   1.418   0.084   2.583</span>
+<span class="co">#&gt;   0.878   0.021   1.875</span>
 
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">file</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"pr"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">file</span><span class="op">)</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span>, border <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">file</span><span class="op">[</span><span class="st">"mean"</span><span class="op">]</span>, border <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-8-1.png" width="100%"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">opendap.catalog</span><span class="op">)</span>
-
-<span class="op">(</span><span class="va">cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/search.html" class="external-link">search</a></span><span class="op">(</span><span class="st">"PET_500m"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>
+<code class="sourceCode R"><span class="op">(</span><span class="va">cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/search.html" class="external-link">search</a></span><span class="op">(</span><span class="st">"PET_500m"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>
 <span class="co">#&gt; # A tibble: 1 × 16</span>
 <span class="co">#&gt;   id         grid_id URL   tiled variable varname long_name units model ensemble</span>
 <span class="co">#&gt;   &lt;chr&gt;      &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   </span>
 <span class="co">#&gt; 1 MOD16A2.0… &lt;NA&gt;    http… XY_m… &lt;NA&gt;     PET_50… MODIS Gr… kg/m… &lt;NA&gt;  &lt;NA&gt;    </span>
 <span class="co">#&gt; # … with 6 more variables: scenario &lt;chr&gt;, T_name &lt;chr&gt;, duration &lt;chr&gt;,</span>
-<span class="co">#&gt; #   interval &lt;chr&gt;, nT &lt;int&gt;, rank &lt;dbl&gt;</span>
+<span class="co">#&gt; #   interval &lt;chr&gt;, nT &lt;dbl&gt;, rank &lt;dbl&gt;</span>
 
-<span class="va">AOI</span> <span class="op">&lt;-</span> <span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"FL"</span>, county <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">dap</span> <span class="op">&lt;-</span> <span class="fu">opendap.catalog</span><span class="fu">::</span><span class="fu">dap</span><span class="op">(</span>
@@ -250,57 +248,11 @@
     <span class="fu"><a href="reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span>geom <span class="op">=</span> <span class="va">AOI</span>, FUN <span class="op">=</span> <span class="st">"max"</span>, ID <span class="op">=</span> <span class="st">"fip_code"</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   2.717   0.862   7.282</span>
+<span class="co">#&gt;   1.938   0.630   5.302</span>
 
 
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dap</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"V"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dap</span><span class="op">)</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dap</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"max"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dap</span><span class="op">)</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-9-1.png" width="100%"></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">opendap.catalog</span><span class="op">)</span>
-
-<span class="va">dap2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">URL</span> <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">catolog</span> <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">AOI</span> <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">startDate</span> <span class="op">=</span> <span class="cn">NULL</span>,
-                 <span class="va">endDate</span> <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">varname</span> <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">verbose</span> <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">summarize.function</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">dap</span> <span class="op">&lt;-</span> <span class="fu">dap_crop</span><span class="op">(</span>
-    URL <span class="op">=</span> <span class="va">URL</span>, catolog <span class="op">=</span> <span class="va">catolog</span>, AOI <span class="op">=</span> <span class="va">AOI</span>,
-    startDate <span class="op">=</span> <span class="va">startDate</span>, endDate <span class="op">=</span> <span class="va">endDate</span>, varname <span class="op">=</span> <span class="va">varname</span>,
-    verbose <span class="op">=</span> <span class="va">verbose</span>
-  <span class="op">)</span>
-
-  <span class="va">dap</span> <span class="op">&lt;-</span> <span class="fu">dap_get</span><span class="op">(</span><span class="va">dap</span><span class="op">)</span>
-
-  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">summarize.function</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
-    <span class="va">dap</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span><span class="va">dap</span>, <span class="va">AOI</span>, FUN <span class="op">=</span> <span class="va">summarize.function</span><span class="op">)</span>
-  <span class="op">}</span>
-<span class="op">}</span>
-
-
-<span class="op">(</span><span class="va">cat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/search.html" class="external-link">search</a></span><span class="op">(</span><span class="st">"PET_500m"</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 1 × 16</span>
-<span class="co">#&gt;   id         grid_id URL   tiled variable varname long_name units model ensemble</span>
-<span class="co">#&gt;   &lt;chr&gt;      &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   </span>
-<span class="co">#&gt; 1 MOD16A2.0… &lt;NA&gt;    http… XY_m… &lt;NA&gt;     PET_50… MODIS Gr… kg/m… &lt;NA&gt;  &lt;NA&gt;    </span>
-<span class="co">#&gt; # … with 6 more variables: scenario &lt;chr&gt;, T_name &lt;chr&gt;, duration &lt;chr&gt;,</span>
-<span class="co">#&gt; #   interval &lt;chr&gt;, nT &lt;int&gt;, rank &lt;dbl&gt;</span>
-
-<span class="va">AOI</span> <span class="op">&lt;-</span> <span class="fu">AOI</span><span class="fu">::</span><span class="fu">aoi_get</span><span class="op">(</span>state <span class="op">=</span> <span class="st">"FL"</span>, county <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span>
-
-
-<span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span>
-  <span class="va">dap</span> <span class="op">&lt;-</span> <span class="fu">opendap.catalog</span><span class="fu">::</span><span class="fu">dap</span><span class="op">(</span>
-    catolog <span class="op">=</span> <span class="va">cat</span>,
-    AOI <span class="op">=</span> <span class="va">AOI</span>,
-    startDate <span class="op">=</span> <span class="st">"2020-01-01"</span>,
-    endDate <span class="op">=</span> <span class="st">"2020-01-31"</span>,
-    verbose <span class="op">=</span> <span class="cn">FALSE</span>
-  <span class="op">)</span> |&gt;
-    <span class="fu"><a href="reference/execute_zonal.html">execute_zonal</a></span><span class="op">(</span>geom <span class="op">=</span> <span class="va">AOI</span>, FUN <span class="op">=</span> <span class="st">"max"</span>, ID <span class="op">=</span> <span class="st">"fip_code"</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   2.921   0.856   5.936</span>
-
-
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dap</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"V"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dap</span><span class="op">)</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-10-1.png" width="100%"></p>
 <hr>
 </div>
 <div class="section level2">
@@ -400,7 +352,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer>
