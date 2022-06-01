@@ -35,7 +35,24 @@ single_file_execute <- function(file, w, FUN, rcl, ID = NULL, area_weight = TRUE
     
    } else  if (FUN == "gm_mean") {
       FUN <- function(x, coverage_fraction) {
-        exp(mean(log(pmax(x, 0) * coverage_fraction), na.rm = TRUE))
+        # https://www.wwdmag.com/channel/casestudies/handling-zeros-geometric-mean-calculation
+        # replace negative numbers with 0
+        x = pmax(x, 0)
+        
+        # If 0 is in set, add 1 and set FLAG
+        if(any(x == 0)){
+          add1 = TRUE
+          x = x + 1
+        } else {
+          add1 = FALSE
+        }
+        
+        if(add1){
+          exp(mean(log(x * coverage_fraction), na.rm = TRUE)) - 1 
+        } else {
+          exp(mean(log(x * coverage_fraction), na.rm = TRUE))
+        }
+        
       }
     } else if(FUN == "mean"){
       FUN <- function(x, coverage_fraction) {
