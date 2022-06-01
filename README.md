@@ -77,7 +77,7 @@ system.time({
   pr_zone <- execute_zonal(file, geom = AOI, ID = "fip_code", join = FALSE)
 })
 #>    user  system elapsed 
-#>   9.900   1.337  11.502
+#>   4.649   0.803   5.596
 
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
@@ -121,18 +121,18 @@ ggplot() +
 data <- pr_zone %>%
   slice_max(rowSums(select(., -fip_code))) %>%
   pivot_longer(-fip_code, names_to = "day", values_to = "prcp") %>%
-  mutate(day = as.numeric(gsub("V", "", day)))
+  mutate(day = as.numeric(gsub("mean.precipitation_amount_day=", "", day)))
 
 head(data)
 #> # A tibble: 6 × 3
 #>   fip_code   day   prcp
 #>   <chr>    <dbl>  <dbl>
-#> 1 37175        1  0    
-#> 2 37175        2 26.8  
-#> 3 37175        3 13.7  
-#> 4 37175        4  0.244
-#> 5 37175        5  0.144
-#> 6 37175        6  2.55
+#> 1 37175    43829  0    
+#> 2 37175    43830 26.8  
+#> 3 37175    43831 13.7  
+#> 4 37175    43832  0.244
+#> 5 37175    43833  0.144
+#> 6 37175    43834  2.55
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
@@ -155,7 +155,7 @@ system.time({
   lc <- execute_zonal(file, geom = AOI, ID = "fip_code", FUN = "freq", rcl = rcl)
 })
 #>    user  system elapsed 
-#>   7.812   0.668   8.657
+#>   8.716   0.821   9.661
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
@@ -167,6 +167,8 @@ Here lets look at a quick intergation of the
 mean, normal (1981-2010), rainfall for all USA counties in the south.
 
 ``` r
+library(opendap.catalog)
+
 AOI <- AOI::aoi_get(state = "FL", county = "all")
 
 system.time({
@@ -180,25 +182,22 @@ system.time({
     execute_zonal(geom = AOI, ID = "fip_code")
 })
 #>    user  system elapsed 
-#>   1.418   0.084   2.583
+#>   0.878   0.021   1.875
 
-plot(file[grep("pr", names(file), value = TRUE)], border = NA)
+plot(file["mean"], border = NA)
 ```
 
 <img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ``` r
-library(opendap.catalog)
-
 (cat <- search("PET_500m")[1, ])
 #> # A tibble: 1 × 16
 #>   id         grid_id URL   tiled variable varname long_name units model ensemble
 #>   <chr>      <chr>   <chr> <chr> <chr>    <chr>   <chr>     <chr> <chr> <chr>   
 #> 1 MOD16A2.0… <NA>    http… XY_m… <NA>     PET_50… MODIS Gr… kg/m… <NA>  <NA>    
 #> # … with 6 more variables: scenario <chr>, T_name <chr>, duration <chr>,
-#> #   interval <chr>, nT <int>, rank <dbl>
+#> #   interval <chr>, nT <dbl>, rank <dbl>
 
-AOI <- AOI::aoi_get(state = "FL", county = "all")
 
 system.time({
   dap <- opendap.catalog::dap(
@@ -211,62 +210,13 @@ system.time({
     execute_zonal(geom = AOI, FUN = "max", ID = "fip_code")
 })
 #>    user  system elapsed 
-#>   2.717   0.862   7.282
+#>   1.938   0.630   5.302
 
 
-plot(dap[grep("V", names(dap), value = TRUE)])
+plot(dap[grep("max", names(dap), value = TRUE)])
 ```
 
 <img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
-
-``` r
-library(opendap.catalog)
-
-dap2 <- function(URL = NULL, catolog = NULL, AOI = NULL, startDate = NULL,
-                 endDate = NULL, varname = NULL, verbose = TRUE, summarize.function = NULL) {
-  dap <- dap_crop(
-    URL = URL, catolog = catolog, AOI = AOI,
-    startDate = startDate, endDate = endDate, varname = varname,
-    verbose = verbose
-  )
-
-  dap <- dap_get(dap)
-
-  if (!is.null(summarize.function)) {
-    dap <- execute_zonal(dap, AOI, FUN = summarize.function)
-  }
-}
-
-
-(cat <- search("PET_500m")[1, ])
-#> # A tibble: 1 × 16
-#>   id         grid_id URL   tiled variable varname long_name units model ensemble
-#>   <chr>      <chr>   <chr> <chr> <chr>    <chr>   <chr>     <chr> <chr> <chr>   
-#> 1 MOD16A2.0… <NA>    http… XY_m… <NA>     PET_50… MODIS Gr… kg/m… <NA>  <NA>    
-#> # … with 6 more variables: scenario <chr>, T_name <chr>, duration <chr>,
-#> #   interval <chr>, nT <int>, rank <dbl>
-
-AOI <- AOI::aoi_get(state = "FL", county = "all")
-
-
-system.time({
-  dap <- opendap.catalog::dap(
-    catolog = cat,
-    AOI = AOI,
-    startDate = "2020-01-01",
-    endDate = "2020-01-31",
-    verbose = FALSE
-  ) |>
-    execute_zonal(geom = AOI, FUN = "max", ID = "fip_code")
-})
-#>    user  system elapsed 
-#>   2.921   0.856   5.936
-
-
-plot(dap[grep("V", names(dap), value = TRUE)])
-```
-
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
 ------------------------------------------------------------------------
 

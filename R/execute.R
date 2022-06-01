@@ -8,18 +8,19 @@
 #' @param ID geometry ID
 #' @return data.table
 
-single_file_execute <- function(file, w, FUN, rcl, ID = NULL) {
-  
+single_file_execute <- function(file, w, FUN, rcl, ID = NULL, area_weight = TRUE) {
   
   dt <- .zonal_io(file,  w = w)
-  
+
   if(is.null(ID)){
-    ID = names(w)[ !names(w) %in% c('cell', 'coverage_fraction') ]
+    ID = names(w)[ !names(w) %in% c('cell', 'coverage_fraction', "rID", "gID") ]
   }
   
-  cols = names(dt)[!names(dt) %in% names(w)]
-
-  if (FUN == "freq") {
+  cols = names(dt)[!names(dt) %in% c('cell', 'coverage_fraction', names(w))]
+  
+  if(inherits(FUN, "function")){
+    FUN = FUN
+  } else if (FUN == "freq") {
     
     dt = dt[, frac_total := (coverage_fraction / sum(coverage_fraction, na.rm = TRUE)), by = ID]
     dt = dt[, .(freq = sum(frac_total, na.rm = TRUE)), by = c(ID, cols)]
@@ -29,6 +30,7 @@ single_file_execute <- function(file, w, FUN, rcl, ID = NULL) {
     }
 
     exe <- setnames(dt, c(ID, "value", "percentage"))
+    
     return(exe)
     
    } else  if (FUN == "gm_mean") {
@@ -39,12 +41,40 @@ single_file_execute <- function(file, w, FUN, rcl, ID = NULL) {
       FUN <- function(x, coverage_fraction) {
         mean(x * coverage_fraction, na.rm  = TRUE)
       }
+    } else if (FUN == "mode") {
+      area_weight = FALSE
+      FUN <- function(x) {
+        ux <- unique(x)
+        ux[which.max(tabulate(match(x, ux)))]
+      }
+      
+    } else if(FUN == "circular_mean") {
+      area_weight = FALSE
+      
+      FUN <- function (x) {
+    
+        degrad = pi / 180 
+        
+        sinr <- sum(sin(x * degrad), na.rm = T)
+        
+        cosr <- sum(cos(x * degrad), na.rm = T)
+        
+        val = atan2(sinr, cosr) * (1 / degrad)
+        
+        ifelse(val < 0, 180 + (val + 180), val)
+      }
     } else {
       stop("FUN not valid...")
     }
 
+  
+  if("coverage_fraction" %in% formalArgs(FUN)){
     exe <- dt[, lapply(.SD, FUN = FUN, coverage_fraction = coverage_fraction), by = ID, .SDcols = cols]
-    exe <- setnames(exe, c(ID, cols))
+  } else if(area_weight){
+    exe <- dt[, lapply(.SD, FUN = function(x){FUN(na.omit(x * coverage_fraction)) }), by = ID, .SDcols = cols]
+  } else {
+    exe <- dt[, lapply(.SD, FUN = FUN), by = ID, .SDcols = cols]
+  }
     exe
 }
 
@@ -101,11 +131,14 @@ execute_zonal <- function(file = NULL,
                           FUN = "mean",
                           w = NULL,
                           rcl = NULL,
-                          join = TRUE) {
+                          join = TRUE, 
+                          area_weight = TRUE) {
   
   if (join & is.null(geom)) { join <- FALSE }
 
-  if (inherits(file, "list")) {
+  if(inherits(file, "SpatRaster")){
+    input = file
+  } else if (inherits(file, "list")) {
     tmp = lapply(file, rast)
     # are they all the same?
     if (any(
@@ -135,8 +168,17 @@ execute_zonal <- function(file = NULL,
          "majority", "minority", "variety", "variance", "stdev", "coefficient_of_variation",
          "weighted_mean", 'weighted_sum')
     
+  
+  pure_ee = FALSE
+  
+  if(inherits(FUN, "function")){
+    pure_ee = TRUE
+  } else {
+    pure_ee = FUN %in% ee
+  }
+  
 
-  if(FUN %in% ee & !is.null(geom)){
+  if(pure_ee & !is.null(geom)){
   
     suppressWarnings({
       out     = exact_extract(input, 
@@ -147,32 +189,25 @@ execute_zonal <- function(file = NULL,
     })
 
       if(join){
-        return(cbind(AOI, out))
+        return(cbind(geom, out))
       } else {
-        out = cbind(AOI[[ID]], out)
-        names(out) = c(ID, n) 
+        out = cbind(geom[[ID]], out)
+        names(out) = c(ID, names(out)[-1])
         return(out)
       }
+    
   } else {
     
-    w <- .find_w(file, geom, ID, w)
-    
-    file = list(file)
-    
-    out <- lapply(
-        1:length(file),
-        function(x) {
-          single_file_execute(
-            file = file[[x]],
+    w <- .find_w(input, geom, ID, w)
+   
+    exe <- single_file_execute(
+            file = input,
             w = w,
             FUN = FUN,
             rcl = rcl,
-            ID = ID
+            ID = ID,
+            area_weight = area_weight
           )
-        }
-      )
-    
-    exe <- Reduce(function(...) merge(..., all = TRUE, by = ID), out)
     
     if (join) {
       merge(geom, exe, by = ID)

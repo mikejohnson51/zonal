@@ -32,11 +32,11 @@
 
   df <- as.data.frame(as.matrix(z))
 
-  names(df) <- paste0("V", 1:ncol(df))
+  #names(df) <- paste0("V", 1:ncol(df))
 
-  df$rID <- 1:nrow(df)
+  df$cell <- 1:nrow(df)
 
-  setDT(df, key = "rID")
+  setDT(df, key = "cell")
 
   if (any(terra::window(z))) {
     terra::window(z) <- NULL
@@ -131,7 +131,16 @@
 .zonal_io <- function(file, w) {
   
   r = rast(file)
-  tmp = data.frame(terra::xyFromCell(r, w$cell))
+  ind = "cell"
+
+  if(!"cell" %in% names(w)){
+    if("rID" %in% names(w)){
+     w = dplyr::rename(w, cell = rID)
+  } else {
+    stop('need "cell" or "rID" column in weight grid (w)', call. = FALSE)
+  }}
+  
+  tmp = data.frame(terra::xyFromCell(r, w[[ind]]))
 
   ext = terra::ext(c(min(tmp[,'x']),
                      max(tmp[,'x']),
@@ -151,18 +160,18 @@
   )
   
   if (inherits(file, "SpatRaster") | inherits(file, "Raster")) {
-    out <- .read_raster(file, w$cell)
+    out <- .read_raster(file, dims = w[[ind]])
   } else if (grepl("netcdf", class(file), ignore.case = TRUE)) {
-    out <- .read_nc(file, dims, cell = w$cell)
+    out <- .read_nc(file, dims, cell = w[[ind]])
   } else if (class(file) == "character") {
     if (.getExtension(file) == "nc") {
       out <- .read_nc(file, dims, cell = cells)
     } else {
-      out <- .read_raster(file, w$cell)
+      out <- .read_raster(file, w[[ind]])
     }
   } else {
     stop("error in reading of input...")
   }
 
-  merge.data.table(out, w, by = "cell")
+  merge.data.table(out, w, by = eval(ind))
 }
