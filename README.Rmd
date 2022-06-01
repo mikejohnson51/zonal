@@ -104,7 +104,7 @@ ggplot() +
 data <- pr_zone %>%
   slice_max(rowSums(select(., -fip_code))) %>%
   pivot_longer(-fip_code, names_to = "day", values_to = "prcp") %>%
-  mutate(day = as.numeric(gsub("V", "", day)))
+  mutate(day = as.numeric(gsub("mean.precipitation_amount_day=", "", day)))
 
 head(data)
 ```
@@ -150,6 +150,7 @@ Here lets look at a quick intergation of the `AOI`/`opendap.catalog`/`zonal` fam
 
 
 ```{r, message = FALSE, warning = FALSE}
+library(opendap.catalog)
 
 AOI <- AOI::aoi_get(state = "FL", county = "all")
 
@@ -164,16 +165,13 @@ system.time({
     execute_zonal(geom = AOI, ID = "fip_code")
 })
 
-plot(file[grep("pr", names(file), value = TRUE)], border = NA)
+plot(file["mean"], border = NA)
 ```
 
 ```{r, message = FALSE, warning = FALSE}
 
-library(opendap.catalog)
-
 (cat <- search("PET_500m")[1, ])
 
-AOI <- AOI::aoi_get(state = "FL", county = "all")
 
 system.time({
   dap <- opendap.catalog::dap(
@@ -187,49 +185,8 @@ system.time({
 })
 
 
-plot(dap[grep("V", names(dap), value = TRUE)])
+plot(dap[grep("max", names(dap), value = TRUE)])
 ```
-
-
-```{r}
-library(opendap.catalog)
-
-dap2 <- function(URL = NULL, catolog = NULL, AOI = NULL, startDate = NULL,
-                 endDate = NULL, varname = NULL, verbose = TRUE, summarize.function = NULL) {
-  dap <- dap_crop(
-    URL = URL, catolog = catolog, AOI = AOI,
-    startDate = startDate, endDate = endDate, varname = varname,
-    verbose = verbose
-  )
-
-  dap <- dap_get(dap)
-
-  if (!is.null(summarize.function)) {
-    dap <- execute_zonal(dap, AOI, FUN = summarize.function)
-  }
-}
-
-
-(cat <- search("PET_500m")[1, ])
-
-AOI <- AOI::aoi_get(state = "FL", county = "all")
-
-
-system.time({
-  dap <- opendap.catalog::dap(
-    catolog = cat,
-    AOI = AOI,
-    startDate = "2020-01-01",
-    endDate = "2020-01-31",
-    verbose = FALSE
-  ) |>
-    execute_zonal(geom = AOI, FUN = "max", ID = "fip_code")
-})
-
-
-plot(dap[grep("V", names(dap), value = TRUE)])
-```
-
 
 ----
 

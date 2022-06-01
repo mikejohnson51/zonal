@@ -11,7 +11,8 @@ execute_zonal(
   FUN = "mean",
   w = NULL,
   rcl = NULL,
-  join = TRUE
+  join = TRUE,
+  area_weight = TRUE
 )
 }
 \arguments{

@@ -4,7 +4,7 @@
 \alias{single_file_execute}
 \title{Internal Exectute Single Summary}
 \usage{
-single_file_execute(file, w, FUN, rcl, ID = NULL)
+single_file_execute(file, w, FUN, rcl, ID = NULL, area_weight = TRUE)
 }
 \arguments{
 \item{file}{SpatRast object}
