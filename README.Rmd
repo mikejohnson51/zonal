@@ -33,20 +33,17 @@ library(terra)
 
 `zonal` is an active package for intersecting vector aggregation units with large gridded data. While there are many libraries that seek to tackle this problem (see credits) we needed a library that could handle large gridded extents storing categorical and continuous data, with multiple time layers with both many small vector units and few large units.
 
-(**Udapte: March 15, 2022**): With the addition of `.eagerLoad` following this [issue](https://github.com/isciences/exactextractr/issues/62) in `exactextractr` by [Dan Baston](https://github.com/dbaston) much of the speed gained by using `zonal` over pure `exactextractr` has been either matched - or - surpassed using `exactextract` on its own.
+The package offers 3 main options through a common syntax:
 
-`zonal` is being updated to reflect this and is moving closer to a thin wrapper of that excellent package. When the time comes that it is not longer a thin wrapper, and just reuse of exactextractr, we will move the utility functions to `opendap.catlog` and kill this package. 
+1. The ability to pregenerate weighting grids and applying those over large datasets distrbuted across files (e.g. 30 years of daily data stored in annula files). Rapid data summarization is supported by collapse and data.table.
 
-The plan for that would be to add a `summary.function` argument to `dap` that would allow for extracted gridded data to be summarized efficiently.
+2. Thin wrappers over pure exact_extract() when appropriate (e.g. calling a core `exactrextractr` function)
 
-There are still three main element that, for now, make it worth keeping alive.
-
-  1. Some additional "named" summary types (categorical, and geometric mean). The first may be mostly resolved with [this](https://github.com/isciences/exactextractr/issues/75))
-  2. The ability to export weight maps with 'relative' and 'global' cell IDs for reuse with ongoing hydrologic modeling work at NOAA OWP.
+3. Flexible custom functions that are easily applied over multi layer files (e.g. geometric means and circular means)
 
 ## Installation
 
-You can install the development version of `zonal` from [GitHub](https://github.com/) with:
+You can install the development version of `zonal` with:
 
 ``` r
 # install.packages("remotes")
@@ -60,11 +57,13 @@ This is a basic example that takes a NetCDF file containing a 4km grid for the c
 ```{r example}
 library(zonal)
 
-file <- "to_build/pr_2020.nc"
 AOI <- AOI::aoi_get(state = "south", county = "all")
 
 system.time({
-  pr_zone <- execute_zonal(file, geom = AOI, ID = "fip_code", join = FALSE)
+  pr_zone <- execute_zonal(data = "to_build/pr_2020.nc", 
+                           geom = AOI, 
+                           ID = "fip_code", 
+                           join = FALSE)
 })
 
 # PET zone: Counties, time slices/ID
@@ -121,27 +120,15 @@ ggplot(data, aes(x = day, y = prcp)) +
 
 # 1km Landcover Grid (Categorical)
 
-One of the largest limitations of existing utilities is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mos acing 19 MODIS tiles covering CONUS. The summary function for this categorical frequency is "freq".
+One of the largest limitations of existing utilities is the ability to handle categorical data. Here we show an example for a 1km grid storing land cover data from MODIS. This grid was creating by mosacing 19 MODIS tiles covering CONUS. The summary function for this categorical frequency is "freq".
 
 ```{r}
-file <- "to_build/2019-01-01.tif"
-
-rcl <- read.csv("to_build/modis_lc.csv") %>%
-  dplyr::select(from = Class, to = short)
-
 system.time({
-  lc <- execute_zonal(file, geom = AOI, ID = "fip_code", FUN = "freq", rcl = rcl)
+  lc <- execute_zonal(data = "to_build/2019-01-01.tif", 
+                      geom = AOI, 
+                      ID = "fip_code", 
+                      fun = "frac")
 })
-```
-
-```{r, echo = FALSE}
-ggplot(lc) +
-  geom_sf(aes(fill = percentage), color = "transparent") +
-  scale_fill_gradient2() +
-  geom_sf(data = sf::st_union(AOI), fill = "transparent") +
-  facet_wrap(~value) +
-  theme_void() +
-  theme(legend.position = "bottom")
 ```
 
 ## Zonal and opendap.catalog
@@ -162,30 +149,10 @@ system.time({
     verbose = FALSE,
     varname  = "pr"
   ) |>
-    execute_zonal(geom = AOI, ID = "fip_code")
+    execute_zonal(geom = AOI, fun = "mean", ID = "fip_code", join = TRUE)
 })
 
 plot(file["mean"], border = NA)
-```
-
-```{r, message = FALSE, warning = FALSE}
-
-(cat <- search("PET_500m")[1, ])
-
-
-system.time({
-  dap <- opendap.catalog::dap(
-    catolog = cat,
-    AOI = AOI,
-    startDate = "2020-01-01",
-    endDate   = "2020-01-31",
-    verbose = FALSE
-  ) |>
-    execute_zonal(geom = AOI, FUN = "max", ID = "fip_code")
-})
-
-
-plot(dap[grep("max", names(dap), value = TRUE)])
 ```
 
 ----

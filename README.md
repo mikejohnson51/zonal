@@ -24,35 +24,22 @@ large gridded extents storing categorical and continuous data, with
 multiple time layers with both many small vector units and few large
 units.
 
-(**Udapte: March 15, 2022**): With the addition of `.eagerLoad`
-following this
-[issue](https://github.com/isciences/exactextractr/issues/62) in
-`exactextractr` by [Dan Baston](https://github.com/dbaston) much of the
-speed gained by using `zonal` over pure `exactextractr` has been either
-matched - or - surpassed using `exactextract` on its own.
+The package offers 3 main options through a common syntax:
 
-`zonal` is being updated to reflect this and is moving closer to a thin
-wrapper of that excellent package. When the time comes that it is not
-longer a thin wrapper, and just reuse of exactextractr, we will move the
-utility functions to `opendap.catlog` and kill this package.
+1.  The ability to pregenerate weighting grids and applying those over
+    large datasets distrbuted across files (e.g. 30 years of daily data
+    stored in annula files). Rapid data summarization is supported by
+    collapse and data.table.
 
-The plan for that would be to add a `summary.function` argument to `dap`
-that would allow for extracted gridded data to be summarized
-efficiently.
+2.  Thin wrappers over pure exact_extract() when appropriate
+    (e.g. calling a core `exactrextractr` function)
 
-There are still three main element that, for now, make it worth keeping
-alive.
-
-1.  Some additional “named” summary types (categorical, and geometric
-    mean). The first may be mostly resolved with
-    [this](https://github.com/isciences/exactextractr/issues/75))
-2.  The ability to export weight maps with ‘relative’ and ‘global’ cell
-    IDs for reuse with ongoing hydrologic modeling work at NOAA OWP.
+3.  Flexible custom functions that are easily applied over multi layer
+    files (e.g. geometric means and circular means)
 
 ## Installation
 
-You can install the development version of `zonal` from
-[GitHub](https://github.com/) with:
+You can install the development version of `zonal` with:
 
 ``` r
 # install.packages("remotes")
@@ -70,14 +57,16 @@ average for each county.
 ``` r
 library(zonal)
 
-file <- "to_build/pr_2020.nc"
 AOI <- AOI::aoi_get(state = "south", county = "all")
 
 system.time({
-  pr_zone <- execute_zonal(file, geom = AOI, ID = "fip_code", join = FALSE)
+  pr_zone <- execute_zonal(data = "to_build/pr_2020.nc", 
+                           geom = AOI, 
+                           ID = "fip_code", 
+                           join = FALSE)
 })
 #>    user  system elapsed 
-#>   4.649   0.803   5.596
+#>   5.256   0.599   5.890
 
 # PET zone: Counties, time slices/ID
 dim(pr_zone)
@@ -141,24 +130,20 @@ head(data)
 
 One of the largest limitations of existing utilities is the ability to
 handle categorical data. Here we show an example for a 1km grid storing
-land cover data from MODIS. This grid was creating by mos acing 19 MODIS
+land cover data from MODIS. This grid was creating by mosacing 19 MODIS
 tiles covering CONUS. The summary function for this categorical
 frequency is “freq”.
 
 ``` r
-file <- "to_build/2019-01-01.tif"
-
-rcl <- read.csv("to_build/modis_lc.csv") %>%
-  dplyr::select(from = Class, to = short)
-
 system.time({
-  lc <- execute_zonal(file, geom = AOI, ID = "fip_code", FUN = "freq", rcl = rcl)
+  lc <- execute_zonal(data = "to_build/2019-01-01.tif", 
+                      geom = AOI, 
+                      ID = "fip_code", 
+                      fun = "frac")
 })
 #>    user  system elapsed 
-#>   8.716   0.821   9.661
+#>   2.218   0.105   2.341
 ```
-
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ## Zonal and opendap.catalog
 
@@ -179,44 +164,15 @@ system.time({
     verbose = FALSE,
     varname  = "pr"
   ) |>
-    execute_zonal(geom = AOI, ID = "fip_code")
+    execute_zonal(geom = AOI, fun = "mean", ID = "fip_code", join = TRUE)
 })
 #>    user  system elapsed 
-#>   0.878   0.021   1.875
+#>   0.935   0.029   1.838
 
 plot(file["mean"], border = NA)
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
-
-``` r
-(cat <- search("PET_500m")[1, ])
-#> # A tibble: 1 × 16
-#>   id         grid_id URL   tiled variable varname long_name units model ensemble
-#>   <chr>      <chr>   <chr> <chr> <chr>    <chr>   <chr>     <chr> <chr> <chr>   
-#> 1 MOD16A2.0… <NA>    http… XY_m… <NA>     PET_50… MODIS Gr… kg/m… <NA>  <NA>    
-#> # … with 6 more variables: scenario <chr>, T_name <chr>, duration <chr>,
-#> #   interval <chr>, nT <dbl>, rank <dbl>
-
-
-system.time({
-  dap <- opendap.catalog::dap(
-    catolog = cat,
-    AOI = AOI,
-    startDate = "2020-01-01",
-    endDate   = "2020-01-31",
-    verbose = FALSE
-  ) |>
-    execute_zonal(geom = AOI, FUN = "max", ID = "fip_code")
-})
-#>    user  system elapsed 
-#>   1.938   0.630   5.302
-
-
-plot(dap[grep("max", names(dap), value = TRUE)])
-```
-
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ------------------------------------------------------------------------
 
