@@ -77,10 +77,10 @@ zone_by_weights = function(data, w, ID, fun = "mean", subds = NULL, na.rm = TRUE
   }
   
   if(collapse){
-    exe = collap(dt, by = ~ id, FUN = fun, w = ~coverage_fraction, na.rm = TRUE)
+    exe = collap(dt, by = as.formula(paste0("~", ID)), FUN = fun, w = ~coverage_fraction, na.rm = TRUE)
   } else {
     
-    cols = names(dt)[!names(dt) %in% c('id', 'cell', 'coverage_fraction')]
+    cols = names(dt)[!names(dt) %in% c(ID, 'cell', 'coverage_fraction')]
     
     if("coverage_fraction" %in% formalArgs(fun)){
       exe <- dt[, lapply(.SD, FUN = fun, coverage_fraction = coverage_fraction), by = ID, .SDcols = cols]
@@ -91,4 +91,4 @@ zone_by_weights = function(data, w, ID, fun = "mean", subds = NULL, na.rm = TRUE
   
   sanitize(exe)
   
-}
+  }

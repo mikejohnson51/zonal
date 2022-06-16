@@ -1,12 +1,19 @@
 #' Sanitize Column Inclusions
 #' @param exe executed zonal product
+#' @param drop colnames to drop from table
 #' @return data.table
 #' @export
 
-sanitize = function(exe){
-  if("cell" %in% names(exe)){ exe$cell = NULL }
+sanitize = function(exe, drop = NULL){
   
-  if("coverage_fraction" %in% names(exe)){ exe$coverage_fraction = NULL }
+  drop = c(drop, "cell", "coverage_fraction")
+  drop = drop[drop %in% names(exe)]
+  
+  if(length(drop) > 0){
+    for(d in drop){
+      exe[[d]] = NULL 
+    }
+  }
   
   exe
 }
@@ -18,6 +25,7 @@ sanitize = function(exe){
 #' @param subds subdatasets
 #' @return SpatRaster
 #' @export
+
 prep_input = function(data, subds = NULL){
   if(!inherits(data, "SpatRaster")) { data <- rast(data) }
   if(!is.null(subds)){ data = data[[subds]] }
@@ -35,6 +43,7 @@ prep_input = function(data, subds = NULL){
 #' @param na.rm remove na values?
 #' @param progress if TRUE, display a progress bar during processing
 #' @param join if TRUE the AOI will be joined to the results
+#' @param drop colnames to drop from table
 #' @return sf object or data.table
 #' @export
 
@@ -46,14 +55,15 @@ execute_zonal = function(data = NULL,
                          subds = NULL, 
                          na.rm = TRUE, 
                          progress = FALSE,
-                         join = TRUE){
+                         join = TRUE,
+                         drop = NULL){
   
   if(is.null(data)){ stop("`data` cannot be left NULL", call. = TRUE) }
   if(is.null(ID)){ stop("`ID` cannot be left NULL", call. = TRUE) }
-  if(all(is.null(AOI), is.null(w))){ stop("`AOI` and `w` cannot both be NULL", call. = TRUE) }
+  if(all(is.null(geom), is.null(w))){ stop("`geom` and `w` cannot both be NULL", call. = TRUE) }
   
-  if(all(!is.null(AOI), !is.null(w))){ 
-    message("Both `AOI` and `w` provided, prioritizing `w`") 
+  if(all(!is.null(geom), !is.null(w))){ 
+    message("Both `geom` and `w` provided, prioritizing `w`") 
   }
   
   if(is.null(w)){
@@ -65,14 +75,18 @@ execute_zonal = function(data = NULL,
                      na.rm = na.rm, 
                      progress = progress)
   } else {
-    exe = zone_by_weights(data, 
-                          w, ID, fun = "mean", subds = NULL, na.rm = TRUE)
+    exe = zone_by_weights(data = data, 
+                          w = w, 
+                          ID = ID, 
+                          fun = fun, 
+                          subds = subds, 
+                          na.rm = na.rm)
   }
   
   if(join & !is.null(geom)){
     exe = merge(geom, exe, by = ID)
   }
   
-  sanitize(exe)
+  sanitize(exe, drop = drop)
   
 }
