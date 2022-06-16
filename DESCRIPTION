@@ -9,7 +9,7 @@ Authors@R:
            comment = c(ORCID = "0000-0002-5288-8350"))
 Maintainer: Mike Johnson <mikecp11@gmail.com>
 BugReports: https://github.com/mikejohnson51/zonal/issues
-Description: Given a gridded and vector based input, compute weighted mean and percent coverage.
+Description: Given gridded and vector based input, compute weighted mean and percent coverage.
 Depends: R(>= 3.5.0)
 Imports: 
     collapse,
@@ -26,17 +26,10 @@ VignetteBuilder: knitr
 Config/testthat/edition: 3
 Suggests: 
     AOI,
-    bench,
     dplyr,
     ggplot2,
-    intersectr,
     knitr,
-    ncmeta,
-    paint,
-    R.utils,
-    raster,
     rmarkdown,
-    RNetCDF,
     sf,
     testthat,
     tidyr

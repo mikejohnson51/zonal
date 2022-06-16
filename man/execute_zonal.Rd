@@ -13,7 +13,8 @@ execute_zonal(
   subds = NULL,
   na.rm = TRUE,
   progress = FALSE,
-  join = TRUE
+  join = TRUE,
+  drop = NULL
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ execute_zonal(
 \item{progress}{if TRUE, display a progress bar during processing}
 
 \item{join}{if TRUE the AOI will be joined to the results}
+
+\item{drop}{colnames to drop from table}
 }
 \value{
 sf object or data.table
