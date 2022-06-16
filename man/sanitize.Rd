@@ -4,10 +4,12 @@
 \alias{sanitize}
 \title{Sanitize Column Inclusions}
 \usage{
-sanitize(exe)
+sanitize(exe, drop = NULL)
 }
 \arguments{
 \item{exe}{executed zonal product}
+
+\item{drop}{colnames to drop from table}
 }
 \value{
 data.table

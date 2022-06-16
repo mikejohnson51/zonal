@@ -2,3 +2,4 @@ depreciate/
 .Rproj.user
 inst/doc/
 to_build/
+.Rhistory
