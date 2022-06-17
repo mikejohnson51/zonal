@@ -3,3 +3,4 @@ depreciate/
 inst/doc/
 to_build/
 .Rhistory
+.DS_Store
