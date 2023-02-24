@@ -1,6 +1,6 @@
 Package: zonal
 Title: Performant zonal statistics over flexible units
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     person(given = "Mike",
            family = "Johnson",
