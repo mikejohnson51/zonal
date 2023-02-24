@@ -7,9 +7,6 @@
 #' @param progress if TRUE, display a progress bar during processing
 #' @return a list(data.table, vector)
 #' @export
-#' @importFrom terra rast
-#' @importFrom exactextractr exact_extract
-#' @importFrom data.table rbindlist
 
 weight_grid = function (data, geom, ID, progress = TRUE) {
   
@@ -36,7 +33,6 @@ weight_grid = function (data, geom, ID, progress = TRUE) {
 #' @param subds subdatasets to extract
 #' @return data.table
 #' @export
-#' @importFrom terra xyFromCell extract
 
 weight_grid_to_data = function(data, w, subds = NULL){ 
   
@@ -55,11 +51,11 @@ weight_grid_to_data = function(data, w, subds = NULL){
 #' @param fun summarization function
 #' @param subds subdatasets to extract
 #' @param na.rm should NA values be removed?
+#' @param extra extra arguments to be passed to fun
 #' @return data.table
 #' @export
-#' @importFrom collapse collap
 
-zone_by_weights = function(data, w, ID, fun = "mean", subds = NULL, na.rm = TRUE){
+zone_by_weights = function(data, w, ID, fun = "mean", subds = NULL, na.rm = TRUE, extra = NULL){
   
   .SD <- coverage_fraction <- NULL
   
@@ -67,7 +63,7 @@ zone_by_weights = function(data, w, ID, fun = "mean", subds = NULL, na.rm = TRUE
   
   collapse = FALSE
   
-  if(class(fun) == "function"){
+  if(inherits(fun, "function")){
     fun = fun
   } else if(fun %in% weight_functions()$base){
     collapse = TRUE

@@ -44,6 +44,7 @@ prep_input = function(data, subds = NULL){
 #' @param progress if TRUE, display a progress bar during processing
 #' @param join if TRUE the AOI will be joined to the results
 #' @param drop colnames to drop from table
+#' @param ... optional arguments to pass fun
 #' @return sf object or data.table
 #' @export
 
@@ -56,8 +57,12 @@ execute_zonal = function(data = NULL,
                          na.rm = TRUE, 
                          progress = FALSE,
                          join = TRUE,
-                         drop = NULL){
+                         drop = NULL,
+                         ...){
   
+  args = as.list(match.call.defaults()[-1]) 
+  q = args[names(args) %in% formalArgs(fun)]
+
   if(is.null(data)){ stop("`data` cannot be left NULL", call. = TRUE) }
   if(is.null(ID)){ stop("`ID` cannot be left NULL", call. = TRUE) }
   if(all(is.null(geom), is.null(w))){ stop("`geom` and `w` cannot both be NULL", call. = TRUE) }
@@ -73,14 +78,16 @@ execute_zonal = function(data = NULL,
                      fun = fun, 
                      subds = subds, 
                      na.rm = na.rm, 
-                     progress = progress)
+                     progress = progress,
+                     extra = q)
   } else {
     exe = zone_by_weights(data = data, 
                           w = w, 
                           ID = ID, 
                           fun = fun, 
                           subds = subds, 
-                          na.rm = na.rm)
+                          na.rm = na.rm,
+                          extra = q)
   }
   
   if(join & !is.null(geom)){

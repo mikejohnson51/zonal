@@ -11,7 +11,8 @@ zone_by_ee(
   fun = "mean",
   subds = NULL,
   na.rm = TRUE,
-  progress = FALSE
+  progress = FALSE,
+  extra = NULL
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ zone_by_ee(
 \item{na.rm}{should NA values be removed?}
 
 \item{progress}{if TRUE, display a progress bar during processing}
+
+\item{extra}{extra arguments to be passed to fun}
 }
 \value{
 data.table

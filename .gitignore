@@ -2,9 +2,6 @@ depreciate/
 .Rproj.user
 inst/doc/
 to_build/
-<<<<<<< HEAD
 .Rhistory
 .DS_Store
-=======
-.Rhistory
->>>>>>> 18ef9f684bfdf32f732efa69747023526e504803
+

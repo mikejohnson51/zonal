@@ -9,27 +9,17 @@ Authors@R:
            comment = c(ORCID = "0000-0002-5288-8350"))
 Maintainer: Mike Johnson <mikecp11@gmail.com>
 BugReports: https://github.com/mikejohnson51/zonal/issues
-Description: Given gridded and vector based input, compute weighted mean and percent coverage.
+Description: Given gridded and vector based input, compute summary statistics.
 Depends: R(>= 3.5.0)
 Imports: 
     collapse,
     data.table,
     exactextractr,
+    jsonlite,
     methods,
     terra
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.0
-VignetteBuilder: knitr
-Config/testthat/edition: 3
-Suggests: 
-    AOI,
-    dplyr,
-    ggplot2,
-    knitr,
-    rmarkdown,
-    sf,
-    testthat,
-    tidyr
+RoxygenNote: 7.2.1

@@ -1,3 +1,13 @@
+match.call.defaults <- function(...) {
+  call <- evalq(match.call(expand.dots = TRUE), parent.frame(1))
+  formals <- evalq(formals(), parent.frame(1))
+  
+  for(i in setdiff(names(formals), names(call)))
+    call[i] <- list( formals[[i]] )
+  
+  match.call(sys.function(sys.parent()), call)
+}
+
 #' Execute Zonal Stats by ExactExtract
 #' @description  execute exactextract more flexiably
 #' @param data SpatRaster or file path
@@ -7,18 +17,17 @@
 #' @param subds subdatasets to extract
 #' @param na.rm should NA values be removed?
 #' @param progress if TRUE, display a progress bar during processing
+#' @param extra extra arguments to be passed to fun
 #' @return data.table
 #' @export
-#' @importFrom collapse collap
-#' @importFrom methods formalArgs
 
-zone_by_ee = function(data, geom, ID, fun = "mean", subds = NULL, na.rm = TRUE, progress = FALSE){
+zone_by_ee = function(data, geom, ID, fun = "mean", subds = NULL, na.rm = TRUE, progress = FALSE, extra = NULL){
   
   data = prep_input(data, subds = subds)
   
   ee = FALSE
   
-  if(class(fun) == "function"){
+  if(inherits(fun, "function")){
     fun = fun
   } else if(fun %in% ee_functions()){
     ee = TRUE
@@ -37,13 +46,16 @@ zone_by_ee = function(data, geom, ID, fun = "mean", subds = NULL, na.rm = TRUE, 
                              append_cols = ID)
     })
   } else {
+
+    x = unlist(extra)
     suppressWarnings({
       exe     = exact_extract(data, 
-                             geom,
-                             fun = function(df, ...){
+                              geom,
+                              fun = function(df, ...){
                                data.frame(lapply(df, 
                                                  fun, 
-                                                 coverage_fraction = df$coverage_fraction))
+                                                 coverage_fraction = df$coverage_fraction,
+                                                 x))
                              },
                              summarize_df = TRUE, 
                              progress = progress,

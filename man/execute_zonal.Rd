@@ -14,7 +14,8 @@ execute_zonal(
   na.rm = TRUE,
   progress = FALSE,
   join = TRUE,
-  drop = NULL
+  drop = NULL,
+  ...
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ execute_zonal(
 \item{join}{if TRUE the AOI will be joined to the results}
 
 \item{drop}{colnames to drop from table}
+
+\item{...}{optional arguments to pass fun}
 }
 \value{
 sf object or data.table
