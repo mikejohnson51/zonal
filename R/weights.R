@@ -73,7 +73,11 @@ zone_by_weights = function(data, w, ID, fun = "mean", subds = NULL, na.rm = TRUE
   }
   
   if(collapse){
-    exe = collap(dt, by = as.formula(paste0("~", ID)), FUN = fun, w = ~coverage_fraction, na.rm = TRUE)
+    exe = collap(dt, 
+                 by = as.formula(paste0("~", ID)), 
+                 wFUN = "fmin", 
+                 w = ~coverage_fraction, 
+                 na.rm = TRUE)
   } else {
     
     cols = names(dt)[!names(dt) %in% c(ID, 'cell', 'coverage_fraction')]
