@@ -58,6 +58,7 @@ execute_zonal = function(data = NULL,
                          progress = FALSE,
                          join = TRUE,
                          drop = NULL,
+                         area_weight = TRUE,
                          ...){
   
   args = as.list(match.call.defaults()[-1]) 
@@ -71,7 +72,37 @@ execute_zonal = function(data = NULL,
     message("Both `geom` and `w` provided, prioritizing `w`") 
   }
   
-  if(is.null(w)){
+  if(!area_weight){
+    dt = as.data.frame(c(rasterize(vect(geom), data[[1]], field = ID), rast(data))) %>% 
+      filter(complete.cases(.)) %>% 
+      mutate(coverage_fraction = 1) %>% 
+      data.table()
+    
+    collapse = FALSE
+    
+    if(inherits(fun, "function")){
+      fun = fun
+    } else if(fun %in% weight_functions()$base){
+      collapse = TRUE
+      fun = weight_functions()$collapse[which(fun == weight_functions()$base)]
+    } else {
+      fun = fun
+    }
+    
+    if(collapse){
+      exe = collap(dt, 
+                   by = as.formula(paste0("~", ID)), 
+                   wFUN = fun, 
+                   w = ~coverage_fraction, 
+                   na.rm = TRUE)
+    } else {
+      cols = names(dt)[!names(dt) %in% c(ID, 'coverage_fraction')]
+      exe <- dt[, lapply(.SD, FUN = fun, coverage_fraction = coverage_fraction, unlist(q)), by = ID, .SDcols = cols]
+    }
+    
+    exe = sanitize(exe)
+    
+  } else if(is.null(w)){
     exe = zone_by_ee(data = data, 
                      geom = geom, 
                      ID = ID, 
