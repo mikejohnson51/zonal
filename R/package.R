@@ -23,8 +23,9 @@ ee_functions = function(){
 #' @importFrom collapse collap
 #' @importFrom methods formalArgs
 #' @importFrom collapse .FAST_STAT_FUN collap
-#' @importFrom terra rast xyFromCell extract crop
+#' @importFrom terra rast xyFromCell extract crop project vect crs rasterize
 #' @importFrom exactextractr exact_extract
-#' @importFrom data.table rbindlist
-#' @importFrom stats as.formula
+#' @importFrom data.table rbindlist data.table
+#' @importFrom dplyr mutate filter `%>%`
+#' @importFrom stats as.formula complete.cases
 NULL

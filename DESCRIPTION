@@ -13,6 +13,7 @@ Description: Given gridded and vector based input, compute summary statistics.
 Depends: R(>= 3.5.0)
 Imports: 
     collapse,
+    dplyr,
     data.table,
     exactextractr,
     jsonlite,

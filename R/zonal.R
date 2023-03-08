@@ -44,6 +44,7 @@ prep_input = function(data, subds = NULL){
 #' @param progress if TRUE, display a progress bar during processing
 #' @param join if TRUE the AOI will be joined to the results
 #' @param drop colnames to drop from table
+#' @param area_weight should an area weighted summary be used?
 #' @param ... optional arguments to pass fun
 #' @return sf object or data.table
 #' @export
@@ -61,6 +62,7 @@ execute_zonal = function(data = NULL,
                          area_weight = TRUE,
                          ...){
   
+  .SD <- . <- coverage_fraction <- NULL
   args = as.list(match.call.defaults()[-1]) 
   q = args[names(args) %in% formalArgs(fun)]
 

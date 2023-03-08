@@ -40,6 +40,8 @@ execute_zonal(
 
 \item{drop}{colnames to drop from table}
 
+\item{area_weight}{should an area weighted summary be used?}
+
 \item{...}{optional arguments to pass fun}
 }
 \value{
