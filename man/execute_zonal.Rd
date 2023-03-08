@@ -15,6 +15,7 @@ execute_zonal(
   progress = FALSE,
   join = TRUE,
   drop = NULL,
+  area_weight = TRUE,
   ...
 )
 }
