@@ -1,5 +1,3 @@
-
-
 #' Geometric Mean Summary
 #' @param x vector of values
 #' @param coverage_fraction coverage fraction

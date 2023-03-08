@@ -73,7 +73,11 @@ execute_zonal = function(data = NULL,
   }
   
   if(!area_weight){
-    dt = as.data.frame(c(rasterize(vect(geom), data[[1]], field = ID), rast(data))) %>% 
+    
+    v = project(vect(geom), crs(data))
+    data = crop(prep_input(data, subds = subds), v)
+    
+    dt = as.data.frame(c(rasterize(v, data[[1]], field = ID), data)) %>% 
       filter(complete.cases(.)) %>% 
       mutate(coverage_fraction = 1) %>% 
       data.table()
@@ -96,8 +100,13 @@ execute_zonal = function(data = NULL,
                    w = ~coverage_fraction, 
                    na.rm = TRUE)
     } else {
-      cols = names(dt)[!names(dt) %in% c(ID, 'coverage_fraction')]
-      exe <- dt[, lapply(.SD, FUN = fun, coverage_fraction = coverage_fraction, unlist(q)), by = ID, .SDcols = cols]
+      cols <- names(dt)[!names(dt) %in% c(ID, 'coverage_fraction')]
+      if(is.null(unlist(q))){
+        exe  <- dt[, lapply(.SD, FUN = fun, coverage_fraction = coverage_fraction), by = ID, .SDcols = cols]
+      } else {
+        exe  <- dt[, lapply(.SD, FUN = fun, coverage_fraction = coverage_fraction, unlist(q)), by = ID, .SDcols = cols]
+      }
+
     }
     
     exe = sanitize(exe)

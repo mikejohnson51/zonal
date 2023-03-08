@@ -23,7 +23,7 @@ ee_functions = function(){
 #' @importFrom collapse collap
 #' @importFrom methods formalArgs
 #' @importFrom collapse .FAST_STAT_FUN collap
-#' @importFrom terra rast xyFromCell extract
+#' @importFrom terra rast xyFromCell extract crop
 #' @importFrom exactextractr exact_extract
 #' @importFrom data.table rbindlist
 #' @importFrom stats as.formula
