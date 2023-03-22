@@ -63,8 +63,15 @@ execute_zonal = function(data = NULL,
                          ...){
   
   .SD <- . <- coverage_fraction <- NULL
+  
   args = as.list(match.call.defaults()[-1]) 
-  q = args[names(args) %in% formalArgs(fun)]
+  f = formalArgs(fun)
+  
+  if("..." %in% f){
+    q = args[!names(args) %in% c('data', "geom", "w", "ID", "fun", "subds", "na.rm", "progress", "join", "drop", "area_weight", "...")]
+  } else {
+    q = args[names(args) %in% formalArgs(fun)]
+  }
 
 
   if(is.null(data)){ stop("`data` cannot be left NULL", call. = TRUE) }
@@ -111,22 +118,10 @@ execute_zonal = function(data = NULL,
       }
 
     }
-    
-    exe = sanitize(exe)
-    
+
   } else {
     
-    if(is.null(w)){
-      # exe = zone_by_ee(data = data, 
-      #                  geom = geom, 
-      #                  ID = ID, 
-      #                  fun = fun, 
-      #                  subds = subds, 
-      #                  na.rm = na.rm, 
-      #                  progress = progress,
-      #                  extra = q)
-      w = weight_grid(data, geom, ID, progress )
-    } #else {
+    if(is.null(w)){ w = weight_grid(data, geom, ID, progress ) }
     
     exe = zone_by_weights(data = data, 
                           w = w, 
@@ -139,12 +134,8 @@ execute_zonal = function(data = NULL,
     
   }
     
-   
-  #}
   
-  if(join & !is.null(geom)){
-    exe = merge(geom, exe, by = ID)
-  }
+  if(join & !is.null(geom)){ exe = merge(geom, exe, by = ID) }
   
   sanitize(exe, drop = drop)
   

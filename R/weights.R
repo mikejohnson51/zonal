@@ -61,6 +61,10 @@ zone_by_weights = function(data, w, ID, fun = "mean", subds = NULL, na.rm = TRUE
   
   dt = weight_grid_to_data(data, w, subds = subds)
   
+  if(na.rm){
+    dt = dt[complete.cases(dt),]
+  }
+  
   collapse = FALSE
   
   if(inherits(fun, "function")){
@@ -96,7 +100,7 @@ zone_by_weights = function(data, w, ID, fun = "mean", subds = NULL, na.rm = TRUE
     }
   }
   
-  sanitize(exe)
+  exe
   
 }
 
