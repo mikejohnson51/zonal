@@ -66,6 +66,7 @@ execute_zonal = function(data = NULL,
   args = as.list(match.call.defaults()[-1]) 
   q = args[names(args) %in% formalArgs(fun)]
 
+
   if(is.null(data)){ stop("`data` cannot be left NULL", call. = TRUE) }
   if(is.null(ID)){ stop("`ID` cannot be left NULL", call. = TRUE) }
   if(all(is.null(geom), is.null(w))){ stop("`geom` and `w` cannot both be NULL", call. = TRUE) }
@@ -113,16 +114,20 @@ execute_zonal = function(data = NULL,
     
     exe = sanitize(exe)
     
-  } else if(is.null(w)){
-    exe = zone_by_ee(data = data, 
-                     geom = geom, 
-                     ID = ID, 
-                     fun = fun, 
-                     subds = subds, 
-                     na.rm = na.rm, 
-                     progress = progress,
-                     extra = q)
   } else {
+    
+    if(is.null(w)){
+      # exe = zone_by_ee(data = data, 
+      #                  geom = geom, 
+      #                  ID = ID, 
+      #                  fun = fun, 
+      #                  subds = subds, 
+      #                  na.rm = na.rm, 
+      #                  progress = progress,
+      #                  extra = q)
+      w = weight_grid(data, geom, ID, progress )
+    } #else {
+    
     exe = zone_by_weights(data = data, 
                           w = w, 
                           ID = ID, 
@@ -130,7 +135,12 @@ execute_zonal = function(data = NULL,
                           subds = subds, 
                           na.rm = na.rm,
                           extra = q)
+    
+    
   }
+    
+   
+  #}
   
   if(join & !is.null(geom)){
     exe = merge(geom, exe, by = ID)

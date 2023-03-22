@@ -48,14 +48,12 @@ zone_by_ee = function(data, geom, ID, fun = "mean", subds = NULL, na.rm = TRUE, 
   } else {
 
     x = unlist(extra)
+    
     suppressWarnings({
       exe     = exact_extract(data, 
                               geom,
                               fun = function(df, ...){
-                               data.frame(lapply(df, 
-                                                 fun, 
-                                                 coverage_fraction = df$coverage_fraction,
-                                                 x))
+                               data.frame(lapply(df,  fun))
                              },
                              summarize_df = TRUE, 
                              progress = progress,
