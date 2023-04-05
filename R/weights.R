@@ -79,7 +79,8 @@ zone_by_weights = function(data, w, ID, fun = "mean", subds = NULL, na.rm = TRUE
   if(collapse){
     exe = collap(dt, 
                  by = as.formula(paste0("~", ID)), 
-                 wFUN = fun, 
+                 FUN = fun, 
+                 keep.w = FALSE,
                  w = ~coverage_fraction, 
                  na.rm = TRUE)
   } else {

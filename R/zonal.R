@@ -106,7 +106,8 @@ execute_zonal = function(data = NULL,
     if(collapse){
       exe = collap(dt, 
                    by = as.formula(paste0("~", ID)), 
-                   wFUN = fun, 
+                   FUN = fun, 
+                   keep.w = FALSE,
                    w = ~coverage_fraction, 
                    na.rm = TRUE)
     } else {
