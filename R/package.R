@@ -18,7 +18,6 @@ ee_functions = function(){
     'weighted_sum', 'frac', 'weighted_frac')
 }
 
-
 #' @importFrom jsonlite toJSON
 #' @importFrom collapse collap
 #' @importFrom methods formalArgs
@@ -26,6 +25,6 @@ ee_functions = function(){
 #' @importFrom terra rast xyFromCell extract crop project vect crs rasterize
 #' @importFrom exactextractr exact_extract
 #' @importFrom data.table rbindlist data.table
-#' @importFrom dplyr mutate filter `%>%`
+#' @importFrom dplyr mutate filter `%>%` left_join distinct select
 #' @importFrom stats as.formula complete.cases
 NULL

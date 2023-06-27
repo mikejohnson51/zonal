@@ -5,6 +5,8 @@
 #' @param crosswalk a crosswalk of smaller unit to major unit relations
 #' @param ID the grouping ID
 #' @param fun an optional function or character vector, as described below
+#' @param join if TRUE the geom will be joined to the results
+#' @param drop colnames to drop from table
 #' @return data.frame or sf object
 #' @details the cross walk table must have at least 4 columns containing the ID and areas of the small units and
 #' and the ID and areas of the large unit. The name of the large unit IDs is provided by the `ID` parameter in the function
@@ -12,7 +14,15 @@
 #' `areasqkm`, while the area of the smaller units must be called `s_areasqkm.`
 #' @export
 
-aggregate_zones = function(data, geom, crosswalk, ID = "divide_id", fun = "mean" ){
+aggregate_zones = function(data, 
+                           geom, 
+                           crosswalk, 
+                           ID = "divide_id", 
+                           fun = "mean", 
+                           join = TRUE,
+                           drop = NULL ){
+  
+  .SD <- . <- coverage_fraction <- areasqkm <- s_areasqkm <- NULL
   
   vars = names(data)
   vars = vars[!vars %in% names(crosswalk)]
@@ -55,7 +65,9 @@ aggregate_zones = function(data, geom, crosswalk, ID = "divide_id", fun = "mean"
     }
   }
   
-  left_join(geom, select(exe, !!ID, any_of(vars)), by = ID)
+  if(join & !is.null(geom)){ exe = merge(geom, exe, by = ID) }
+  
+  sanitize(exe, drop = drop)
 }
 
 

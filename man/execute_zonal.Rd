@@ -36,7 +36,7 @@ execute_zonal(
 
 \item{progress}{if TRUE, display a progress bar during processing}
 
-\item{join}{if TRUE the AOI will be joined to the results}
+\item{join}{if TRUE the geom will be joined to the results}
 
 \item{drop}{colnames to drop from table}
 

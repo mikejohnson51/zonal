@@ -42,7 +42,7 @@ prep_input = function(data, subds = NULL){
 #' @param subds character or boolean to select a sub-dataset. If NULL all are selected
 #' @param na.rm remove na values?
 #' @param progress if TRUE, display a progress bar during processing
-#' @param join if TRUE the AOI will be joined to the results
+#' @param join if TRUE the geom will be joined to the results
 #' @param drop colnames to drop from table
 #' @param area_weight should an area weighted summary be used?
 #' @param ... optional arguments to pass fun
