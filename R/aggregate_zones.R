@@ -1,24 +1,3 @@
-#' Add small area to crosswalk
-#'
-#' @param crosswalk an existing crosswalk table
-#' @param comid the shared ID
-#' @return data.frame
-#' @export
-
-add_areasqkm_to_crosswalk = function(crosswalk, comid = "hf_id"){
-  get_vaa('areasqkm') %>% 
-    select(s_areasqkm = areasqkm, !!comid := comid) %>% 
-    right_join(crosswalk, by =eval(comid)) 
-}
-
-
-#' @param data SpatRaster or file path
-#' @param geom sf, sfc, SpatialPolygonsDataFrame, or SpatialPolygons object with polygonal geometries
-#' @param w a weight grid (produced with weight_grid)
-#' @param ID the grouping ID
-#' @param fun an optional function or character vector, as described below
-
-
 #' Aggregate data between zones
 #' Provides the ability to take attributes from one scale of polygon and split aggregate them to another.
 #' @param data tabular data reference to the smaller unit
@@ -26,7 +5,11 @@ add_areasqkm_to_crosswalk = function(crosswalk, comid = "hf_id"){
 #' @param crosswalk a crosswalk of smaller unit to major unit relations
 #' @param ID the grouping ID
 #' @param fun an optional function or character vector, as described below
-#' @return
+#' @return data.frame or sf object
+#' @details the cross walk table must have at least 4 columns containing the ID and areas of the small units and
+#' and the ID and areas of the large unit. The name of the large unit IDs is provided by the `ID` parameter in the function
+#' signature. The smaller unit IDs must have a corresponding attribute in the data input. The area of the larger units must be called 
+#' `areasqkm`, while the area of the smaller units must be called `s_areasqkm.`
 #' @export
 
 aggregate_zones = function(data, geom, crosswalk, ID = "divide_id", fun = "mean" ){
@@ -36,6 +19,8 @@ aggregate_zones = function(data, geom, crosswalk, ID = "divide_id", fun = "mean"
   
   join_id = names(crosswalk)
   join_id = join_id[!join_id %in% c('areasqkm', 's_areasqkm', ID)]
+  join_id = join_id[join_id %in% names(data)]
+  
   
   dt = left_join(crosswalk, data, relationship = "many-to-many", by = join_id) %>% 
     distinct() %>% 
@@ -70,7 +55,7 @@ aggregate_zones = function(data, geom, crosswalk, ID = "divide_id", fun = "mean"
     }
   }
   
-  left_join(geom, select(exe, ID, any_of(vars)), by = ID)
+  left_join(geom, select(exe, !!ID, any_of(vars)), by = ID)
 }
 
 
