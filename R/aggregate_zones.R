@@ -31,8 +31,8 @@ aggregate_zones = function(data,
   join_id = join_id[!join_id %in% c('areasqkm', 's_areasqkm', ID)]
   join_id = join_id[join_id %in% names(data)]
   
-  
-  dt = left_join(crosswalk, data, relationship = "many-to-many", by = join_id) %>% 
+
+  dt = left_join(crosswalk, select(data, -any_of(c('areasqkm', 's_areasqkm', ID))), relationship = "many-to-many", by = join_id) %>% 
     distinct() %>% 
     mutate(coverage_fraction = pmin(1, s_areasqkm / areasqkm)) 
   
