@@ -4,7 +4,7 @@
 \alias{weight_grid_to_data}
 \title{Use Weight Grid to extract SpatRast Data}
 \usage{
-weight_grid_to_data(data, w, subds = NULL)
+weight_grid_to_data(data, w, subds = 0)
 }
 \arguments{
 \item{data}{SpatRaster or file path}

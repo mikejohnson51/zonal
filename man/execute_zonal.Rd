@@ -10,19 +10,17 @@ execute_zonal(
   w = NULL,
   ID = NULL,
   fun = "mean",
-  subds = NULL,
-  na.rm = TRUE,
+  subds = 0,
   progress = FALSE,
   join = TRUE,
   drop = NULL,
-  area_weight = TRUE,
   ...
 )
 }
 \arguments{
 \item{data}{SpatRaster or file path}
 
-\item{geom}{sf, sfc, SpatialPolygonsDataFrame, or SpatialPolygons object with polygonal geometries}
+\item{geom}{sf, sfc object with polygonal geometries}
 
 \item{w}{a weight grid (produced with weight_grid)}
 
@@ -32,17 +30,15 @@ execute_zonal(
 
 \item{subds}{character or boolean to select a sub-dataset. If NULL all are selected}
 
-\item{na.rm}{remove na values?}
-
 \item{progress}{if TRUE, display a progress bar during processing}
 
 \item{join}{if TRUE the geom will be joined to the results}
 
 \item{drop}{colnames to drop from table}
 
-\item{area_weight}{should an area weighted summary be used?}
-
 \item{...}{optional arguments to pass fun}
+
+\item{na.rm}{remove na values?}
 }
 \value{
 sf object or data.table

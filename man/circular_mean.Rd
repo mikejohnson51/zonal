@@ -4,12 +4,12 @@
 \alias{circular_mean}
 \title{Geometric Mean Summary}
 \usage{
-circular_mean(x, coverage_fraction)
+circular_mean(values, coverage_fraction)
 }
 \arguments{
-\item{x}{vector of values}
-
 \item{coverage_fraction}{coverage fraction}
+
+\item{x}{vector of values}
 }
 \value{
 data.frame

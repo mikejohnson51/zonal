@@ -9,10 +9,10 @@ zone_by_ee(
   geom,
   ID,
   fun = "mean",
-  subds = NULL,
-  na.rm = TRUE,
+  subds = 0,
   progress = FALSE,
-  extra = NULL
+  join = TRUE,
+  ...
 )
 }
 \arguments{
@@ -26,9 +26,9 @@ zone_by_ee(
 
 \item{subds}{subdatasets to extract}
 
-\item{na.rm}{should NA values be removed?}
-
 \item{progress}{if TRUE, display a progress bar during processing}
+
+\item{na.rm}{should NA values be removed?}
 
 \item{extra}{extra arguments to be passed to fun}
 }

@@ -1,0 +1,411 @@
+---
+title: "Timing Tests"
+author: "Mike Johnson"
+date: "2023-10-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(zonal)
+library(ggplot2)
+library(terra)
+library(exactextractr)
+```
+
+```{r}
+(AOI <- AOI::aoi_get(state = "south", county = "all"))
+(data = rast("../to_build/pr_2022.nc"))
+```
+
+
+# Prefdefined Function
+
+## 1 zone, 1 layer
+
+```{r, echo = FALSE}
+df <- system.time({
+  execute_zonal(data = data[[1]], 
+                    geom = AOI[1,], 
+                    ID = "fip_code", 
+                    fun = "mean",
+                    join = TRUE)
+})
+
+
+df2 <- system.time({
+  exact_extract(x = data[[1]], 
+                y = AOI[1,], 
+                fun = "mean",
+                progress = FALSE,
+                append_cols = "fip_code") |>
+    merge(AOI[1,], by = "fip_code") |> 
+    sf::st_as_sf()
+})
+
+d = data.frame(x = c("zonal", "ee"), y = rbind(df,df2)[,3])
+ggplot(d) + 
+  geom_col(aes(x = x, y = y)) + 
+  geom_col(data = d[which.min(d$y ),], aes(x = x, y = y),  fill = "green") +
+  labs(y = "Elapsed Seconds", x = "Type") + 
+  theme_light(24)
+```
+
+## 1 zone, 365 layer
+
+```{r, echo = FALSE}
+df <- system.time({
+  execute_zonal(data = data, 
+                    geom = AOI[1,], 
+                    ID = "fip_code", 
+                    fun = "mean",
+                    join = TRUE)
+})
+
+
+df2 <- system.time({
+  exact_extract(x = data, 
+                y = AOI[1,], 
+                fun = "mean", 
+                progress = FALSE,
+                append_cols = "fip_code") |>
+    merge(AOI[1,], by = "fip_code") |> 
+    sf::st_as_sf()
+})
+
+
+d = data.frame(x = c("zonal", "ee"), y = rbind(df,df2)[,3])
+ggplot(d) + 
+  geom_col(aes(x = x, y = y)) + 
+  geom_col(data = d[which.min(d$y ),], aes(x = x, y = y),  fill = "green") +
+  labs(y = "Elapsed Seconds", x = "Type") + 
+  theme_light(24)
+```
+
+## 1421 zone, 1 layer
+
+```{r, echo = FALSE}
+df <- system.time({
+  execute_zonal(data = data[[1]], 
+                    geom = AOI, 
+                    ID = "fip_code", 
+                    fun = "mean",
+                    join = TRUE)
+})
+
+
+df2 <- system.time({
+  exact_extract(x = data[[1]], 
+                y = AOI, 
+                fun = "mean", 
+                progress = FALSE,
+                append_cols = "fip_code") |>
+    merge(AOI, by = "fip_code") |> 
+    sf::st_as_sf()
+})
+
+d = data.frame(x = c("zonal", "ee"), y = rbind(df,df2)[,3])
+ggplot(d) + 
+  geom_col(aes(x = x, y = y)) + 
+  geom_col(data = d[which.min(d$y ),], aes(x = x, y = y),  fill = "green") +
+  labs(y = "Elapsed Seconds", x = "Type") + 
+  theme_light(24)
+```
+
+## 1421 zone, 365 layer
+
+```{r, echo = FALSE}
+df <- system.time({
+  execute_zonal(data = data, 
+                    geom = AOI, 
+                    ID = "fip_code", 
+                    fun = "mean",
+                    join = TRUE)
+})
+
+
+df2 <- system.time({
+   exact_extract(x = data, 
+                y = AOI, 
+                fun = "mean", 
+                progress = FALSE,
+                append_cols = "fip_code") |>
+    merge(AOI, by = "fip_code") |> 
+    sf::st_as_sf()
+})
+
+d = data.frame(x = c("zonal", "ee"), y = rbind(df,df2)[,3])
+ggplot(d) + 
+  geom_col(aes(x = x, y = y)) + 
+  geom_col(data = d[which.min(d$y ),], aes(x = x, y = y),  fill = "green") +
+  labs(y = "Elapsed Seconds", x = "Type") + 
+  theme_light(24)
+```
+
+# Custom Function
+
+## 1 zone, 1 layer
+
+```{r, echo = FALSE}
+df <- system.time({
+  execute_zonal(data = data[[1]], 
+                geom = AOI[1,], 
+                ID = "fip_code", 
+                fun = circular_mean,
+                join = TRUE)
+})
+
+
+df2 <- system.time({
+   exact_extract(x = data[[1]], 
+                y = AOI[1,], 
+                fun = circular_mean,
+                stack_apply = TRUE,
+                progress = FALSE,
+                append_cols = "fip_code") |>
+    merge(AOI, by = "fip_code") |> 
+    sf::st_as_sf()
+})
+
+
+d = data.frame(x = c("zonal", "ee"), y = rbind(df,df2)[,3])
+ggplot(d) + 
+  geom_col(aes(x = x, y = y)) + 
+  geom_col(data = d[which.min(d$y ),], aes(x = x, y = y),  fill = "green") +
+  labs(y = "Elapsed Seconds", x = "Type", title = '1 zone, 1 layer') + 
+  theme_light(24)
+```
+
+##
+
+```{r, echo = FALSE}
+df <- system.time({
+  execute_zonal(data = data, 
+                geom = AOI[1,], 
+                ID = "fip_code", 
+                fun = circular_mean,
+                join = FALSE)
+})
+
+
+df2 <- system.time({
+    exact_extract(x = data, 
+                y = AOI[1,], 
+                fun = circular_mean,
+                stack_apply = TRUE,
+                progress = FALSE,
+                append_cols = "fip_code") |>
+    merge(AOI, by = "fip_code") |> 
+    sf::st_as_sf()
+})
+
+d = data.frame(x = c("zonal", "ee"), y = rbind(df,df2)[,3])
+
+ggplot(d) + 
+  geom_col(aes(x = x, y = y)) + 
+  geom_col(data = d[which.min(d$y ),], aes(x = x, y = y),  fill = "green") +
+  labs(y = "Elapsed Seconds", x = "Type", title = ' 1 zone, 365 layer') + 
+  theme_light(24)
+```
+
+
+```{r, echo = FALSE}
+df <- system.time({
+  execute_zonal(data = data[[1]], 
+                    geom = AOI, 
+                    ID = "fip_code", 
+                    fun = circular_mean,
+                    join = TRUE)
+})
+
+
+df2 <- system.time({
+    exact_extract(x = data[[1]], 
+                y = AOI, 
+                fun = circular_mean,
+                stack_apply = TRUE,
+                progress = FALSE,
+                append_cols = "fip_code") |>
+    merge(AOI, by = "fip_code") |> 
+    sf::st_as_sf()
+})
+
+d = data.frame(x = c("zonal", "ee"), y = rbind(df,df2)[,3])
+
+ggplot(d) + 
+  geom_col(aes(x = x, y = y)) + 
+  geom_col(data = d[which.min(d$y ),], aes(x = x, y = y),  fill = "green") +
+  labs(y = "Elapsed Seconds", x = "Type", title = '1421 zone, 1 layer') + 
+  theme_light(24)
+```
+
+```{r, echo = FALSE}
+df <- system.time({
+  execute_zonal(data = data[[1:5]], 
+                    geom = AOI, 
+                    ID = "fip_code", 
+                    fun = circular_mean,
+                    join = TRUE)
+})
+
+
+df2 <- system.time({
+   exact_extract(x = data[[1:5]], 
+                y = AOI, 
+                fun = circular_mean,
+                stack_apply = TRUE,
+                progress = FALSE,
+                append_cols = "fip_code") |>
+    merge(AOI, by = "fip_code") |> 
+    sf::st_as_sf()
+})
+
+d = data.frame(x = c("zonal", "ee"), y = rbind(df,df2)[,3])
+
+ggplot(d) + 
+  geom_col(aes(x = x, y = y)) + 
+  geom_col(data = d[which.min(d$y ),], aes(x = x, y = y),  fill = "green") +
+  labs(y = "Elapsed Seconds", x = "Type", title = '1421 zone, 5 layers') + 
+  theme_light(24)
+```
+
+```{r, echo = FALSE}
+df <- system.time({
+  execute_zonal(data = data[[1:150]], 
+                geom = AOI, 
+                ID = "fip_code", 
+                fun = circular_mean,
+                join = TRUE)
+})
+
+
+df2 <- system.time({
+   exact_extract(x = data[[1:150]], 
+                y = AOI, 
+                fun = circular_mean,
+                stack_apply = TRUE,
+                progress = FALSE,
+                append_cols = "fip_code") |>
+    merge(AOI, by = "fip_code") |> 
+    sf::st_as_sf()
+})
+
+d = data.frame(x = c("zonal", "ee"), y = rbind(df,df2)[,3])
+
+ggplot(d) + 
+  geom_col(aes(x = x, y = y)) + 
+  geom_col(data = d[which.min(d$y ),], aes(x = x, y = y),  fill = "green") +
+  labs(y = "Elapsed Seconds", x = "Type", title = '1421 zone, 150 layers') + 
+  theme_light(24)
+```
+
+
+```{r, echo = FALSE}
+df <- system.time({
+  execute_zonal(data = data, 
+                    geom = AOI, 
+                    ID = "fip_code", 
+                    fun = circular_mean,
+                    join = TRUE)
+})
+
+
+df2 <- system.time({
+   exact_extract(x = data, 
+                y = AOI, 
+                fun = circular_mean,
+                stack_apply = TRUE,
+                progress = FALSE,
+                append_cols = "fip_code") |>
+    merge(AOI, by = "fip_code") |> 
+    sf::st_as_sf()
+})
+
+d = data.frame(x = c("zonal", "ee"), y = rbind(df,df2)[,3])
+
+ggplot(d) + 
+  geom_col(aes(x = x, y = y)) + 
+  geom_col(data = d[which.min(d$y ),], aes(x = x, y = y),  fill = "green") +
+  labs(y = "Elapsed Seconds", x = "Type", title = '1421 zone, 365 layer') + 
+  theme_light(24)
+```
+
+
+# Precompute W
+
+## Full precanned
+
+```{r, echo = FALSE}
+
+df0 <- system.time({
+  w = weight_grid(data = data, geom = AOI, ID = "fip_code", progress = FALSE)
+})
+
+
+df <- system.time({
+  execute_zonal(data = data, 
+                w = w,
+                ID = "fip_code", 
+                fun = "mean",
+                join = TRUE)
+})
+
+
+df2 <- system.time({
+  exact_extract(x = data, 
+                y = AOI, 
+                fun = "mean",
+                stack_apply = TRUE,
+                progress = FALSE,
+                append_cols = "fip_code") |>
+    merge(AOI, by = "fip_code") |> 
+    sf::st_as_sf()
+})
+
+
+x = rbind(df0, df,df2)[,3]
+x[4] = x[1] + x[2]
+
+d = data.frame(x = c("w", "zonal", "ee", "full zonal"), y = x)
+ggplot(d) + 
+  geom_col(aes(x = x, y = y)) + 
+  geom_col(data = d[which.min(d$y ),], aes(x = x, y = y),  fill = "green") +
+  labs(y = "Elapsed Seconds", x = "Type") + 
+  theme_light(24)
+```
+
+
+## Full custom
+
+```{r, echo = FALSE}
+
+df <- system.time({
+  execute_zonal(data = data, 
+                w = w,
+                ID = "fip_code", 
+                fun = circular_mean,
+                join = TRUE)
+})
+
+
+df2 <- system.time({
+   exact_extract(x = data, 
+                 y = AOI, 
+                 fun = circular_mean,
+                 progress = FALSE,
+                 append_cols = "fip_code") |>
+    merge(AOI, by = "fip_code") |> 
+    sf::st_as_sf()
+})
+
+
+x = rbind(df0, df,df2)[,3]
+x[4] = x[1] + x[2]
+
+d = data.frame(x = c("w", "zonal", "ee", "full zonal"), y = x)
+ggplot(d) + 
+  geom_col(aes(x = x, y = y)) + 
+  geom_col(data = d[which.min(d$y),], aes(x = x, y = y),  fill = "green") +
+  labs(y = "Elapsed Seconds", x = "Type") + 
+  theme_light(24)
+```

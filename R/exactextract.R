@@ -2,8 +2,8 @@ match.call.defaults <- function(...) {
   call <- evalq(match.call(expand.dots = TRUE), parent.frame(1))
   formals <- evalq(formals(), parent.frame(1))
   
-  for(i in setdiff(names(formals), names(call)))
-    call[i] <- list( formals[[i]] )
+  for (i in setdiff(names(formals), names(call)))
+    call[i] <- list(formals[[i]])
   
   match.call(sys.function(sys.parent()), call)
 }
@@ -12,7 +12,7 @@ match.call.defaults <- function(...) {
 #' @description  execute exactextract more flexiably
 #' @param data SpatRaster or file path
 #' @param geom summary units
-#' @param ID the grouping ID 
+#' @param ID the grouping ID
 #' @param fun summarization function
 #' @param subds subdatasets to extract
 #' @param na.rm should NA values be removed?
@@ -21,46 +21,38 @@ match.call.defaults <- function(...) {
 #' @return data.table
 #' @export
 
-zone_by_ee = function(data, geom, ID, fun = "mean", subds = NULL, na.rm = TRUE, progress = FALSE, extra = NULL){
+zone_by_ee = function(data,
+                      geom,
+                      ID,
+                      fun = "mean",
+                      subds = 0,
+                      progress = FALSE,
+                      join = TRUE, 
+                      ...) {
   
-  data = prep_input(data, subds = subds)
+  data = prep_input(data, subds = subds, lyrs = NULL, win = ext(project(vect(geom), crs(data))))
   
-  ee = FALSE
+  suppressWarnings({
+      exe     = exact_extract(
+        x = data,
+        y = geom,
+        fun = fun,
+        progress = progress,
+        append_cols = ID,
+        stack_apply = TRUE,
+        ...
+      )
+  })
   
   if(inherits(fun, "function")){
-    fun = fun
-  } else if(fun %in% ee_functions()){
-    ee = TRUE
-    fun = ee_functions()[which(fun == ee_functions())]
-    collapse = TRUE
+    n = "fun"
   } else {
-    fun = fun
+    n = fun
   }
   
-  if(ee){
-    suppressWarnings({
-      exe     = exact_extract(data, 
-                             geom,
-                             fun = fun,
-                             progress = progress,
-                             append_cols = ID)
-    })
-  } else {
+  names(exe) = c(ID, paste(n, names(data), sep = ","))
+  
+  exe
 
-    x = unlist(extra)
-    
-    suppressWarnings({
-      exe     = exact_extract(data, 
-                              geom,
-                              fun = function(df, ...){
-                               data.frame(lapply(df,  fun))
-                             },
-                             summarize_df = TRUE, 
-                             progress = progress,
-                             append_cols = ID)
-    })
-    
-  }
- 
-  sanitize(exe)
 }
+  

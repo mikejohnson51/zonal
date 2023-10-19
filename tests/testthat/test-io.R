@@ -1,5 +1,5 @@
 AOI <- AOI::aoi_get(state = "south", county = "all")
-d = rast("to_build/pr_2022.nc")
+d = terra::rast("to_build/pr_2022.nc")
 
 
 test_that("errors", {
@@ -80,9 +80,24 @@ test_that("read", {
   })
   
   expect_true({
-    df$`fun,precipitation_amount_day=44560` == df3$`precipitation_amount_day=44560`
+    df$`fun,precipitation_amount_day=44560` == df3$`fun,precipitation_amount_day=44560`
   })
 
+  
+  execute_zonal(data = d[[1]], 
+                geom = AOI[1,], 
+                ID = "fip_code", 
+                fun = distribution,
+                breaks = 6,
+                join = FALSE)
+  
+  execute_zonal(data = d[[1:6]], 
+                       geom = AOI[1,], 
+                       ID = "fip_code", 
+                       fun = distribution,
+                       breaks = 3,
+                       join = FALSE)
+  
   
 })
 

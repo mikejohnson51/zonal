@@ -59,39 +59,23 @@ library(zonal)
 
 AOI <- AOI::aoi_get(state = "south", county = "all")
 
+d = rast("to_build/pr_2022.nc")
+
 system.time({
-  pr_zone <- execute_zonal(data = "to_build/pr_2020.nc", 
+  pr_zone <- execute_zonal(data = d, 
                            geom = AOI, 
                            ID = "fip_code", 
-                           join = FALSE)
+                           join = TRUE)
 })
-
-# PET zone: Counties, time slices/ID
-dim(pr_zone)
 ```
 
-### Daily maximum mean rainfall in a county?
+### Daily maximum mean rainfall in the South?
 
 ```{r}
-x <- merge(AOI, pr_zone, by = "fip_code")
-# Plot Day with the maximum single county max rainfall.
-n <- colnames(pr_zone)[which(pr_zone[, -1] == max(pr_zone[, -1]), arr.ind = TRUE)[2] + 1]
+n = names(which.max(colSums(as.data.frame(pr_zone)[,grepl('precipitation', names(pr_zone))])))
 
-ggplot(data = x) +
+ggplot(data = pr_zone) +
   geom_sf(aes(fill = get(n)), color = NA) +
-  scale_fill_viridis_c() +
-  theme_void() +
-  labs(fill = "PR (mm)")
-```
-
-### Daily maximum rainfall in the south?
-
-```{r}
-# Plot Day with the maximum county wide rainfall
-n2 <- names(which.max(colSums(select(pr_zone, -fip_code))))
-
-ggplot() +
-  geom_sf(data = x, aes(fill = get(n2)), color = NA) +
   scale_fill_viridis_c() +
   theme_void() +
   labs(fill = "PR (mm)")
@@ -101,9 +85,11 @@ ggplot() +
 
 ```{r}
 data <- pr_zone %>%
-  slice_max(rowSums(select(., -fip_code))) %>%
+  as.data.frame() %>% 
+  slice_max(rowSums(select(., c(starts_with('mean'))))) %>%
+  select(fip_code, starts_with('mean')) %>% 
   pivot_longer(-fip_code, names_to = "day", values_to = "prcp") %>%
-  mutate(day = as.numeric(gsub("mean.precipitation_amount_day=", "", day)))
+  mutate(day = as.numeric(gsub("mean.precipitation_amount_day.", "", day)))
 
 head(data)
 ```
@@ -124,7 +110,7 @@ One of the largest limitations of existing utilities is the ability to handle ca
 
 ```{r}
 system.time({
-  lc <- execute_zonal(data = "to_build/2019-01-01.tif", 
+  lc <- execute_zonal(data = rast("to_build/2019-01-01.tif"), 
                       geom = AOI, 
                       ID = "fip_code", 
                       fun = "frac")
@@ -133,26 +119,26 @@ system.time({
 
 ## Zonal and opendap.catalog
 
-Here lets look at a quick intergation of the `AOI`/`opendap.catalog`/`zonal` family. The goal is to find monthly mean, normal (1981-2010), rainfall for all USA counties in the south.
+Here lets look at a quick integration of the `AOI`/`opendap.catalog`/`zonal` family. The goal is to find monthly mean, normal (1981-2010), rainfall for all USA counties in the south.
 
 
 ```{r, message = FALSE, warning = FALSE}
-library(opendap.catalog)
+library(climateR)
 
 AOI <- AOI::aoi_get(state = "FL", county = "all")
 
 system.time({
-  file <- opendap.catalog::dap(
+  data <- climateR::dap(
     URL = "https://cida.usgs.gov/thredds/dodsC/bcsd_obs",
     AOI = AOI,
     startDate = "1995-01-01",
     verbose = FALSE,
     varname  = "pr"
   ) |>
-    execute_zonal(geom = AOI, fun = "mean", ID = "fip_code", join = TRUE)
+    execute_zonal(geom = AOI, ID = "fip_code", join = TRUE)
 })
 
-plot(file["mean"], border = NA)
+plot(data[grepl("mean", names(data))], border = NA)
 ```
 
 ----
@@ -167,15 +153,10 @@ plot(file["mean"], border = NA)
 
 ----
 
-## Open source licensing info
-1. [TERMS](TERMS.md)
-2. [LICENSE](LICENSE)
-
-----
 
 ## Credits and references
 
-Similar R packages:
+Similar R packages / Core Dependencies:
 
 1. [exactexactr](https://github.com/isciences/exactextractr)
 4. [sf](https://github.com/r-spatial/sf)

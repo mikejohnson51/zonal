@@ -4,15 +4,7 @@
 \alias{zone_by_weights}
 \title{Execute Zonal Stats by Weight Grid}
 \usage{
-zone_by_weights(
-  data,
-  w,
-  ID,
-  fun = "mean",
-  subds = NULL,
-  na.rm = TRUE,
-  extra = NULL
-)
+zone_by_weights(data, w, ID, fun = "mean", subds = 0, ...)
 }
 \arguments{
 \item{data}{SpatRaster or file path}
@@ -24,8 +16,6 @@ zone_by_weights(
 \item{fun}{summarization function}
 
 \item{subds}{subdatasets to extract}
-
-\item{na.rm}{should NA values be removed?}
 
 \item{extra}{extra arguments to be passed to fun}
 }

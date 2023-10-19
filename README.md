@@ -59,28 +59,24 @@ library(zonal)
 
 AOI <- AOI::aoi_get(state = "south", county = "all")
 
+d = rast("to_build/pr_2022.nc")
+
 system.time({
-  pr_zone <- execute_zonal(data = "to_build/pr_2020.nc", 
+  pr_zone <- execute_zonal(data = d, 
                            geom = AOI, 
                            ID = "fip_code", 
-                           join = FALSE)
+                           join = TRUE)
 })
 #>    user  system elapsed 
-#>   5.256   0.599   5.890
-
-# PET zone: Counties, time slices/ID
-dim(pr_zone)
-#> [1] 1421  367
+#>   5.150   0.766   5.963
 ```
 
-### Daily maximum mean rainfall in a county?
+### Daily maximum mean rainfall in the South?
 
 ``` r
-x <- merge(AOI, pr_zone, by = "fip_code")
-# Plot Day with the maximum single county max rainfall.
-n <- colnames(pr_zone)[which(pr_zone[, -1] == max(pr_zone[, -1]), arr.ind = TRUE)[2] + 1]
+n = names(which.max(colSums(as.data.frame(pr_zone)[,grepl('precipitation', names(pr_zone))])))
 
-ggplot(data = x) +
+ggplot(data = pr_zone) +
   geom_sf(aes(fill = get(n)), color = NA) +
   scale_fill_viridis_c() +
   theme_void() +
@@ -89,42 +85,29 @@ ggplot(data = x) +
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
-### Daily maximum rainfall in the south?
-
-``` r
-# Plot Day with the maximum county wide rainfall
-n2 <- names(which.max(colSums(select(pr_zone, -fip_code))))
-
-ggplot() +
-  geom_sf(data = x, aes(fill = get(n2)), color = NA) +
-  scale_fill_viridis_c() +
-  theme_void() +
-  labs(fill = "PR (mm)")
-```
-
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
-
 ### Timeseries of county with maximum annual rainfall
 
 ``` r
 data <- pr_zone %>%
-  slice_max(rowSums(select(., -fip_code))) %>%
+  as.data.frame() %>% 
+  slice_max(rowSums(select(., c(starts_with('mean'))))) %>%
+  select(fip_code, starts_with('mean')) %>% 
   pivot_longer(-fip_code, names_to = "day", values_to = "prcp") %>%
-  mutate(day = as.numeric(gsub("mean.precipitation_amount_day=", "", day)))
+  mutate(day = as.numeric(gsub("mean.precipitation_amount_day.", "", day)))
 
 head(data)
 #> # A tibble: 6 × 3
-#>   fip_code   day   prcp
-#>   <chr>    <dbl>  <dbl>
-#> 1 37175    43829  0    
-#> 2 37175    43830 26.8  
-#> 3 37175    43831 13.7  
-#> 4 37175    43832  0.244
-#> 5 37175    43833  0.144
-#> 6 37175    43834  2.55
+#>   fip_code   day     prcp
+#>   <chr>    <dbl>    <dbl>
+#> 1 37175    44560 27.0    
+#> 2 37175    44561 17.2    
+#> 3 37175    44562  0.00712
+#> 4 37175    44563  0      
+#> 5 37175    44564  0.0782 
+#> 6 37175    44565  3.15
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 # 1km Landcover Grid (Categorical)
 
@@ -136,43 +119,43 @@ frequency is “freq”.
 
 ``` r
 system.time({
-  lc <- execute_zonal(data = "to_build/2019-01-01.tif", 
+  lc <- execute_zonal(data = rast("to_build/2019-01-01.tif"), 
                       geom = AOI, 
                       ID = "fip_code", 
                       fun = "frac")
 })
 #>    user  system elapsed 
-#>   2.218   0.105   2.341
+#>   2.097   0.113   2.242
 ```
 
 ## Zonal and opendap.catalog
 
-Here lets look at a quick intergation of the
+Here lets look at a quick integration of the
 `AOI`/`opendap.catalog`/`zonal` family. The goal is to find monthly
 mean, normal (1981-2010), rainfall for all USA counties in the south.
 
 ``` r
-library(opendap.catalog)
+library(climateR)
 
 AOI <- AOI::aoi_get(state = "FL", county = "all")
 
 system.time({
-  file <- opendap.catalog::dap(
+  data <- climateR::dap(
     URL = "https://cida.usgs.gov/thredds/dodsC/bcsd_obs",
     AOI = AOI,
     startDate = "1995-01-01",
     verbose = FALSE,
     varname  = "pr"
   ) |>
-    execute_zonal(geom = AOI, fun = "mean", ID = "fip_code", join = TRUE)
+    execute_zonal(geom = AOI, ID = "fip_code", join = TRUE)
 })
 #>    user  system elapsed 
-#>   0.935   0.029   1.838
+#>   0.408   0.040   2.460
 
-plot(file["mean"], border = NA)
+plot(data[grepl("mean", names(data))], border = NA)
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
 ------------------------------------------------------------------------
 
@@ -188,16 +171,9 @@ plot(file["mean"], border = NA)
 
 ------------------------------------------------------------------------
 
-## Open source licensing info
-
-1.  [TERMS](TERMS.md)
-2.  [LICENSE](LICENSE)
-
-------------------------------------------------------------------------
-
 ## Credits and references
 
-Similar R packages:
+Similar R packages / Core Dependencies:
 
 1.  [exactexactr](https://github.com/isciences/exactextractr)
 2.  [sf](https://github.com/r-spatial/sf)

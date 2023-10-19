@@ -22,7 +22,7 @@ ee_functions = function(){
 #' @importFrom collapse collap
 #' @importFrom methods formalArgs
 #' @importFrom collapse .FAST_STAT_FUN collap
-#' @importFrom terra rast xyFromCell extract crop project vect crs rasterize
+#' @importFrom terra rast xyFromCell extract crop project vect crs rasterize nlyr sources ext
 #' @importFrom exactextractr exact_extract
 #' @importFrom data.table rbindlist data.table
 #' @importFrom dplyr mutate filter `%>%` left_join distinct select

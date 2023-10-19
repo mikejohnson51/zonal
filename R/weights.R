@@ -10,8 +10,6 @@
 
 weight_grid = function (data, geom, ID, progress = TRUE) {
   
-  data = prep_input(data, subds = NULL)
-  
   w = suppressWarnings({
     rbindlist(exact_extract(data[[1]], 
                             geom, 
@@ -26,6 +24,7 @@ weight_grid = function (data, geom, ID, progress = TRUE) {
   w
 }
 
+
 #' Use Weight Grid to extract SpatRast Data
 #' @description  Returns a data.table with raster data attached to weight grid
 #' @param data SpatRaster or file path
@@ -34,14 +33,11 @@ weight_grid = function (data, geom, ID, progress = TRUE) {
 #' @return data.table
 #' @export
 
-weight_grid_to_data = function(data, w, subds = NULL){ 
-  
-  data = prep_input(data, subds = subds)
-  
-  xy <- xyFromCell(data, w$cell)
-  
-  cbind(w, extract(data, xy))
+weight_grid_to_data = function(data, w, subds = 0){ 
+  #data = prep_input(data, subds = subds , win = NULL)
+  d2 = cbind(w, extract(data, xyFromCell(data, w$cell)))
 }
+
 
 #' Execute Zonal Stats by Weight Grid
 #' @description  execute
@@ -50,20 +46,15 @@ weight_grid_to_data = function(data, w, subds = NULL){
 #' @param ID the grouping ID 
 #' @param fun summarization function
 #' @param subds subdatasets to extract
-#' @param na.rm should NA values be removed?
 #' @param extra extra arguments to be passed to fun
 #' @return data.table
 #' @export
 
-zone_by_weights = function(data, w, ID, fun = "mean", subds = NULL, na.rm = TRUE, extra = NULL){
+zone_by_weights = function(data, w, ID, fun = "mean", subds = 0, ...){
   
   .SD <- coverage_fraction <- NULL
   
   dt = weight_grid_to_data(data, w, subds = subds)
-  
-  if(na.rm){
-    dt = dt[complete.cases(dt),]
-  }
   
   collapse = FALSE
   
@@ -87,21 +78,21 @@ zone_by_weights = function(data, w, ID, fun = "mean", subds = NULL, na.rm = TRUE
     
     cols = names(dt)[!names(dt) %in% c(ID, 'cell', 'coverage_fraction')]
     
-    if(is.null(unlist(extra))) {
-        exe <- dt[, lapply(.SD, FUN = fun, coverage_fraction = coverage_fraction), by = ID, .SDcols = cols]
-    } else {
-      
-      suppressWarnings({
-        if('coverage_fraction' %in% names(extra)){
-          exe <- dt[, lapply(.SD, FUN = fun, unlist(extra)), by = ID, .SDcols = cols]
-        } else {
-          exe <- dt[, lapply(.SD, FUN = fun, coverage_fraction = coverage_fraction, unlist(extra)), by = ID, .SDcols = cols]
-        }
-        })
-    }
+    #if(is.null(unlist(extra))) {
+     exe = dt[, lapply(.SD, FUN = fun, coverage_fraction = coverage_fraction, ...), by = ID, .SDcols = cols]
+    # } else {
+    #   
+    #   suppressWarnings({
+    #     if('coverage_fraction' %in% names(extra)){
+    #       exe <- dt[, lapply(.SD, FUN = fun, unlist(extra)), by = ID, .SDcols = cols]
+    #     } else {
+    #       exe <- dt[, lapply(.SD, FUN = fun, coverage_fraction = coverage_fraction, ...), by = ID, .SDcols = cols]
+    #     }
+    #     })
+    # }
   }
   
-  exe
+  exe 
   
 }
 
