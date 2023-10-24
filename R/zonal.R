@@ -33,7 +33,7 @@ prep_input = function(data, subds = 0, lyrs = NULL, win = NULL){
      
     s = sources(data)
     
-    if(s == ""){
+    if(all(s == "")){
       r = data
     } else {
       r = rast(s, win = win, lyrs = lyrs, snap = "out")
