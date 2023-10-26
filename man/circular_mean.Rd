@@ -7,9 +7,9 @@
 circular_mean(values, coverage_fraction)
 }
 \arguments{
-\item{coverage_fraction}{coverage fraction}
+\item{values}{vector of values}
 
-\item{x}{vector of values}
+\item{coverage_fraction}{coverage fraction}
 }
 \value{
 data.frame

@@ -1,5 +1,5 @@
 #' Geometric Mean Summary
-#' @param x vector of values
+#' @param values vector of values
 #' @param coverage_fraction coverage fraction
 #' @return data.frame
 #' @export
@@ -11,7 +11,7 @@ geometric_mean <- function(x, coverage_fraction) {
 }
 
 #' Geometric Mean Summary
-#' @param x vector of values
+#' @param values vector of values
 #' @param coverage_fraction coverage fraction
 #' @return data.frame
 #' @export
@@ -31,7 +31,7 @@ circular_mean <- function (values, coverage_fraction) {
 
 
 #' Distribution Summary
-#' @param x vector of values
+#' @param values vector of values
 #' @param coverage_fraction coverage fraction
 #' @param breaks either a numeric vector of two or more unique cut points or a single number 
 #' (greater than or equal to 2) giving the number of intervals into which x is to be cut. (default = 10)
@@ -41,9 +41,8 @@ circular_mean <- function (values, coverage_fraction) {
 distribution = function(values, coverage_fraction, breaks = 10){
   
   x1 = values*coverage_fraction
-  
-  tmp = as.data.frame(table(cut(pmax(0,x1), 
-                                  breaks = breaks)))
+
+  tmp = as.data.frame(table(cut(x1, breaks = breaks)))
     
   tmp$v = as.numeric(gsub("]", "", sub('.*,\\s*', '', tmp$Var1)))
   
@@ -51,6 +50,28 @@ distribution = function(values, coverage_fraction, breaks = 10){
 
   as.character(toJSON(tmp[,c("v", "frequency")]))
     
+}
+
+
+#' Equal Area Distribution
+#' @param values vector of values
+#' @param coverage_fraction coverage fraction
+#' @param n number of intervals to create
+#' @return data.frame
+#' @export
+
+equal_population_distribution = function(values, coverage_fraction, n = 4){
+  
+  x1 = values*coverage_fraction
+
+  tmp = as.data.frame(table(cut_number(rnorm(length(x1), x1, max(x1)/10e6), n = n)))
+  
+  tmp$v = as.numeric(gsub("]", "", sub('.*,\\s*', '', tmp$Var1)))
+  
+  tmp$frequency = tmp$Freq / sum(tmp$Freq)
+  
+  as.character(toJSON(tmp[,c("v", "frequency")]))
+  
 }
 
 

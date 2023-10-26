@@ -18,7 +18,8 @@ Imports:
     exactextractr,
     jsonlite,
     methods,
-    terra
+    terra,
+    ggplot2
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

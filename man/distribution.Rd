@@ -7,12 +7,12 @@
 distribution(values, coverage_fraction, breaks = 10)
 }
 \arguments{
+\item{values}{vector of values}
+
 \item{coverage_fraction}{coverage fraction}
 
 \item{breaks}{either a numeric vector of two or more unique cut points or a single number
 (greater than or equal to 2) giving the number of intervals into which x is to be cut. (default = 10)}
-
-\item{x}{vector of values}
 }
 \value{
 data.frame

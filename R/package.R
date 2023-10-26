@@ -27,4 +27,5 @@ ee_functions = function(){
 #' @importFrom data.table rbindlist data.table
 #' @importFrom dplyr mutate filter `%>%` left_join distinct select
 #' @importFrom stats as.formula complete.cases
+#' @importFrom ggplot2 cut_number
 NULL

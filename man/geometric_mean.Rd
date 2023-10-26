@@ -7,9 +7,9 @@
 geometric_mean(x, coverage_fraction)
 }
 \arguments{
-\item{x}{vector of values}
-
 \item{coverage_fraction}{coverage fraction}
+
+\item{values}{vector of values}
 }
 \value{
 data.frame
