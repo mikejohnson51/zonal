@@ -53,9 +53,9 @@ weight_grid_to_data = function(data, w, subds = 0){
 zone_by_weights = function(data, w, ID, fun = "mean", subds = 0, ...){
   
   .SD <- coverage_fraction <- NULL
-  
+
   dt = weight_grid_to_data(data, w, subds = subds)
-  
+
   collapse = FALSE
   
   if(inherits(fun, "function")){

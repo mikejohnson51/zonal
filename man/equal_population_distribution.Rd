@@ -4,14 +4,14 @@
 \alias{equal_population_distribution}
 \title{Equal Area Distribution}
 \usage{
-equal_population_distribution(values, coverage_fraction, n = 4)
+equal_population_distribution(values, coverage_fraction, groups = 4)
 }
 \arguments{
 \item{values}{vector of values}
 
 \item{coverage_fraction}{coverage fraction}
 
-\item{n}{number of intervals to create}
+\item{groups}{number of intervals to create}
 }
 \value{
 data.frame

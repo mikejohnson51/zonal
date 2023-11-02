@@ -56,17 +56,22 @@ distribution = function(values, coverage_fraction, breaks = 10){
 #' Equal Area Distribution
 #' @param values vector of values
 #' @param coverage_fraction coverage fraction
-#' @param n number of intervals to create
+#' @param groups number of intervals to create
 #' @return data.frame
 #' @export
+#' 
+# x1 =exact_extract(data, div[1,])
+# 
+# values = x1[[1]]$value
+# coverage_fraction = x1[[1]]$coverage_fraction
 
-equal_population_distribution = function(values, coverage_fraction, n = 4){
+equal_population_distribution = function(values, coverage_fraction, groups = 4){
   
   x1 = values*coverage_fraction
 
-  tmp = as.data.frame(table(cut_number(rnorm(length(x1), x1, max(x1)/10e6), n = n)))
+  tmp = as.data.frame(table(chop_equally(x1, groups = groups)))
   
-  tmp$v = as.numeric(gsub("]", "", sub('.*,\\s*', '', tmp$Var1)))
+  tmp$v = as.numeric(gsub(")", "", gsub("]", "", sub('.*,\\s*', '', tmp$Var1))))
   
   tmp$frequency = tmp$Freq / sum(tmp$Freq)
   

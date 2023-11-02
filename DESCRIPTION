@@ -19,7 +19,7 @@ Imports:
     jsonlite,
     methods,
     terra,
-    ggplot2
+    santoku
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
