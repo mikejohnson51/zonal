@@ -28,4 +28,5 @@ ee_functions = function(){
 #' @importFrom dplyr mutate filter `%>%` left_join distinct select
 #' @importFrom stats as.formula complete.cases
 #' @importFrom santoku chop_equally
+#' @importFrom tidyr pivot_longer separate
 NULL

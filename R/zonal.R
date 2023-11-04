@@ -170,3 +170,13 @@ execute_zonal = function(data = NULL,
   }
   
 }
+
+ts_extract = function(output, ID){
+  
+  xx = pivot_longer(output, -ID) |>
+    separate(name, c("description", "Date"), sep = "_") |>
+    mutate(Date = as.Date(Date))
+  
+  rename(xx, !!xx$description[1] := value)
+  
+}

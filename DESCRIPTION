@@ -19,6 +19,7 @@ Imports:
     jsonlite,
     methods,
     terra,
+    tidyr,
     santoku
 License: MIT + file LICENSE
 Encoding: UTF-8

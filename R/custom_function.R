@@ -59,11 +59,6 @@ distribution = function(values, coverage_fraction, breaks = 10){
 #' @param groups number of intervals to create
 #' @return data.frame
 #' @export
-#' 
-# x1 =exact_extract(data, div[1,])
-# 
-# values = x1[[1]]$value
-# coverage_fraction = x1[[1]]$coverage_fraction
 
 equal_population_distribution = function(values, coverage_fraction, groups = 4){
   
