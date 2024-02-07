@@ -89,16 +89,7 @@ execute_zonal = function(data = NULL,
   
   if(!is.list(data)){ data =list(data) }
   exe = list()
-  # args = as.list(match.call.defaults()[-1])
-  # 
-  # f = formalArgs(fun)
-  # 
-  # if("..." %in% f){
-  #   q = args[!names(args) %in% c('data', "geom", "w", "ID", "fun", "subds", "na.rm", "progress", "join", "drop", "area_weight", "...")]
-  # } else {
-  #   q = args[names(args) %in% formalArgs(fun)]
-  # }
-  
+
   if(is.null(data)){ stop("`data` cannot be left NULL", call. = TRUE) }
   if(is.null(ID)){ stop("`ID` cannot be left NULL", call. = TRUE) }
   if(all(is.null(geom), is.null(w))){ stop("`geom` and `w` cannot both be NULL", call. = TRUE) }

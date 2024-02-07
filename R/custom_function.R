@@ -35,13 +35,18 @@ circular_mean <- function (values, coverage_fraction) {
 #' @param coverage_fraction coverage fraction
 #' @param breaks either a numeric vector of two or more unique cut points or a single number 
 #' (greater than or equal to 2) giving the number of intervals into which x is to be cut. (default = 10)
+#' @param constrain should breaks (with length > 1) be limited by the max of values?
 #' @return data.frame
 #' @export
 
-distribution = function(values, coverage_fraction, breaks = 10){
-  
+distribution = function(values, coverage_fraction, breaks = 10, constrain = FALSE){
+  dev
   x1 = values*coverage_fraction
 
+  if(constrain | length(breaks) > 1){
+    breaks = breaks[which( breaks > max(values))]
+  }
+  
   tmp = as.data.frame(table(cut(x1, breaks = breaks)))
     
   tmp$v = as.numeric(gsub("]", "", sub('.*,\\s*', '', tmp$Var1)))
