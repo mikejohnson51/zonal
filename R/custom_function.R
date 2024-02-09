@@ -40,7 +40,7 @@ circular_mean <- function (values, coverage_fraction) {
 #' @export
 
 distribution = function(values, coverage_fraction, breaks = 10, constrain = FALSE){
-  dev
+
   x1 = values*coverage_fraction
 
   if(constrain | length(breaks) > 1){
