@@ -113,6 +113,7 @@ execute_zonal = function(data = NULL,
   if(ee){
     
     for(i in 1:length(data)){
+
       exe[[i]] = zone_by_ee(data     = data[[i]],
                             geom     = geom,
                             ID       = ID,

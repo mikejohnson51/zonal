@@ -1,5 +1,5 @@
 #' Geometric Mean Summary
-#' @param values vector of values
+#' @param value vector of value
 #' @param coverage_fraction coverage fraction
 #' @return data.frame
 #' @export
@@ -11,18 +11,18 @@ geometric_mean <- function(x, coverage_fraction) {
 }
 
 #' Geometric Mean Summary
-#' @param values vector of values
+#' @param value vector of value
 #' @param coverage_fraction coverage fraction
 #' @return data.frame
 #' @export
 
-circular_mean <- function (values, coverage_fraction) {
+circular_mean <- function (value, coverage_fraction) {
   
   degrad = pi / 180 
   
-  sinr <- sum(sin(values * degrad), na.rm = TRUE)
+  sinr <- sum(sin(value * degrad), na.rm = TRUE)
   
-  cosr <- sum(cos(values * degrad), na.rm = TRUE)
+  cosr <- sum(cos(value * degrad), na.rm = TRUE)
   
   val = atan2(sinr, cosr) * (1 / degrad)
   
@@ -31,22 +31,23 @@ circular_mean <- function (values, coverage_fraction) {
 
 
 #' Distribution Summary
-#' @param values vector of values
+#' @param value vector of value
 #' @param coverage_fraction coverage fraction
 #' @param breaks either a numeric vector of two or more unique cut points or a single number 
 #' (greater than or equal to 2) giving the number of intervals into which x is to be cut. (default = 10)
-#' @param constrain should breaks (with length > 1) be limited by the max of values?
+#' @param constrain should breaks (with length > 1) be limited by the max of value?
 #' @return data.frame
 #' @export
 
-distribution = function(values, coverage_fraction, breaks = 10, constrain = FALSE){
+distribution = function(value, coverage_fraction, breaks = 10, constrain = FALSE){
 
-  x1 = values*coverage_fraction
+  x1 = value*coverage_fraction
+  x1 = x1[!is.na(x1)]
 
   if(constrain | length(breaks) > 1){
-    breaks = breaks[which( breaks > max(values))]
+    breaks = breaks[!breaks > max(x1, na.rm = TRUE)]
   }
-  
+
   tmp = as.data.frame(table(cut(x1, breaks = breaks)))
     
   tmp$v = as.numeric(gsub("]", "", sub('.*,\\s*', '', tmp$Var1)))
@@ -59,15 +60,15 @@ distribution = function(values, coverage_fraction, breaks = 10, constrain = FALS
 
 
 #' Equal Area Distribution
-#' @param values vector of values
+#' @param value vector of value
 #' @param coverage_fraction coverage fraction
 #' @param groups number of intervals to create
 #' @return data.frame
 #' @export
 
-equal_population_distribution = function(values, coverage_fraction, groups = 4){
+equal_population_distribution = function(value, coverage_fraction, groups = 4){
   
-  x1 = values*coverage_fraction
+  x1 = value*coverage_fraction
 
   tmp = as.data.frame(table(chop_equally(x1, groups = groups)))
   
