@@ -4,17 +4,17 @@
 \alias{distribution}
 \title{Distribution Summary}
 \usage{
-distribution(values, coverage_fraction, breaks = 10, constrain = FALSE)
+distribution(value, coverage_fraction, breaks = 10, constrain = FALSE)
 }
 \arguments{
-\item{values}{vector of values}
+\item{value}{vector of value}
 
 \item{coverage_fraction}{coverage fraction}
 
 \item{breaks}{either a numeric vector of two or more unique cut points or a single number
 (greater than or equal to 2) giving the number of intervals into which x is to be cut. (default = 10)}
 
-\item{constrain}{should breaks (with length > 1) be limited by the max of values?}
+\item{constrain}{should breaks (with length > 1) be limited by the max of value?}
 }
 \value{
 data.frame

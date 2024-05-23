@@ -1,3 +1,14 @@
+#' Mode Summary
+#' @param value vector of value
+#' @param coverage_fraction coverage fraction
+#' @return data.frame
+#' @export
+
+mode = function(x, coverage_fraction) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
 #' Geometric Mean Summary
 #' @param value vector of value
 #' @param coverage_fraction coverage fraction

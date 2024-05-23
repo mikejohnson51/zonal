@@ -50,7 +50,7 @@ zone_by_ee = function(data,
     n = fun
   }
   
-  names(exe) = c(ID, paste(n, names(data), sep = ","))
+  names(exe) = c(ID, paste(n, names(data), sep = "."))
   
   exe
 
