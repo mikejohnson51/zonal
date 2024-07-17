@@ -59,7 +59,7 @@ distribution = function(value, coverage_fraction, breaks = 10, constrain = FALSE
   x1 = value*coverage_fraction
   x1 = x1[!is.na(x1)]
 
-  if(constrain | length(breaks) > 1){
+  if(constrain & length(breaks) > 1){
 
     breaks_tmp = c(breaks[1],breaks[2])
 
