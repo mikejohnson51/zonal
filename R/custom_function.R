@@ -63,7 +63,13 @@ distribution = function(value, coverage_fraction, breaks = 10, constrain = FALSE
 
     breaks_tmp = c(breaks[1],breaks[2])
 
-    breaks = breaks[!breaks > max(x1, na.rm = TRUE)]
+    ulimit = max(x1, na.rm = TRUE)
+    
+    if (ulimit < max(breaks, na.rm = TRUE)){
+       ulimit = min(breaks[breaks >= ulimit])
+    }
+
+    breaks = breaks[breaks <= ulimit]
 
     if (length(breaks) == 1){
       breaks = breaks_tmp
