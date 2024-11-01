@@ -129,24 +129,17 @@ execute_zonal = function(data = NULL,
   } else {
     
     if(is.null(w)){ 
-      d = prep_input(data[[i]], subds = 0, win = ext(vect(geom)))
+      d = prep_input(data[[1]], subds = 0, win = ext(project(vect(geom), crs(data[[1]]))))
       w = weight_grid(d, geom, ID, progress) 
     } else {
-      d = data
+      d = data[[1]]
     }
     
-    for(i in 1:length(d)){
-    
-      exe[[i]] = zone_by_weights(
-                            data = d[[i]], 
-                            w = w, 
-                            ID = ID, 
-                            fun = fun, 
-                            ...
-                            )
-    }
-    
-    
+    exe[[1]] = zone_by_weights(data = d, 
+                               w    = w, 
+                               ID   = ID, 
+                               fun  = fun)
+   
   }
     
   if(join & !is.null(geom)){ exe = merge(geom, exe, by = ID) }
