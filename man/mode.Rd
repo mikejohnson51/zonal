@@ -7,9 +7,9 @@
 mode(x, coverage_fraction)
 }
 \arguments{
-\item{coverage_fraction}{coverage fraction}
+\item{x}{vector of value}
 
-\item{value}{vector of value}
+\item{coverage_fraction}{coverage fraction}
 }
 \value{
 data.frame

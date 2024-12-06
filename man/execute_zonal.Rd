@@ -37,8 +37,6 @@ execute_zonal(
 \item{drop}{colnames to drop from table}
 
 \item{...}{optional arguments to pass fun}
-
-\item{na.rm}{remove na values?}
 }
 \value{
 sf object or data.table

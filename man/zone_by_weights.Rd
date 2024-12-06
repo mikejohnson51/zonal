@@ -17,7 +17,7 @@ zone_by_weights(data, w, ID, fun = "mean", subds = 0, ...)
 
 \item{subds}{subdatasets to extract}
 
-\item{extra}{extra arguments to be passed to fun}
+\item{...}{additional arguments passed on to the lapply summary in DT summary}
 }
 \value{
 data.table

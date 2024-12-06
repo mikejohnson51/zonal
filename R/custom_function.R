@@ -1,5 +1,5 @@
 #' Mode Summary
-#' @param value vector of value
+#' @param x vector of value
 #' @param coverage_fraction coverage fraction
 #' @return data.frame
 #' @export
@@ -10,7 +10,7 @@ mode = function(x, coverage_fraction) {
 }
 
 #' Geometric Mean Summary
-#' @param value vector of value
+#' @param x vector of value
 #' @param coverage_fraction coverage fraction
 #' @return data.frame
 #' @export

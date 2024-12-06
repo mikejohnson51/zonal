@@ -25,8 +25,9 @@ ee_functions = function(){
 #' @importFrom terra rast xyFromCell extract crop project vect crs rasterize nlyr sources ext
 #' @importFrom exactextractr exact_extract
 #' @importFrom data.table rbindlist data.table
-#' @importFrom dplyr mutate filter `%>%` left_join distinct select
+#' @importFrom dplyr mutate filter `%>%` left_join distinct select any_of
 #' @importFrom stats as.formula complete.cases
 #' @importFrom santoku chop_equally
 #' @importFrom tidyr pivot_longer separate
+#' @importFrom rlang  `:=`
 NULL

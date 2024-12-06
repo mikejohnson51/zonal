@@ -46,7 +46,8 @@ weight_grid_to_data = function(data, w, subds = 0){
 #' @param ID the grouping ID 
 #' @param fun summarization function
 #' @param subds subdatasets to extract
-#' @param extra extra arguments to be passed to fun
+#' @param ... additional arguments passed on to the lapply summary in DT summary
+
 #' @return data.table
 #' @export
 

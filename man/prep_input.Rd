@@ -9,7 +9,11 @@ prep_input(data, subds = 0, lyrs = NULL, win = NULL)
 \arguments{
 \item{data}{SpatRaster, file path, raster}
 
-\item{subds}{subdatasets}
+\item{subds}{positive integer or character to select a sub-dataset. If zero or "", all sub-datasets are returned (if possible)}
+
+\item{lyrs}{positive integer or character to select a subset of layers (a.k.a. "bands")}
+
+\item{win}{SpatExtent to set a window (area of interest)}
 }
 \value{
 SpatRaster

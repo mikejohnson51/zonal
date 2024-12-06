@@ -28,9 +28,9 @@ zone_by_ee(
 
 \item{progress}{if TRUE, display a progress bar during processing}
 
-\item{na.rm}{should NA values be removed?}
+\item{join}{should data be joined to geom?}
 
-\item{extra}{extra arguments to be passed to fun}
+\item{...}{additional arguments passed on to exact_extract}
 }
 \value{
 data.table

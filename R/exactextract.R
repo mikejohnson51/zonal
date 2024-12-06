@@ -15,9 +15,9 @@ match.call.defaults <- function(...) {
 #' @param ID the grouping ID
 #' @param fun summarization function
 #' @param subds subdatasets to extract
-#' @param na.rm should NA values be removed?
 #' @param progress if TRUE, display a progress bar during processing
-#' @param extra extra arguments to be passed to fun
+#' @param join should data be joined to geom?
+#' @param ... additional arguments passed on to exact_extract
 #' @return data.table
 #' @export
 

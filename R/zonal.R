@@ -22,7 +22,9 @@ sanitize = function(exe, drop = NULL){
 
 #' Prep Incoming Data
 #' @param data SpatRaster, file path, raster
-#' @param subds subdatasets
+#' @param subds positive integer or character to select a sub-dataset. If zero or "", all sub-datasets are returned (if possible)
+#' @param lyrs positive integer or character to select a subset of layers (a.k.a. "bands")
+#' @param win SpatExtent to set a window (area of interest)
 #' @return SpatRaster
 #' @export
 
@@ -46,13 +48,13 @@ prep_input = function(data, subds = 0, lyrs = NULL, win = NULL){
 }
 
 #' Prep Incoming Data
-#' @param data SpatRaster, file path, raster
-#' @param subds subdatasets
-#' @return SpatRaster
+#' @param geom sf or SpatVector object
+#' @param crs coordinate reference system
+#' @return SpatVector
 #' @export
 
 prep_geom = function(geom, crs = NULL){
-  if(!inherits(geom, "SpatVecotr")) { geom <- vect(geom) }
+  if(!inherits(geom, "SpatVector")) { geom <- vect(geom) }
   if(!is.null(crs)){ geom =  project(geom, crs) }
   geom
 }
@@ -66,7 +68,6 @@ prep_geom = function(geom, crs = NULL){
 #' @param ID the grouping ID
 #' @param fun an optional function or character vector, as described below
 #' @param subds character or boolean to select a sub-dataset. If NULL all are selected
-#' @param na.rm remove na values?
 #' @param progress if TRUE, display a progress bar during processing
 #' @param join if TRUE the geom will be joined to the results
 #' @param drop colnames to drop from table
@@ -156,7 +157,28 @@ execute_zonal = function(data = NULL,
   
 }
 
+#' Extract and Transform Time Series Data
+#'
+#' This function processes an input dataset by reshaping it from wide to long format, separating columns into descriptions and dates, 
+#' and renaming the resulting dataset for further analysis.
+#'
+#' @param output A data frame containing the time series data in wide format. It must have a column with the name matching `ID` and other columns 
+#'   with names in the format "description_Date" (e.g., "temp_2024-01-01").
+#' @param ID A character string specifying the column name that uniquely identifies rows in the dataset.
+#'
+#' @return A transformed data frame with the following changes:
+#' \describe{
+#'   \item{description}{The variable names extracted from the original column names.}
+#'   \item{Date}{A `Date` column converted from the original column names.}
+#'   \item{value}{The associated values for each combination of `ID`, `description`, and `Date`.}
+#' }
+#' @importFrom tidyr pivot_longer separate
+#' @importFrom dplyr mutate rename
+#' @export
+
 ts_extract = function(output, ID){
+  
+  name <- Date <- value <- NULL
   
   xx = pivot_longer(output, -ID) |>
     separate(name, c("description", "Date"), sep = "_") |>

@@ -7,12 +7,12 @@
 prep_geom(geom, crs = NULL)
 }
 \arguments{
-\item{data}{SpatRaster, file path, raster}
+\item{geom}{sf or SpatVector object}
 
-\item{subds}{subdatasets}
+\item{crs}{coordinate reference system}
 }
 \value{
-SpatRaster
+SpatVector
 }
 \description{
 Prep Incoming Data

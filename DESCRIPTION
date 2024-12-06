@@ -18,6 +18,7 @@ Imports:
     exactextractr,
     jsonlite,
     methods,
+    rlang,
     terra,
     tidyr,
     santoku
@@ -25,7 +26,14 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    AOI,
+    climateR,
+    knitr
+Remotes:
+    mikejohnson51/climateR,
+    mikejohnson51/AOI
 Config/testthat/edition: 3
+VignetteBuilder: knitr
